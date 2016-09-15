@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<style>
+  body { margin: 0; }
+  svg,container,canvas{position: absolute;
+      width:250%;
+      height:250%
+ }
+  polygon{fill:orange;
+          stroke:1;
+          opacity:0.4;
+          stroke-width:10;
+  }
+
+</style>
+<canvas></canvas><svg></svg><div id="selector"></div>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great' rel='stylesheet' type='text/css'>
+<script>
+
+
+this.csvdata=[]
+this.graph=[]
+
+//default params
+window.onresize = function(event) {location.reload()};
+window.scrollTo(window.innerWidth, window.innerHeight);
+
+var constant = 0.5,
+    scaled=2.5,
+    width = window.innerWidth*scaled,
+    height = window.innerHeight*scaled,
+    node_sizes=[],
+    plus_ns=10;
+
+
+// drawing platforms
+var svg = d3.select("svg").attr('width',width).attr('height',height);// nodes
+var canvas = document.querySelector("canvas"),// new fabric.Canvas('canvas'),//document.querySelector("canvas"),    // links
+    context = canvas.getContext("2d");
+//drawing platform data
+d3.selectAll('canvas').style('opacity',.65).attr('width', width ).attr('height',height);  //0.5 opacity
+d3.select('body').style('background-color', '#222'); // bg colour
+
+d3.csv("./src/fullmcmspecs.csv", function(error, csv) {this.csvdata=csv});     //get list of all species etc
+var zoom = d3.zoom().on("zoom", function(d){return d});   //.scaleExtent([-11 << 11, -11 << 11])
+window.color = d3.interpolate("#F6089E", "#3864EB")    //https://github.com/d3/d3-scale
+
+//simulation!!
+
+
+var simulation = d3.forceSimulation()
+    //.force("charge", d3.forceManyBody().strength(-30))//- 18 -550 -32 -34
+    .force("link", d3.forceLink().id(function(d) { return parseFloat(d.id); }))
+    .force("center", d3.forceCenter())//width / 2, height / 2))
+    .force('collide', d3.forceCollide())
+    .alphaDecay(1-Math.pow(0.0001,1/3000));//timesteps
+
+
+
+
+d3.json("./ics/met_144.json", function(error, graph) { if (error) throw error;
+  this.graph=graph;
+  var group = svg.append("g").attr("transform", "translate(" + [width/2, height/2] + ")")
+
+  //scale factor
+  var ptsize = ((width*height)/graph.nodes.length)/100000; //300
+  console.log(ptsize)
+
+
+  //simulation.force('collide', d3.forceCollide().radius(function(d,i){return  (plus_ns+node_sizes[i])/8 + plus_ns + node_sizes[i]}))
+
+  //node size cocn
+  graph.nodes.filter(function(d){ node_sizes.push( d.s * ptsize  )}, node_sizes=[]);
+
+//move further out
+    graph.nodes = graph.nodes.filter(function(d){d.x = 100*d.x;d.y=100*d.y;return d});
+
+
+  var primary = ["BENZENE", "C2H2", "C2H6", "TOLUENE", "IC4H10", "NC4H10", "C3H8", "CH4", "APINENE", "C5H8", "C3H6", "CO"]
+
+  // svg nodes
+  var circles = group
+    .selectAll("circle.node")
+    .data(graph.nodes).enter()
+    .append('circle')
+    .on('mouseover',function(d){console.log(d)})
+    .classed("node", true)
+    .style('fill','white')
+    .style('fill-opacity',0.15) //0.2
+    .style('stroke-opacity',0.9)
+    .attr('stroke', function(d){return (primary.indexOf(d.name) == -1)? 'rgb(0,120,10)': "#2979ff"}) //pink nice ff2979
+    .attr('stroke-width',  function(d,i){return (plus_ns*2+node_sizes[i])/7})
+    .attr("r", function(d,i){return plus_ns + node_sizes[i]})
+    .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+
+
+
+  simulation
+      .nodes(graph.nodes)
+      .on("tick", ticked);
+
+
+
+simulation.force("link").strength(function(d){0});
+simulation.force("charge", d3.forceManyBody().strength(-300000 ))
+
+
+var charge = -300   ;
+simulation.force("link")
+      .links(graph.links)
+      .distance(function(d){var dv=  d.value; return 850*dv}) // 1-dval 500*0.4+(dv*dv*dv)/0.6
+      .strength(function(d){var dv = d.value;return 1- (dv*dv)+ 0.2});
+/*.distance(function(d){var dv=  1-d.value; return 0.3+(dv*dv)/3 }) // 1-dval
+      .strength(function(d){var dv = d.value; return 0.3+(dv*dv)/3 });
+*/
+
+
+simulation.force("charge", d3.forceManyBody().strength(charge))
+
+//.force("charge", d3.forceManyBody().strength(charge));
+
+  function ticked() {
+
+
+
+  /*if (simulation.alpha() < 0.9) simulation.force("charge", d3.forceManyBody().strength(-3000));
+  if (simulation.alpha() < 0.80) simulation
+  */
+
+
+  if (simulation.alpha() < 0.000112) { simulation.stop(); // 0.012
+  function dragstarted(d) {};
+  function dragended(d) {};
+  savecanvas(canvas);
+    alert('simulation completed')};
+
+  //canvas
+    context.clearRect(0, 0, width, height);
+    context.save();
+    context.translate(width / 2, height / 2);
+
+    graph.links.forEach(drawLink);
+
+    context.fillStyle = 'white';
+    graph.nodes.forEach(textify);
+
+    context.restore();
+
+   //svg
+    svg.selectAll("circle.node")
+      .attr("cx", function(d) { return d.x })
+      .attr("cy", function(d) { return d.y })
+
+  };
+
+
+
+
+
+  // drag effects
+  svg.call(zoom.transform, d3.zoomIdentity
+          .translate(width / 2, height / 2)
+          .scale(-12 << 16).translate()
+          //.translate(-center[0], -center[1])
+          )
+
+
+
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
+
+
+
+
+
+
+
+console.log(' text stroke, dim rings, svg text option?), selection, freeze mode. hilight stroke   primary hilight, anothe rsystem lasso selection https://github.com/skokenes/D3-Lasso-Plugin, on select grow text, on hover grow text list  OXYGEN sensor rpi github force    vernouli cells around groupings    ');
+
+
+
+
+
+/*
+function parseColour(color) {
+    var arr=[]; color.replace(/[\d+\.]+/g, function(v) { arr.push(parseFloat(v)); });
+    return {
+        hex: "#" + arr.slice(0, 3).map(toHex).join(""),
+        opacity: arr.length == 4 ? arr[3] : 1
+    };
+}
+function toHex(int) {
+    var hex = int.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+*/
+
+});
+
+
+
+
+function groupselect(){
+
+simulation.stop();
+
+
+var mySVG = d3.select("#selector").append("svg").attr('width',width).attr('height',height).on('dblclick', polyClick), point =[];
+var w = window.width/2 , h=window.height/2;
+
+function polyClick() {
+  point.push(d3.mouse(this));
+  if (point.length>2) drawPoly(point);
+
+  function drawPoly(point) {
+    d3.select(".p").remove();
+    mySVG.append("svg:polygon")
+      //.style("fill", "red")
+      .attr("points", [].concat.apply([], point) );
+
+    simulation.nodes().filter(function(d) {
+      var w = d.x + window.width/2 , h = d.y + window.height/2;
+      inside = d3.polygonContains( point, [w,h] );
+
+      if (inside){ console.log(d.name);
+        mySVG.append("text").text(d.name).attr('x',w).attr('y',h).style('fill', 'white');
+        };
+      })
+
+  }}
+
+
+}
+
+
+
+
+
+function drawLink(d) {
+    context.beginPath();
+    context.moveTo(d.source.x, d.source.y);
+    context.quadraticCurveTo(1.2*(d.source.x+d.target.x)/2 , 1.2*(d.source.y+d.target.y)/2 ,d.target.x, d.target.y);
+    //context.lineTo(d.target.x, d.target.y);
+
+    context.strokeStyle =(window.color(d.value));
+    context.lineWidth= 0.6 + 8*(0.3+(1-d.value)/3);
+    if (d.dir != 0){
+    context.setLineDash([5, 2]);
+    }
+    //console.log(d)
+
+    context.stroke(); // draw stroke
+    context.closePath();
+    }
+
+
+
+
+
+function textify(d,i){
+    var txt_width = 40;//node_sizes[i];
+	var fontsize = fitTextOnCanvas(d.name, "Fredericka the Great",2*txt_width);
+    context.fillText(d.name,d.x,d.y);
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    }
+
+
+
+
+
+function fitTextOnCanvas(text, fontface,t_width){ return measureTextBinaryMethod(text, fontface, 0, 600, t_width); }
+
+function measureTextBinaryMethod(text, fontface, min, max, desiredWidth) {
+	if (max-min < 1) { return min; }
+
+	var test = min+((max-min)/2); //Find half interval
+	context.font=test+"px "+fontface;
+	measureTest = context.measureText(text).width;
+	if ( measureTest > desiredWidth) {
+		var found = measureTextBinaryMethod(text, fontface, min, test, desiredWidth)
+	} else {
+		var found = measureTextBinaryMethod(text, fontface, test, max, desiredWidth)
+	}
+	return found;
+}
+
+
+
+
+
+
+
+/*
+
+
+font-family: 'Open Sans', sans-serif;
+
+font-family: 'Lato', sans-serif;
+
+font-family: 'Fredericka the Great', cursive;
+
+
+*/
+
+
+
+
+
+
+
+
+// controls
+function savecanvas(canvas){
+
+    simulation.stop();
+    //add svg to canvas
+
+    d3.selectAll('circle').style('fill-opacity','0.79')
+
+    var svgString = new XMLSerializer().serializeToString(document.querySelector('svg'));
+    var DOMURL = self.URL || self.webkitURL || self;
+    var img = new Image();
+    var svg1 = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+    var url = DOMURL.createObjectURL(svg1);
+    img.onload = function() {
+    //plot svg on canvas
+    context.drawImage(img, 0, 0);
+    //replot text
+    context.fillStyle = 'black';
+    graph.nodes.forEach(savetext);
+    context.restore();
+    // open image in new window for saving
+//    window.open(canvas.toDataURL('png'));
+
+
+var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
+
+
+window.location.href=image;
+
+      };
+
+
+    img.src = url;
+    function savetext(d,i){
+    var txt_width = node_sizes[i];
+	var fontsize = fitTextOnCanvas(d.name, "Fredericka the Great",2*txt_width);
+    context.fillText(d.name,d.x+width/2,d.y+height/2);
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    //context.font = "30px Arial";
+    }
+    }
+
+
+
+
+</script>
