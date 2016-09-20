@@ -3,12 +3,19 @@
   "version": "1.0.0",
   "description": "D3 Froce directed Graph",
   "main": "main.js",
+
   "dependencies": {
-    "pretty-bytes": "^2.0.1"
+
   },
   "devDependencies": {
-    "electron-prebuilt": "^0.35.2"
+    "electron-prebuilt": "^1.4.0",
+    "asar": "^1.0.0"
   },
+  "repository": {
+  "type": "git",
+  "url": "git://github.com/wolfiex/VisACC.git"
+},
+
   "scripts": {
     "start": "electron main.js"
   },
