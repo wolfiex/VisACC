@@ -3,7 +3,7 @@
 
 <style>
   body { margin: 0; }
-  svg,container,canvas,heatmp{position: absolute;
+  svg,container,canvas{position: absolute;
       width:250%;
       height:250%
  }
@@ -13,16 +13,9 @@
           stroke-width:10;
   }
 
-
 </style>
-
-
-
-<canvas id ='heatmp'></canvas>
-<canvas id='canvas_main'></canvas>
-<svg></svg><div id="selector"></div>
+<canvas></canvas><svg></svg><div id="selector"></div>
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="./functions.js"></script>
 <link href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great' rel='stylesheet' type='text/css'>
 <script>
 
@@ -39,21 +32,14 @@ var constant = 0.5,
     width = window.innerWidth*scaled,
     height = window.innerHeight*scaled,
     node_sizes=[],
-    gooey=true,
     plus_ns=10;
 
 
 // drawing platforms
 var svg = d3.select("svg").attr('width',width).attr('height',height);// nodes
-//var canvas = document.querySelector("canvas"),// new fabric.Canvas('canvas'),//document.querySelector("canvas"),    // links
-var canvas = document.getElementById('canvas_main');
+var canvas = document.querySelector("canvas"),// new fabric.Canvas('canvas'),//document.querySelector("canvas"),    // links
     context = canvas.getContext("2d");
-var heat = document.getElementById('heatmp');
-    ctxheat = heat.getContext("2d")
-
-
-//drawing program structure
-//d3.selectAll('heat').style('opacity',.65).attr('width', width ).attr('height',height);
+//drawing platform data
 d3.selectAll('canvas').style('opacity',.65).attr('width', width ).attr('height',height);  //0.5 opacity
 d3.select('body').style('background-color', '#222'); // bg colour
 
@@ -74,13 +60,9 @@ var simulation = d3.forceSimulation()
 
 
 
-d3.json("./ics/eth_144.json", function(error, graph) { if (error) throw error;
+d3.json("./ics/met_144.json", function(error, graph) { if (error) throw error;
   this.graph=graph;
-
-  var group = svg.append("g").attr("transform", "translate(" + [width/2, height/2] + ")");
-
-
-//startgooey();group.style("filter", "url(#gooeyCodeFilter)");
+  var group = svg.append("g").attr("transform", "translate(" + [width/2, height/2] + ")")
 
   //scale factor
   var ptsize = ((width*height)/graph.nodes.length)/100000; //300
@@ -100,19 +82,18 @@ d3.json("./ics/eth_144.json", function(error, graph) { if (error) throw error;
 
   // svg nodes
   var circles = group
-    .selectAll("circle.heat")
+    .selectAll("circle.node")
     .data(graph.nodes).enter()
     .append('circle')
     .on('mouseover',function(d){console.log(d)})
     .classed("node", true)
     .style('fill','white')
-    .style('fill-opacity',0) //0.2 0.15
-    .style('stroke-opacity',0)
+    .style('fill-opacity',0.15) //0.2
+    .style('stroke-opacity',0.9)
     .attr('stroke', function(d){return (primary.indexOf(d.name) == -1)? 'rgb(0,120,10)': "#2979ff"}) //pink nice ff2979
     .attr('stroke-width',  function(d,i){return (plus_ns*2+node_sizes[i])/7})
     .attr("r", function(d,i){return plus_ns + node_sizes[i]})
     .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
-
 
 
 
@@ -155,24 +136,17 @@ simulation.force("charge", d3.forceManyBody().strength(charge))
   savecanvas(canvas);
     alert('simulation completed')};
 
-
-      //canvas
-      //ctxheat.globalAlpha = 0.8;
-        ctxheat.clearRect(0, 0, width, height);
-        ctxheat.save();
-        ctxheat.translate(width / 2, height / 2);
-        graph.links.forEach(heatmap);
-        ctxheat.restore()
-
   //canvas
     context.clearRect(0, 0, width, height);
     context.save();
     context.translate(width / 2, height / 2);
+
     graph.links.forEach(drawLink);
+
     context.fillStyle = 'white';
     graph.nodes.forEach(textify);
-    context.restore();
 
+    context.restore();
 
    //svg
     svg.selectAll("circle.node")
@@ -223,17 +197,6 @@ console.log(' text stroke, dim rings, svg text option?), selection, freeze mode.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 /*
 function parseColour(color) {
     var arr=[]; color.replace(/[\d+\.]+/g, function(v) { arr.push(parseFloat(v)); });
@@ -253,6 +216,159 @@ function toHex(int) {
 
 
 
+
+function groupselect(){
+
+simulation.stop();
+
+
+var mySVG = d3.select("#selector").append("svg").attr('width',width).attr('height',height).on('dblclick', polyClick), point =[];
+var w = window.width/2 , h=window.height/2;
+
+function polyClick() {
+  point.push(d3.mouse(this));
+  if (point.length>2) drawPoly(point);
+
+  function drawPoly(point) {
+    d3.select(".p").remove();
+    mySVG.append("svg:polygon")
+      //.style("fill", "red")
+      .attr("points", [].concat.apply([], point) );
+
+    simulation.nodes().filter(function(d) {
+      var w = d.x + window.width/2 , h = d.y + window.height/2;
+      inside = d3.polygonContains( point, [w,h] );
+
+      if (inside){ console.log(d.name);
+        mySVG.append("text").text(d.name).attr('x',w).attr('y',h).style('fill', 'white');
+        };
+      })
+
+  }}
+
+
+}
+
+
+
+
+
+function drawLink(d) {
+    context.beginPath();
+    context.moveTo(d.source.x, d.source.y);
+    context.quadraticCurveTo(1.2*(d.source.x+d.target.x)/2 , 1.2*(d.source.y+d.target.y)/2 ,d.target.x, d.target.y);
+    //context.lineTo(d.target.x, d.target.y);
+
+    context.strokeStyle =(window.color(d.value));
+    context.lineWidth= 0.6 + 8*(0.3+(1-d.value)/3);
+    if (d.dir != 0){
+    context.setLineDash([5, 2]);
+    }
+    //console.log(d)
+
+    context.stroke(); // draw stroke
+    context.closePath();
+    }
+
+
+
+
+
+function textify(d,i){
+    var txt_width = 40;//node_sizes[i];
+	var fontsize = fitTextOnCanvas(d.name, "Fredericka the Great",2*txt_width);
+    context.fillText(d.name,d.x,d.y);
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    }
+
+
+
+
+
+function fitTextOnCanvas(text, fontface,t_width){ return measureTextBinaryMethod(text, fontface, 0, 600, t_width); }
+
+function measureTextBinaryMethod(text, fontface, min, max, desiredWidth) {
+	if (max-min < 1) { return min; }
+
+	var test = min+((max-min)/2); //Find half interval
+	context.font=test+"px "+fontface;
+	measureTest = context.measureText(text).width;
+	if ( measureTest > desiredWidth) {
+		var found = measureTextBinaryMethod(text, fontface, min, test, desiredWidth)
+	} else {
+		var found = measureTextBinaryMethod(text, fontface, test, max, desiredWidth)
+	}
+	return found;
+}
+
+
+
+
+
+
+
+/*
+
+
+font-family: 'Open Sans', sans-serif;
+
+font-family: 'Lato', sans-serif;
+
+font-family: 'Fredericka the Great', cursive;
+
+
+*/
+
+
+
+
+
+
+
+
+// controls
+function savecanvas(canvas){
+
+    simulation.stop();
+    //add svg to canvas
+
+    d3.selectAll('circle').style('fill-opacity','0.79')
+
+    var svgString = new XMLSerializer().serializeToString(document.querySelector('svg'));
+    var DOMURL = self.URL || self.webkitURL || self;
+    var img = new Image();
+    var svg1 = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+    var url = DOMURL.createObjectURL(svg1);
+    img.onload = function() {
+    //plot svg on canvas
+    context.drawImage(img, 0, 0);
+    //replot text
+    context.fillStyle = 'black';
+    graph.nodes.forEach(savetext);
+    context.restore();
+    // open image in new window for saving
+//    window.open(canvas.toDataURL('png'));
+
+
+var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
+
+
+window.location.href=image;
+
+      };
+
+
+    img.src = url;
+    function savetext(d,i){
+    var txt_width = node_sizes[i];
+	var fontsize = fitTextOnCanvas(d.name, "Fredericka the Great",2*txt_width);
+    context.fillText(d.name,d.x+width/2,d.y+height/2);
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    //context.font = "30px Arial";
+    }
+    }
 
 
 
