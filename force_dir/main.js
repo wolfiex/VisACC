@@ -1,4 +1,5 @@
 const electron = require('electron')
+const cp = require('child_process')
 var app = electron.app;  // Module to control application life.
 var BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
 
@@ -19,7 +20,8 @@ app.on('window-all-closed', function() {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
     //sync init con files
-    var child = require('child_process').exec('bash ./src/updateics.sh', function (error, stdout, stderr) {  console.log('updated ics');  child.stdout.pipe(process.stdout);});
+    var child = cp.exec('bash ./src/updateics.sh', function (error, stdout, stderr) {  console.log('updated ics');  child.stdout.pipe(process.stdout);});
+    cp.exec('touch heatmap.html && touch locations.json && rm heatmap.html && rm locations.json');
     //var execSync = require('exec-sync');
     //execSync('bash ./updateics.sh') ;
     //require('child_process').exec('python celulas.py', function (error, stdout, stderr) {    child.stdout.pipe(process.stdout);});

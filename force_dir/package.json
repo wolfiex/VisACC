@@ -8,8 +8,8 @@
 
   },
   "devDependencies": {
-    "electron-prebuilt": "^1.4.0",
-    "asar": "^1.0.0"
+    "electron": "^1.4.0"
+
   },
   "repository": {
   "type": "git",

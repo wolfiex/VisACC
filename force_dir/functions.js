@@ -1,66 +1,18 @@
 
-
-function startgooey (){//SVG filter for the gooey effect
-//Code based on http://tympanus.net/codrops/2015/03/10/creative-gooey-effec
-/*<filter id="goo">
-  <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-  <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -1" result="goo" />
-  <feBlend in="SourceGraphic" in2="goo" />
-</filter>*/
-
-
-var defs = svg.append("defs");
-var filter = svg.append("defs")
-	.append("filter")
-	.attr("id","gooeyCodeFilter"); //use a unique id to reference again later on
-
-//Append multiple "pieces" to the filter
-filter.append("feGaussianBlur")
-	.attr("in","SourceGraphic")
-	.attr("stdDeviation","5")
-	//to fix safari:
-	//http://stackoverflow.com/questions/24295043/svg-gaussian-blur-in-safari-unexpectedly-lightens-image
-	.attr("color-interpolation-filters","sRGB")
-	.attr("result","blur");
-
-filter.append("feColorMatrix")
-	.attr("class","blurValues") //used later to transition the gooey effect
-	.attr("in","blur")
-	.attr("mode","matrix")
-	.attr("values","1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -5") //19 -9
-	.attr("result","gooey");
-//If you want the end shapes to be exactly the same size as without the filter
-//add the feBlend below. However this will result in a less beautiful gooey effect
-filter.append("feBlend")
-	.attr("in","SourceGraphic")
-	.attr("in2","gooey");
-//Instead of the feBlend, you can do feComposite. This will also place a sharp image on top
-//But it will result in smaller circles
-filter.append("feComposite") //feBlend
- 	.attr("in","SourceGraphic")
- 	.attr("in2","gooey")
- 	.attr("operator","atop");
-
-//Apply the filter to the group element of all the circles
-
-
-
-
-filter.append("stop")
-    .attr("offset", "0%")
-    .style("stop-opacity", "0");
-
-    filter.append("stop")
-        .attr("offset", "20%")
-        .style("stop-opacity", "0.2");
-
-filter.append("stop")
-    .attr("offset", "100%")
-    .style("stop-opacity", 0);
-
-
-};
-
+function heatmap(){
+saveloc(window.graph);
+var cmd = 'python src/heatmap.py '+window.width+' '+window.height+ ' 10'
+var child = require('child_process').exec(cmd,
+   function (error, stdout, stderr) {
+		 console.log(stdout);
+	   child.stdout.pipe(process.stdout);
+		 var ifr = document.getElementById('heatmapiframe')
+		 ifr.width=window.width;
+		 ifr.height=window.height;
+		 ifr.src='./heatmap.html';
+	 	 });
+     ifr.src='./heatmap.html';
+}
 
 
 
@@ -98,25 +50,6 @@ function polyClick() {
 
 
 
-
-
-function heatmap(d) {
-    ctxheat.beginPath();
-    ctxheat.moveTo(d.source.x, d.source.y);
-    ctxheat.quadraticCurveTo(1.2*(d.source.x+d.target.x)/2 , 1.2*(d.source.y+d.target.y)/2 ,d.target.x, d.target.y);
-    //context.lineTo(d.target.x, d.target.y);
-    colour = d3.interpolate("red", "green")
-    ctxheat.strokeStyle =(colour(d.value));
-    ctxheat.lineWidth= 0.6 + 8*(0.3+(1-d.value));
-    if (d.dir != 0){
-    ctxheat.setLineDash([5, 2]);
-    }
-    ctxheat.filter = "blur(20px)";
-    //console.log(d)
-
-    ctxheat.stroke(); // draw stroke
-    ctxheat.closePath();
-    }
 
 
 
@@ -251,7 +184,27 @@ function saveloc(graph){
               return;
         }
 
-        alert("The file has been succesfully saved");
+        console.log("The file has been succesfully saved");
    });
 
+}
+
+
+
+
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
 }
