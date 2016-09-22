@@ -11,7 +11,7 @@ var child = require('child_process').exec(cmd,
 		 ifr.height=window.height;
 		 ifr.src='./heatmap.html';
 	 	 });
-     ifr.src='./heatmap.html';
+     document.getElementById('heatmapiframe').src='./heatmap.html';
 }
 
 

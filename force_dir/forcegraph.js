@@ -1,6 +1,8 @@
 //simulation!!
+
 d3.json("./ics/eth_144.json", function(error, graph) { if (error) throw error;
   this.graph=graph;
+
 
   //scale factor
   var ptsize = ((width*height)/graph.nodes.length)/100000; //300
@@ -26,19 +28,21 @@ graph.nodes = graph.nodes.filter(function(d){d.x = 100*d.x;d.y=100*d.y;return d}
 var primary = ["BENZENE", "C2H2", "C2H6", "TOLUENE", "IC4H10", "NC4H10", "C3H8", "CH4", "APINENE", "C5H8", "C3H6", "CO"]
 
   // svg nodes
-var circles = d3.select('group')
-    .selectAll("circles")
+var circles = group
+    .selectAll("circle.node")
     .data(graph.nodes).enter()
     .append('circle')
     .on('mouseover',function(d){console.log(d)})
     .classed("node", true)
     .style('fill','white')
-    .style('fill-opacity',0) //0.2 0.15
-    .style('stroke-opacity',0)
+    .style('fill-opacity', 0.15) //0.2 0.15
+    .style('stroke-opacity',1)
     .attr('stroke', function(d){return (primary.indexOf(d.name) == -1)? 'rgb(0,120,10)': "#2979ff"}) //pink nice ff2979
     .attr('stroke-width',  function(d,i){return (plus_ns*2+node_sizes[i])/7})
     .attr("r", function(d,i){return plus_ns + node_sizes[i]})
     .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+
+console.log(circles,graph);
 
   simulation
       .nodes(graph.nodes)

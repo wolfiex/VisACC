@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head><meta charset='utf-8'></head>
+<body>
+<div id='container' style='height: 1877.5px'>
+    <canvas id='heatMap' width = " 1640px" height = "1877.5px" style='position:absolute'></canvas>
+</div>
+
+<script src='./src/heatmap.min.js'>
+</script>
+
+<script>
+  var heatmapInstance = h337.create({
+      container: document.getElementById('container'),
+      //radius:1000,
+      //defaultGradient: { 0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.8: "yellow", 1.0: "rgb(255,0,0)"},
+      defaultGradient: { 0.45: "rgb(0,0,255)", 0.65: "rgb(0,255,0)", 0.8: "yellow", 1.0: "rgb(255,0,0)"},
+      defaultMaxOpacity: 0.45,
+      defaultMinOpacity: 0,
+      defaultBlur: 0.6,
+  });
+
+  var testData = {
+        min: 0 ,
+        max: 0.117050403305,
+        data: [{x: 1084, y: 345, value: 0, radius:0},{x: 1295, y: 1069, value: 0, radius:0},{x: 1183, y: 1574, value: 0, radius:0},{x: 1114, y: 787, value: 0, radius:0},{x: 619, y: 1695, value: 0, radius:0},{x: 1084, y: 521, value: 0, radius:0},{x: 733, y: 235, value: 0, radius:0},{x: 469, y: 1268, value: 0, radius:0},{x: 666, y: 554, value: 0, radius:0},{x: 988, y: 478, value: 0, radius:0},{x: 618, y: 458, value: 0, radius:0},{x: 1152, y: 644, value: 0, radius:0},{x: 930, y: 1043, value: 0, radius:0},{x: 726, y: 558, value: 0, radius:0},{x: 753, y: 29, value: 0, radius:0},{x: 758, y: 389, value: 0, radius:0},{x: 1399, y: 540, value: 0, radius:0},{x: 497, y: 1063, value: 0, radius:0},{x: 830, y: 707, value: 0, radius:0},{x: 1485, y: 670, value: 0, radius:0},{x: 284, y: 747, value: 0, radius:0},{x: 1052, y: 520, value: 0, radius:0},{x: 1105, y: 1418, value: 0, radius:0},{x: 60, y: 1098, value: 0, radius:0},{x: 844, y: 995, value: 0, radius:0},{x: -130, y: 1532, value: 0, radius:0},{x: 750, y: 1274, value: 0, radius:0},{x: 1082, y: 1700, value: 0, radius:0},{x: 878, y: 1147, value: 0, radius:0},{x: 658, y: 899, value: 0, radius:0},{x: 1135, y: 1257, value: 0, radius:0},{x: 253, y: 1526, value: 0, radius:0},{x: 401, y: 1148, value: 0, radius:0},{x: 1149, y: 803, value: 0, radius:0},{x: 1611, y: 934, value: 0, radius:0},{x: -555, y: 1691, value: 0, radius:1},{x: 541, y: 699, value: 0, radius:0},{x: 1637, y: 1636, value: 0, radius:0},]
+  };
+  heatmapInstance.setData(testData);
+</script>
+</body>
+</html>
