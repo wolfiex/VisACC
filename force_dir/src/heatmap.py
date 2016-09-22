@@ -13,7 +13,7 @@ datastring = ''
 vals=[]
 for node in data['nodes']:
 
-    values=(node['vx']**2 + node['vy']**2)**0.5
+    values=100*(node['vx']**2 + node['vy']**2)**0.5
     datastring += '{x: %d, y: %d, value: %d, radius:%d},'%( node['x']+float(width)/2, node['y']+float(height)/2 , values , radius*values)
     vals.append(values)
 

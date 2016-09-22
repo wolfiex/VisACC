@@ -1,7 +1,8 @@
 
 function heatmap(){
 saveloc(window.graph);
-var cmd = 'python src/heatmap.py '+window.width+' '+window.height+ ' 10'
+window.simulation.stop();
+var cmd = 'python src/heatmap.py '+window.innerWidth+' '+window.innerHeight+ ' 100'
 var child = require('child_process').exec(cmd,
    function (error, stdout, stderr) {
 		 console.log(stdout);
@@ -11,6 +12,7 @@ var child = require('child_process').exec(cmd,
 		 ifr.height=window.height;
 		 ifr.src='./heatmap.html';
 	 	 });
+
      document.getElementById('heatmapiframe').src='./heatmap.html';
 }
 
@@ -60,7 +62,7 @@ function drawLink(d) {
         //context.lineTo(d.target.x, d.target.y);
 
         context.strokeStyle =(window.color(d.value));
-        context.lineWidth= 0.6 + 8*(0.3+(1-d.value)/3);
+        context.lineWidth= 0.1 + 8*(0.2+(1-d.value)/3);
         if (d.dir != 0){
         context.setLineDash([5, 2]);
         }
@@ -75,7 +77,7 @@ function drawLink(d) {
 
 
 function textify(d,i){
-    var txt_width = 40;//node_sizes[i];
+    var txt_width = 20;//node_sizes[i];
 	var fontsize = fitTextOnCanvas(d.name, "Fredericka the Great",2*txt_width);
     context.fillText(d.name,d.x,d.y);
     context.textAlign = 'center';
@@ -151,7 +153,7 @@ function savecanvas(canvas){
 //    window.open(canvas.toDataURL('png'));
 
 
-var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
+var image = window.canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
 
 
 window.location.href=image;
@@ -191,6 +193,14 @@ function saveloc(graph){
 
 
 
+ function zoomed() {
+      context.save();
+      context.clearRect(0, 0, width, height);
+      context.translate(d3.event.transform.x, d3.event.transform.y);
+      context.scale(-d3.event.transform.k, -d3.event.transform.k);
+      drawPoints();
+      context.restore();
+    }
 
 function dragstarted(d) {
   if (!d3.event.active) simulation.alphaTarget(0.3).restart();

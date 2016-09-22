@@ -24,27 +24,45 @@ window.onresize = function(event) {location.reload()};
 window.scrollTo(window.innerWidth, window.innerHeight);
 
 var constant = 0.5,
-    scaled=1,
+    scaled=2.5,
     width = window.innerWidth*scaled,
     height = window.innerHeight*scaled,
     node_sizes=[],
     gooey=true,
-    plus_ns=5;
+    plus_ns=10;
 
 
 // drawing platforms
 var svg = d3.select("svg").attr('width',width).attr('height',height);// nodes
+//var canvas = document.querySelector("canvas"),// new fabric.Canvas('canvas'),//document.querySelector("canvas"),    // links
+var canvas = document.getElementById('canvas_main');
+    context = canvas.getContext("2d");
+//var heat = document.getElementById('heatmp');
+//    ctxheat = heat.getContext("2d")
 var group = svg.append("g").attr("transform", "translate(" + [width/2, height/2] + ")");
 
-var canvas = document.querySelector("canvas"),
-    context = canvas.getContext("2d");
 
+
+canvas.call(d3.zoom()
+    .scaleExtent([1 / 2, 4])
+    .on("zoom", zoomed));
+
+
+
+
+
+    function zoomed() {
+      context.save();
+      context.clearRect(0, 0, width, height);
+      context.translate(d3.event.transform.x, d3.event.transform.y);
+      context.scale(d3.event.transform.k, d3.event.transform.k);
+      drawPoints();
+      context.restore();
+    }
+//drawing program structure
+//d3.selectAll('heat').style('opacity',.65).attr('width', width ).attr('height',height);
 d3.selectAll('canvas').style('opacity',.65).attr('width', width ).attr('height',height);  //0.5 opacity
-
-
 d3.select('body').style('background-color', '#222'); // bg colour
-
-d3.select('selector').call(d3.zoom().scaleExtent([-0, 8]).on("zoom", zoomed));
 
 d3.csv("./src/fullmcmspecs.csv", function(error, csv) {this.csvdata=csv});     //get list of all species etc
 
