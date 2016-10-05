@@ -2,7 +2,7 @@
 function heatmap(){
 saveloc(window.graph);
 window.simulation.stop();
-var cmd = 'python src/heatmap.py '+window.innerWidth+' '+window.innerHeight+ ' 100'
+var cmd = 'python src/heatmap.py '+window.innerWidth+' '+window.innerHeight+ ' 30'
 var child = require('child_process').exec(cmd,
    function (error, stdout, stderr) {
 		 console.log(stdout);
@@ -58,7 +58,16 @@ function polyClick() {
 function drawLink(d) {
         context.beginPath();
         context.moveTo(d.source.x, d.source.y);
+
+        //quardratic cubic
         context.quadraticCurveTo(1.2*(d.source.x+d.target.x)/2 , 1.2*(d.source.y+d.target.y)/2 ,d.target.x, d.target.y);
+        //console.log(  '---'     ,Math.sqrt(Math.pow(Math.abs(d.source.x-d.target.x),2)+ Math.pow(Math.abs(d.source.y-d.target.y),2))/2.0 );
+
+        //var radius = Math.sqrt(Math.pow(Math.abs(d.source.x-d.target.x),2)+ Math.pow(Math.abs(d.source.y-d.target.y),2))/2.0 ;
+
+        //context.arc(width+(d.target.x+d.source.x)/2, height+(d.target.y+d.source.y)/2,radius,0,Math.pi)
+
+        //linear
         //context.lineTo(d.target.x, d.target.y);
 
         context.strokeStyle =(window.color(d.value));

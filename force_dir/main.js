@@ -1,7 +1,33 @@
+
+
 const electron = require('electron')
 const cp = require('child_process')
 var app = electron.app;  // Module to control application life.
+
 var BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
+
+/*
+// main.js
+var remote  = require('remote');
+var Menu    = remote.require('menu');
+var ipc     = require('ipc');
+
+var menu = Menu.buildFromTemplate([
+  {
+    label: 'Electron',
+    submenu: [
+      {
+        label: 'Options',
+        click: function() {
+          ipc.send('display-options');
+        }
+      }
+    ]
+  }
+]);
+
+Menu.setApplicationMenu(menu);
+*/
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -39,5 +65,10 @@ app.on('ready', function() {
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
         mainWindow = null;
+
+// make a function to trigger
+
+
+
     });
 });
