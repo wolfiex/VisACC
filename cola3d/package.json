@@ -1,0 +1,24 @@
+{
+  "name": "electron-app",
+  "version": "1.0.0",
+  "description": "D3 Froce directed Graph",
+  "main": "main.js",
+
+  "dependencies": {
+
+  },
+  "devDependencies": {
+    "electron-prebuilt": "^1.4.0"
+  
+  },
+  "repository": {
+  "type": "git",
+  "url": "git://github.com/wolfiex/VisACC.git"
+},
+
+  "scripts": {
+    "start": "electron main.js"
+  },
+  "author": "Daniel Ellis, daniel.ellis.research@gmail.com",
+  "license": "ISC"
+}

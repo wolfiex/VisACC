@@ -184,7 +184,7 @@ window.location.href=image;
 
 function saveloc(graph){
   var fs = require('fs');
-
+    graph.dims= [window.width, window.height];
   var filepath = "locations.json";// you need to save the filepath when you open the file to update without use the filechooser dialog againg
   var content = JSON.stringify(graph);
 
