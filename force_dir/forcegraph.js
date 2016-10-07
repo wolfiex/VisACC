@@ -8,7 +8,7 @@ window.simulation = d3.forceSimulation()
 
 
 
-d3.json("./ics/eth_144.json", function(error, graph) { if (error) throw error;
+d3.json("./ics/tes_144.json", function(error, graph) { if (error) throw error;
   this.graph=graph;
 
 

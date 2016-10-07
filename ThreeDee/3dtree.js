@@ -2,8 +2,9 @@
 var tree3d;
 (function (tree3d) {
     var Graph = (function () {
-        function Graph(parentObject, n, edges, nodeColour) {
+        function Graph(parentObject, nodes, edges, nodeColour) {
             var _this = this;
+            var n = nodes.length
             this.edgeList = [];
             this.parentObject = parentObject;
             this.rootObject = new THREE.Object3D();
@@ -11,7 +12,8 @@ var tree3d;
             // Create all the node meshes
             this.nodeMeshes = Array(n);
             for (var i = 0; i < n; ++i) {
-                var sphere = this.nodeMeshes[i] = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 10), new THREE.MeshLambertMaterial({ color: nodeColour[i] }));
+                var sphere = this.nodeMeshes[i] = new THREE.Mesh(new THREE.SphereGeometry(1+3*nodes[i].s,  0, 0),
+                    new THREE.MeshLambertMaterial({ color: nodeColour[i] }));
                 this.rootObject.add(sphere);
             }
             // Create all the edges
@@ -19,9 +21,9 @@ var tree3d;
                 _this.edgeList.push(new Edge(_this.rootObject, _this.nodeMeshes[e.source].position, _this.nodeMeshes[e.target].position));
             });
         }
-        Graph.prototype.setNodePositions = function (colaCoords) {
-            var x = colaCoords[0], y = colaCoords[1], z = colaCoords[2];
-            for (var i = 0; i < this.nodeMeshes.length; ++i) {
+        Graph.prototype.setNodePositions = function (nodeCoords) {
+            var x = nodeCoords[0], y = nodeCoords[1], z = nodeCoords[2];
+            for (var i = 0; i < this.nodeMeshes.length; ++i) {1
                 var p = this.nodeMeshes[i].position;
                 p.x = x[i];
                 p.y = y[i];
@@ -84,7 +86,7 @@ tree3d.Graph = Graph;
 (tree3d || (tree3d = {}));
 
 
-d3.json("locations.json", function (error, graph) {
+d3.json("../force_dir/locations.json", function (error, graph) {
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
     var renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -100,13 +102,46 @@ d3.json("locations.json", function (error, graph) {
     var directionalLight = new THREE.DirectionalLight(0xffeedd);
     directionalLight.position.set(0, 0, 1);
     scene.add(directionalLight);
-    var n = graph.nodes.length;
+
     var color = d3.scale.category20();
     var nodeColourings = graph.nodes.map(function (v) {
         var str = color(v.group).replace("#", "0x");
         return parseInt(str);
     });
 
+    console.log(graph);
+
+    all_planes =  new THREE.Object3D();//create an empty container to hold apll plane groups
+    material = new THREE.MeshNormalMaterial({color: 0xFFFF00, transparent: true,opacity: .34});
+    square_size = 450
+
+    plane = new THREE.Mesh(new THREE.PlaneGeometry(square_size, square_size),material);
+    //plane.material.color.setHex( 0xffffff );
+    plane.material.side = THREE.DoubleSide;
+    plane.position.x = 0;
+    all_planes.add(plane)
+
+    plane1 = new THREE.Mesh(new THREE.PlaneGeometry(square_size, square_size),material);
+    //plane.material.color.setHex( 0xffffff );
+    plane1.material.side = THREE.DoubleSide;
+    plane1.position.z = 100;
+    plane1.position.x = 0
+    all_planes.add(plane1)
+
+    plane2 = new THREE.Mesh(new THREE.PlaneGeometry(square_size, square_size),material);
+    //plane.material.color.setHex( 0xffffff );
+    plane2.material.side = THREE.DoubleSide;
+    plane2.position.z = -100;
+    plane2.position.x = 0
+    all_planes.add(plane2)
+
+    // rotation.z is rotation around the z-axis, measured in radians (rather than degrees)
+    // Math.PI = 180 degrees, Math.PI / 2 = 90 degrees, etc.
+    //plane.rotation.z = Math.PI / 2;
+
+
+
+    scene.add(all_planes);
 
     dict ={};
     var step;
@@ -116,11 +151,14 @@ d3.json("locations.json", function (error, graph) {
 
     window.dim=graph.dims
     graph.links = graph.links.filter(function(d){d.value = 1*d.value;d.source=dict[d.source.id]; d.target=dict[d.target.id]; return d});
-    graph.nodes.filter(function(d){x.push(d.x/2);y.push(d.y/2),z.push((dict[d.id] % 2 === 0)? 100:0 )},x=[],y=[],z=[]);
+    //graph.nodes.filter(function(d){x.push(d.x/2);y.push(d.y/2),z.push((dict[d.id] % 2 === 0)? 100:0 )},x=[],y=[],z=[]);
+    graph.nodes.filter(function(d){x.push(d.x/2);y.push(d.y/2);z.push((d.s<0.33)?-100:((d.s>0.66)?100:0))},x=[],y=[],z=[]);
+
+
+    var ThreeGraph = new tree3d.Graph(ThreeObj, graph.nodes, graph.links, nodeColourings);
 
 
 
-    var ThreeGraph = new tree3d.Graph(ThreeObj, n, graph.links, nodeColourings);
 
 
 //  dist of camera
@@ -156,7 +194,7 @@ d3.json("locations.json", function (error, graph) {
         xAngle += mouse.dx / 100;
         yAngle += mouse.dy / 100;
         ThreeObj.rotation.set(yAngle, xAngle, 0);
-
+        all_planes.rotation.set(yAngle, xAngle, 0);
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     };
