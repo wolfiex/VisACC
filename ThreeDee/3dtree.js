@@ -1,4 +1,7 @@
 
+//stats window
+(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='stats.js';document.head.appendChild(script);})()
+
 var tree3d;
 (function (tree3d) {
     var Graph = (function () {
@@ -87,6 +90,7 @@ tree3d.Graph = Graph;
 
 
 d3.json("../force_dir/locations.json", function (error, graph) {
+    window.run=true;
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
     var renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -102,6 +106,8 @@ d3.json("../force_dir/locations.json", function (error, graph) {
     var directionalLight = new THREE.DirectionalLight(0xffeedd);
     directionalLight.position.set(0, 0, 1);
     scene.add(directionalLight);
+    var INTERSECTED;
+    var raycaster = new THREE.Raycaster();
 
     var color = d3.scale.category20();
     var nodeColourings = graph.nodes.map(function (v) {
@@ -109,7 +115,23 @@ d3.json("../force_dir/locations.json", function (error, graph) {
         return parseInt(str);
     });
 
+
+///ANAGLYPHIC
+    window.anaglyph=true;
+    var VIEW_ANGLE = 45, ASPECT = window.innerWidth * sizeRatio / window.innerHeight * sizeRatio, NEAR = 0.1, FAR = 20000;
+  	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+  	scene.add(camera);
+  	camera.position.set(0,150,400);
+  	camera.lookAt(scene.position);
+    var width = window.innerWidth || 2;
+    	var height = window.innerHeight || 2;
+	this.effect = new THREE.AnaglyphEffect( renderer );
+	 effect.setSize( width, height );
+
+
     console.log(graph);
+
+
 
     all_planes =  new THREE.Object3D();//create an empty container to hold apll plane groups
     material = new THREE.MeshNormalMaterial({color: 0xFFFF00, transparent: true,opacity: .34});
@@ -177,8 +199,10 @@ d3.json("../force_dir/locations.json", function (error, graph) {
         mouse.down = true;
         mouse.x = e.clientX;
         mouse.y = e.clientY;
+
     }
     function mouseuphandler(e) {
+
         mouse.down = false;
     }
     function mousemovehandler(e) {
@@ -190,15 +214,28 @@ d3.json("../force_dir/locations.json", function (error, graph) {
         }
     }
 
+//var mouse = new THREE.Vector2(), INTERSECTED;
+
+
     var render = function () {
+    if (window.run){
         xAngle += mouse.dx / 100;
         yAngle += mouse.dy / 100;
         ThreeObj.rotation.set(yAngle, xAngle, 0);
         all_planes.rotation.set(yAngle, xAngle, 0);
-        renderer.render(scene, camera);
+        effect.render( scene, camera );
+
+        (window.anaglyph)?
+                effect.render( scene, camera ):
+                renderer.render(scene, camera);
+
         requestAnimationFrame(render);
-    };
+
+
+
+    }};
     render();
+
     ThreeGraph.setNodePositions([x,y,z])
     ThreeGraph.update();
 // Update all the edge positions
