@@ -36,7 +36,7 @@ var constant = 0.5,
 // drawing platforms
 
 var svg = d3.select("svg").attr('width',width).attr('height',height);// nodes
-var group = svg.append("g").attr("transform", "translate(" + [width/2, height/2] + ")");
+var group = svg.append("g")//.attr("transform", "translate(" + [width/2, height/2] + ")");
 
 var canvas = document.querySelector("canvas"),
     context = canvas.getContext("2d");

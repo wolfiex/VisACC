@@ -59,7 +59,10 @@ function drawLink(d) {
         context.beginPath();
         context.moveTo(d.source.x, d.source.y);
         //quardratic cubic
-        context.quadraticCurveTo(1.2*(d.source.x+d.target.x)/2 , 1.2*(d.source.y+d.target.y)/2 ,d.target.x, d.target.y);
+        //context.quadraticCurveTo(1.2*(d.source.x+d.target.x)/2 , 1.2*(d.source.y+d.target.y)/2 ,d.target.x, d.target.y);
+
+
+        // broken to correct context.quadraticCurveTo(1.2*Math.abs(d.source.x-d.target.x)/2 , 1.2*Math.abs(d.source.y-d.target.y)/2 ,d.target.x, d.target.y);
         //console.log(  '---'     ,Math.sqrt(Math.pow(Math.abs(d.source.x-d.target.x),2)+ Math.pow(Math.abs(d.source.y-d.target.y),2))/2.0 );
 
         //var radius = Math.sqrt(Math.pow(Math.abs(d.source.x-d.target.x),2)+ Math.pow(Math.abs(d.source.y-d.target.y),2))/2.0 ;
@@ -67,7 +70,9 @@ function drawLink(d) {
         //context.arc(width+(d.target.x+d.source.x)/2, height+(d.target.y+d.source.y)/2,radius,0,Math.pi)
 
         //linear
-        //context.lineTo(d.target.x, d.target.y);
+        context.lineTo(d.target.x, d.target.y);
+
+
         context.strokeStyle =(window.color(d.value));
         context.lineWidth= 0.1 + 8*(0.2+(1-d.value)/3);
         if (d.dir != 0){
@@ -258,11 +263,18 @@ function dragstarted(d) {
 
 function dragged(d) {
   d.fx = d3.event.x;
-  d.fy = d3.event.y;
+  d.fy = d3.event.y
+  //window.cell = window.cell.data(voronoi.polygons(graph.nodes)).attr("d", renderCell);
 }
+
+
 
 function dragended(d) {
   if (!d3.event.active) simulation.alphaTarget(0);
   d.fx = null;
   d.fy = null;
+}
+
+function renderCell(d) {
+  return d == null ? null : "M" + d.join("L") + "Z";
 }

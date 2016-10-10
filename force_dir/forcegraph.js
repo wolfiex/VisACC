@@ -2,7 +2,7 @@
 window.simulation = d3.forceSimulation()
     //.force("charge", d3.forceManyBody().strength(-30))//- 18 -550 -32 -34
     .force("link", d3.forceLink().id(function(d) { return parseFloat(d.id); }))
-    .force("center", d3.forceCenter())//width / 2, height / 2))
+    .force("center", d3.forceCenter(width / 2, height / 2))
     .force('collide', d3.forceCollide())
     .alphaDecay(1-Math.pow(0.0001,1/3000));//timesteps
 
@@ -19,13 +19,15 @@ d3.json("./ics/eth_144.json", function(error, graph) { if (error) throw error;
 
   //simulation.force('collide', d3.forceCollide().radius(function(d,i){return  (plus_ns+node_sizes[i])/8 + plus_ns + node_sizes[i]}))
 
-  //node size cocn
-graph.nodes.filter(function(d){ node_sizes.push( d.s * ptsize  )}, node_sizes=[]);
 //move further out
-graph.nodes = graph.nodes.filter(function(d){d.x = 100*d.x;d.y=100*d.y;return d});
+graph.nodes = graph.nodes.filter(function(d){sites.push([d.x,d.y]);node_sizes.push( d.s * ptsize );d.x = 100*d.x;d.y=100*d.y;return d}, node_sizes=[],sites=[]);
 
+var voronoi = d3.voronoi()
+    .x(function(d) { return d.x; })
+    .y(function(d) { return d.y; })
+    .extent([[-1, -1], [width + 1, height + 1]]);
 
-  // svg nodes
+/*  // svg nodes
 var circles = group
     .selectAll("circle.node")
     .data(graph.nodes).enter()
@@ -38,7 +40,31 @@ var circles = group
     .attr('stroke', function(d){return (window.primary.indexOf(d.name) == -1)? 'rgb(0,120,10)': "#2979ff"}) //pink nice ff2979
     .attr('stroke-width',  function(d,i){return (plus_ns*1.8+node_sizes[i])/7})
     .attr("r", function(d,i){return plus_ns + node_sizes[i]})
-    .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+
+*/
+
+
+    var voronoi_path = group.selectAll("vornouli.cells")
+      .attr('width',width).attr('height',height)
+      .data(graph.nodes)
+      .enter().append("g")
+      .classed("node", true)
+      .on('mouseover',function(d){console.log(d)})
+
+        .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+
+    window.cell = voronoi_path.append("path")
+      .data(voronoi.polygons(graph.nodes))
+        .attr("d", renderCell)
+        .attr("id", function(d, i) { return "cell-" + i; });
+
+    voronoi_path.append("circle")
+            .attr("clip-path", function(d, i) { return "url(#clip-" + i + ")"; })
+            .attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; })
+            .attr("r", 10)
+            .style("fill", function(d, i) { return color(i); });
+
 
 
   simulation
@@ -67,6 +93,10 @@ simulation.force("charge", d3.forceManyBody().strength(charge))
 
 
   function ticked() {
+
+window.cell = window.cell.data(voronoi.polygons(graph.nodes)).attr("d", renderCell);
+
+
   /*if (simulation.alpha() < 0.9) simulation.force("charge", d3.forceManyBody().strength(-3000));
   if (simulation.alpha() < 0.80) simulation
   */
@@ -80,7 +110,7 @@ simulation.force("charge", d3.forceManyBody().strength(charge))
   //canvas
     context.clearRect(0, 0, width, height);
     context.save();
-    context.translate(width / 2, height / 2);
+    //context.translate(width / 2, height / 2);
     graph.links.forEach(drawLink);
     context.fillStyle = window.textcolour;
     graph.nodes.forEach(textstyle);
@@ -93,6 +123,7 @@ simulation.force("charge", d3.forceManyBody().strength(charge))
       .attr("cy", function(d) { return d.y })
 
       window.test = svg;
+
   };
 
 
