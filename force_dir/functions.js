@@ -2,7 +2,7 @@
 function heatmap(){
 saveloc(window.graph);
 window.simulation.stop();
-var cmd = 'python src/heatmap.py '+window.innerWidth+' '+window.innerHeight+ ' 30'
+var cmd = 'python src/heatmap.py '+window.width+' '+window.height+ ' 30'
 var child = require('child_process').exec(cmd,
    function (error, stdout, stderr) {
 		 console.log(stdout);
@@ -58,7 +58,6 @@ function polyClick() {
 function drawLink(d) {
         context.beginPath();
         context.moveTo(d.source.x, d.source.y);
-
         //quardratic cubic
         context.quadraticCurveTo(1.2*(d.source.x+d.target.x)/2 , 1.2*(d.source.y+d.target.y)/2 ,d.target.x, d.target.y);
         //console.log(  '---'     ,Math.sqrt(Math.pow(Math.abs(d.source.x-d.target.x),2)+ Math.pow(Math.abs(d.source.y-d.target.y),2))/2.0 );
@@ -69,7 +68,6 @@ function drawLink(d) {
 
         //linear
         //context.lineTo(d.target.x, d.target.y);
-
         context.strokeStyle =(window.color(d.value));
         context.lineWidth= 0.1 + 8*(0.2+(1-d.value)/3);
         if (d.dir != 0){
@@ -82,16 +80,6 @@ function drawLink(d) {
         context.closePath();
         }
 
-
-
-
-function textify(d,i){
-    var txt_width = 20;//node_sizes[i];
-	var fontsize = fitTextOnCanvas(d.name, "Fredericka the Great",2*txt_width);
-    context.fillText(d.name,d.x,d.y);
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    }
 
 
 
@@ -115,10 +103,6 @@ function measureTextBinaryMethod(text, fontface, min, max, desiredWidth) {
 
 
 
-
-
-
-
 /*
 
 
@@ -131,74 +115,129 @@ font-family: 'Fredericka the Great', cursive;
 
 */
 
+function textstyle(d,i){
+    var txt_width = 20;//node_sizes[i];
+	  var fontsize = fitTextOnCanvas(d.name, "Fredericka the Great",2*txt_width);
+    context.fillText(d.name,d.x,d.y);
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    }
 
 
+function svg2can(){
 
+var svgString = new XMLSerializer().serializeToString(document.querySelector('svg'));
+var DOMURL = self.URL || self.webkitURL || self;
+var img = new Image();
+var svg = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+var url = DOMURL.createObjectURL(svg);
+img.onload = function() {
+    window.context.drawImage(img, 0, 0);
 
+};
+//  d3.selectAll('svg').remove();
+
+}
 
 
 
 // controls
-function savecanvas(canvas){
+function for_print(adjustable){
 
-    simulation.stop();
-    //add svg to canvas
-
+    d3.select('body').style('background-color', 'white'); // bg colour
     d3.selectAll('circle').style('fill-opacity','0.79')
 
-    var svgString = new XMLSerializer().serializeToString(document.querySelector('svg'));
-    var DOMURL = self.URL || self.webkitURL || self;
-    var img = new Image();
-    var svg1 = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
-    var url = DOMURL.createObjectURL(svg1);
-    img.onload = function() {
-    //plot svg on canvas
-    context.drawImage(img, 0, 0);
-    //replot text
-    context.fillStyle = 'black';
-    graph.nodes.forEach(savetext);
-    context.restore();
-    // open image in new window for saving
-//    window.open(canvas.toDataURL('png'));
+
+    window.textstyle = function (d,i){
+        var txt_width = 100*node_sizes[i];
 
 
-var image = window.canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
+        context.font = "13px Titillium";
+        if (adjustable==='undefined') {var fontsize = fitTextOnCanvas(d.name, "Titillium",2*txt_width)};
 
 
-window.location.href=image;
-
-      };
-
-
-    img.src = url;
-    function savetext(d,i){
-    var txt_width = node_sizes[i];
-	var fontsize = fitTextOnCanvas(d.name, "Fredericka the Great",2*txt_width);
-    context.fillText(d.name,d.x+width/2,d.y+height/2);
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    //context.font = "30px Arial";
-    }
-    }
-
-
-function saveloc(graph){
-  var fs = require('fs');
-    graph.dims= [window.width, window.height];
-  var filepath = "locations.json";// you need to save the filepath when you open the file to update without use the filechooser dialog againg
-  var content = JSON.stringify(graph);
-
-  fs.writeFile(filepath, content, function (err) {
-        if(err){
-              alert("An error ocurred updating the file"+ err.message);
-              console.log(err);
-              return;
+        context.fillText(d.name,d.x,d.y);
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
         }
 
-        console.log("The file has been succesfully saved");
-   });
+    window.textcolour = 'black';
 
 }
+
+// save canvas element to file
+function canvas2file(canvas){
+  var fs = require('fs');
+  var nativeImage = require('electron').nativeImage;
+  var types = ['image/png', 'image/jpg', 'image/jpeg'];
+  type = 'image/png';
+  quality = 1;
+
+  simulation.stop();
+ simulation.alpha(0);
+  //add svg to canvas
+for_print();
+d3.selectAll('svg').remove();
+
+if (simulation.alpha() ==0 ) {
+   console.log('fsdf');
+  context.clearRect(0, 0, width, height);
+  context.save();
+  context.translate(width / 2, height / 2);
+  graph.links.forEach(drawLink);
+
+  graph.nodes.forEach(function(d,i){
+
+    context.setLineDash([1,0])
+    context.fillStyle = "steelblue";
+context.beginPath();
+graph.nodes.forEach(function(d) {
+context.moveTo(d.x, d.y);
+context.arc(d.x, d.y, plus_ns+node_sizes[i], 0, 2 * Math.PI);
+});
+context.lineWidth = (plus_ns*1.8+node_sizes[i])/7;
+context.strokeStyle = (window.primary.indexOf(d.name) == -1)? 'rgb(0,120,10)':
+context.stroke();
+context.fill();
+
+  })
+
+  context.fillStyle = window.textcolour;
+  graph.nodes.forEach(textstyle);
+  context.restore();
+}
+  var data = canvas.toDataURL(type, quality);
+  var img = typeof nativeImage.createFromDataURL === 'function'
+    ? nativeImage.createFromDataURL(data) // electron v0.36+
+    : nativeImage.createFromDataUrl(data) // electron v0.30
+  //select type
+   var imdata = (/^image\/jpe?g$/.test(type))?
+      img.toJpeg(Math.floor(quality * 100)) : img.toPng();
+
+  fs.writeFile('image.png', imdata, function (err) {throw err})
+  //var image = window.canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
+  //window.location.href=image;
+  d3.selectAll('svg').remove();
+
+};
+
+
+      ///save node locations
+      function saveloc(graph){
+        var fs = require('fs');
+          graph.dims= [window.width, window.height];
+        var filepath = "locations.json";// you need to save the filepath when you open the file to update without use the filechooser dialog againg
+        var content = JSON.stringify(graph);
+
+        fs.writeFile(filepath, content, function (err) {
+              if(err){
+                    alert("An error ocurred updating the file"+ err.message);
+                    console.log(err);
+                    return;
+              }
+              console.log("The file has been succesfully saved");
+         });
+      }
 
 
 

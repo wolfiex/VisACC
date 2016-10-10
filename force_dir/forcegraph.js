@@ -8,7 +8,7 @@ window.simulation = d3.forceSimulation()
 
 
 
-d3.json("./ics/tes_144.json", function(error, graph) { if (error) throw error;
+d3.json("./ics/eth_144.json", function(error, graph) { if (error) throw error;
   this.graph=graph;
 
 
@@ -25,8 +25,6 @@ graph.nodes.filter(function(d){ node_sizes.push( d.s * ptsize  )}, node_sizes=[]
 graph.nodes = graph.nodes.filter(function(d){d.x = 100*d.x;d.y=100*d.y;return d});
 
 
-var primary = ["BENZENE", "C2H2", "C2H6", "TOLUENE", "IC4H10", "NC4H10", "C3H8", "CH4", "APINENE", "C5H8", "C3H6", "CO"]
-
   // svg nodes
 var circles = group
     .selectAll("circle.node")
@@ -37,12 +35,11 @@ var circles = group
     .style('fill','white')
     .style('fill-opacity', 0.15) //0.2 0.15
     .style('stroke-opacity',1)
-    .attr('stroke', function(d){return (primary.indexOf(d.name) == -1)? 'rgb(0,120,10)': "#2979ff"}) //pink nice ff2979
+    .attr('stroke', function(d){return (window.primary.indexOf(d.name) == -1)? 'rgb(0,120,10)': "#2979ff"}) //pink nice ff2979
     .attr('stroke-width',  function(d,i){return (plus_ns*1.8+node_sizes[i])/7})
     .attr("r", function(d,i){return plus_ns + node_sizes[i]})
     .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
 
-console.log(circles,graph);
 
   simulation
       .nodes(graph.nodes)
@@ -85,8 +82,8 @@ simulation.force("charge", d3.forceManyBody().strength(charge))
     context.save();
     context.translate(width / 2, height / 2);
     graph.links.forEach(drawLink);
-    context.fillStyle = 'white';
-    graph.nodes.forEach(textify);
+    context.fillStyle = window.textcolour;
+    graph.nodes.forEach(textstyle);
     context.restore();
 
 
@@ -95,6 +92,7 @@ simulation.force("charge", d3.forceManyBody().strength(charge))
       .attr("cx", function(d) { return d.x })
       .attr("cy", function(d) { return d.y })
 
+      window.test = svg;
   };
 
 
