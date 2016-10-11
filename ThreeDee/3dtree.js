@@ -115,6 +115,7 @@ d3.json("../force_dir/locations.json", function (error, graph) {
         return parseInt(str);
     });
 
+  graph.nodes = graph.nodes.filter(function(d){d.x = d.x+graph.dims[0]; d.y=d.y+graph.dims[1]; return d});
 
 ///ANAGLYPHIC
     window.anaglyph=true;
@@ -131,30 +132,35 @@ d3.json("../force_dir/locations.json", function (error, graph) {
 
     console.log(graph);
 
+    var minimum = d3.min(graph.nodes);
+    var maximum = d3.max(graph.nodes);
+    var mx = maximum.x-minimum.x;
+    var mn = maximum.y-minimum.y;
+
 
 
     all_planes =  new THREE.Object3D();//create an empty container to hold apll plane groups
     material = new THREE.MeshNormalMaterial({color: 0xFFFF00, transparent: true,opacity: .34});
-    square_size = 450
 
-    plane = new THREE.Mesh(new THREE.PlaneGeometry(square_size, square_size),material);
+
+    plane = new THREE.Mesh(new THREE.PlaneGeometry(mn, mx),material);
     //plane.material.color.setHex( 0xffffff );
     plane.material.side = THREE.DoubleSide;
-    plane.position.x = 0;
+    plane.position.x = width/2;
     all_planes.add(plane)
 
-    plane1 = new THREE.Mesh(new THREE.PlaneGeometry(square_size, square_size),material);
+    plane1 = new THREE.Mesh(new THREE.PlaneGeometry(mn, mx),material);
     //plane.material.color.setHex( 0xffffff );
     plane1.material.side = THREE.DoubleSide;
-    plane1.position.z = 100;
-    plane1.position.x = 0
+    plane1.position.z = 10;
+    plane1.position.x = width/2;
     all_planes.add(plane1)
 
-    plane2 = new THREE.Mesh(new THREE.PlaneGeometry(square_size, square_size),material);
+    plane2 = new THREE.Mesh(new THREE.PlaneGeometry(mn, mx),material);
     //plane.material.color.setHex( 0xffffff );
     plane2.material.side = THREE.DoubleSide;
-    plane2.position.z = -100;
-    plane2.position.x = 0
+    plane2.position.z = -10;
+    plane2.position.x = width/2;
     all_planes.add(plane2)
 
     // rotation.z is rotation around the z-axis, measured in radians (rather than degrees)

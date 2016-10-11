@@ -20,7 +20,7 @@ d3.json("./ics/eth_144.json", function(error, graph) { if (error) throw error;
   //simulation.force('collide', d3.forceCollide().radius(function(d,i){return  (plus_ns+node_sizes[i])/8 + plus_ns + node_sizes[i]}))
 
 //move further out
-graph.nodes = graph.nodes.filter(function(d){sites.push([d.x,d.y]);node_sizes.push( d.s * ptsize );d.x = 100*d.x;d.y=100*d.y;return d}, node_sizes=[],sites=[]);
+graph.nodes = graph.nodes.filter(function(d){node_sizes.push( d.s * ptsize );d.x = 100*d.x;d.y=100*d.y;return d}, node_sizes=[]);
 
 var voronoi = d3.voronoi()
     .x(function(d) { return d.x; })
@@ -50,7 +50,6 @@ var circles = group
       .enter().append("g")
       .classed("node", true)
       .on('mouseover',function(d){console.log(d)})
-
         .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
 
     window.cell = voronoi_path.append("path")
@@ -59,11 +58,7 @@ var circles = group
         .attr("id", function(d, i) { return "cell-" + i; });
 
     voronoi_path.append("circle")
-            .attr("clip-path", function(d, i) { return "url(#clip-" + i + ")"; })
-            .attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; })
-            .attr("r", 10)
-            .style("fill", function(d, i) { return color(i); });
+            .attr("clip-path", function(d, i) { return "url(#clip-" + i + ")"; });
 
 
 
