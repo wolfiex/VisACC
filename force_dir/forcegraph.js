@@ -22,7 +22,7 @@ d3.json("./ics/eth_144.json", function(error, graph) { if (error) throw error;
 //move further out
 graph.nodes = graph.nodes.filter(function(d){node_sizes.push( d.s * ptsize );d.x = 100*d.x;d.y=100*d.y;return d}, node_sizes=[]);
 
-var voronoi = d3.voronoi()
+window.voronoi = d3.voronoi()
     .x(function(d) { return d.x; })
     .y(function(d) { return d.y; })
     .extent([[-1, -1], [width + 1, height + 1]]);
@@ -59,6 +59,8 @@ var circles = group
 
     voronoi_path.append("circle")
             .attr("clip-path", function(d, i) { return "url(#clip-" + i + ")"; });
+
+
 
 
 
@@ -101,12 +103,13 @@ window.cell = window.cell.data(voronoi.polygons(graph.nodes)).attr("d", renderCe
   savecanvas(canvas);
     alert('simulation completed')};
 
-
   //canvas
     context.clearRect(0, 0, width, height);
     context.save();
     //context.translate(width / 2, height / 2);
     graph.links.forEach(drawLink);
+    context.setLineDash([1,0]);
+    graph.nodes.forEach(drawNodes);
     context.fillStyle = window.textcolour;
     graph.nodes.forEach(textstyle);
     context.restore();

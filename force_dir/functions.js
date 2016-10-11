@@ -50,7 +50,17 @@ function polyClick() {
 
 }
 
-
+function drawNodes(d,i){
+context.beginPath();
+context.fillStyle = "rgba(100,100,100,0.1)";
+//context.moveTo(d.x, d.y);
+context.arc(d.x, d.y, plus_ns+node_sizes[i], 0, 2 * Math.PI);
+context.lineWidth = (plus_ns*1.8+node_sizes[i])/6;
+context.strokeStyle = (window.primary.indexOf(d.name) == -1)? 'rgba(0,120,10,1)':
+context.stroke();
+context.fill();
+context.closePath();
+};
 
 
 
@@ -85,8 +95,18 @@ function drawLink(d) {
         context.closePath();
         }
 
+function central(voronoi,group){
+  voronoi.polygons(graph.nodes).filter(function(d){v.push( d3.polygonCentroid(d))},v=[]);
 
+  group.selectAll("scatter-dots")
+        .data(v)
+        .enter().append("svg:circle")
+            .attr("cx", function (d,i) { return d[0]; } )
+            .attr("cy", function (d) { return d[1]; } )
+            .attr('fill','blue')
+            .attr("r", 8);
 
+}
 
 
 
@@ -191,21 +211,7 @@ if (simulation.alpha() ==0 ) {
   context.translate(width / 2, height / 2);
   graph.links.forEach(drawLink);
 
-  graph.nodes.forEach(function(d,i){
-
-    context.setLineDash([1,0])
-    context.fillStyle = "steelblue";
-context.beginPath();
-graph.nodes.forEach(function(d) {
-context.moveTo(d.x, d.y);
-context.arc(d.x, d.y, plus_ns+node_sizes[i], 0, 2 * Math.PI);
-});
-context.lineWidth = (plus_ns*1.8+node_sizes[i])/7;
-context.strokeStyle = (window.primary.indexOf(d.name) == -1)? 'rgb(0,120,10)':
-context.stroke();
-context.fill();
-
-  })
+  graph.nodes.forEach(drawNodes);
 
   context.fillStyle = window.textcolour;
   graph.nodes.forEach(textstyle);
