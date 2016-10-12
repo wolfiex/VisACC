@@ -149,20 +149,6 @@ function textstyle(d,i){
     }
 
 
-function svg2can(){
-
-var svgString = new XMLSerializer().serializeToString(document.querySelector('svg'));
-var DOMURL = self.URL || self.webkitURL || self;
-var img = new Image();
-var svg = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
-var url = DOMURL.createObjectURL(svg);
-img.onload = function() {
-    window.context.drawImage(img, 0, 0);
-
-};
-//  d3.selectAll('svg').remove();
-
-}
 
 
 

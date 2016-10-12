@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "D3 Froce directed Graph",
   "main": "main.js",
-  "dependencies": {},
+  "dependencies": { },
   "devDependencies": {
     "electron": "^1.4.0",
     "electron-packager": "^8.1.0"

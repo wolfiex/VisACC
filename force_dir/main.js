@@ -1,33 +1,16 @@
 
 
-const electron = require('electron')
-const cp = require('child_process')
-var app = electron.app;  // Module to control application life.
+const electron = require('electron');
+const cp = require('child_process');
+const ipc = electron.ipcMain;
+const app = electron.app;  // Module to control application life.
+const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
+const remote  = electron.remote;
+const Menu = electron.Menu;
+const MenuItem = electron.MenuItem;
+const webContents = electron.webContents;
+//ipc.send('toggle-prefs','la')
 
-var BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
-
-/*
-// main.js
-var remote  = require('remote');
-var Menu    = remote.require('menu');
-var ipc     = require('ipc');
-
-var menu = Menu.buildFromTemplate([
-  {
-    label: 'Electron',
-    submenu: [
-      {
-        label: 'Options',
-        click: function() {
-          ipc.send('display-options');
-        }
-      }
-    ]
-  }
-]);
-
-Menu.setApplicationMenu(menu);
-*/
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -54,10 +37,69 @@ app.on('ready', function() {
 
 
     // Create the browser window.
-    mainWindow = new BrowserWindow({width:900, height: 800,resizable: false,resizable: true,title:'Dan Ellis 2016' });
-    mainWindow.openDevTools();
-    // and load the index.html of the app.
-    mainWindow.loadURL('file://' + __dirname + '/index.html');
+    const myLocation = 'file://' + __dirname
+    mainWindow = new BrowserWindow({width:900, height: 800,resizable: true,title:'Dan Ellis 2016' });
+    mainWindow.openDevTools();    // and load the index.html of the app.
+    mainWindow.loadURL( myLocation + '/index.html');
+
+console.log(mainWindow)
+
+    var prefsWindow = new BrowserWindow({
+        width: 400,
+        height: 400,
+        show: true,
+        title: 'This is where the magic happens'
+      });
+
+    prefsWindow.loadURL( myLocation + '/controls.html');
+prefsWindow.openDevTools();
+
+/*
+    ipc.on('toggle-prefs', (event,arg)=> {
+    if (prefsWindow.isVisible())
+      prefsWindow.hide()
+    else
+      prefsWindow.show()
+  });
+*/
+
+///menu
+
+      var fileMenu = new Menu();
+      fileMenu.append(new MenuItem({ label: "Save Image", accelerator: "Ctrl+s", click: function() {
+          fileMenu.clear(); //editMenu.append(new MenuItem({ label: "Dummy2", accelerator: "Ctrl+P", click: function() {
+          //}}));
+      }}));
+      fileMenu.append(new MenuItem({ label: "Quit", accelerator: "Ctrl+q", role:'quit' }));
+
+      var editMenu = new Menu();
+      editMenu.append(new MenuItem({ label: "New DataFile", accelerator: "Ctrl+n",  click:function(){console.log('hi');mainWindow.webContents.send('toggle-prefs' ,'hello from main process')}}));
+//function(){alert('add new data here')}}));
+
+      var visMenu = new Menu({});
+
+
+      var menubar = new Menu();
+      menubar.append(new MenuItem({ label: "File", submenu: fileMenu }));
+      menubar.append(new MenuItem({ label: "Edit", submenu: editMenu }));
+      menubar.append(new MenuItem({ label: "Change Visual Style", submenu: visMenu }));
+      Menu.setApplicationMenu(menubar);
+
+
+
+
+      function getWindow(windowName) {
+        for (var i = 0; i < windowArray.length; i++) {
+          if (windowArray[i].name == windowName) {
+            return windowArray[i].window;
+          }
+        }
+        return null;
+      }
+
+
+
+
 
     // Emitted when the window is closed.
     mainWindow.on('closed', function() {
@@ -65,10 +107,7 @@ app.on('ready', function() {
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
         mainWindow = null;
-
+        prefsWindow=null;
 // make a function to trigger
-
-
-
     });
 });

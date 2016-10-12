@@ -3,7 +3,6 @@
 
 <link rel="stylesheet" type="text/css" href="index.css">
 <!--<canvas id ='heatmp'></canvas>-->
-
 <iframe id='heatmapiframe' src="" style='position:absolute;border:0;' ></iframe>
 <canvas id='canvas_main'></canvas>
 <svg></svg>
@@ -12,9 +11,12 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="./functions.js"></script>
 <link href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Titillium' rel='stylesheet' type='text/css'>
-
 <script>
 
+const electron = require('electron');
+var ipc = electron.ipcRenderer;
+
+ipc.on('toggle-prefs', (event,arg)=> {console.log(event,arg)});
 
 this.csvdata=[]
 this.graph=[]
