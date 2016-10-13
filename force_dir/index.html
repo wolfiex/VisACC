@@ -10,13 +10,15 @@
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="./functions.js"></script>
-<link href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Titillium' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu' rel='stylesheet' type='text/css'>
 <script>
 
 const electron = require('electron');
 var ipc = electron.ipcRenderer;
 
 ipc.on('toggle-prefs', (event,arg)=> {console.log(event,arg)});
+
+
 
 this.csvdata=[]
 this.graph=[]
@@ -26,7 +28,7 @@ window.onresize = function(event) {location.reload()};
 window.scrollTo(window.innerWidth/2, window.innerHeight/2);
 
 var constant = 0.5,
-    scaled=2, // if scale >1 multiply css by that number too
+    scaled=1.1, // if scale >1 multiply css by that number too
     width = window.innerWidth*scaled,
     height = window.innerHeight*scaled,
     node_sizes=[],
@@ -39,23 +41,15 @@ var constant = 0.5,
 
 var svg = d3.select("svg").attr('width',width).attr('height',height);// nodes
 var group = svg.append("g")//.attr("transform", "translate(" + [width/2, height/2] + ")");
-
 var canvas = document.querySelector("canvas"),
     context = canvas.getContext("2d");
 
 d3.selectAll('canvas').style('opacity',.65).attr('width', width ).attr('height',height);  //0.5 opacity
-
-
 d3.select('body').style('background-color', '#222'); // bg colour
-
 d3.select('selector').call(d3.zoom().scaleExtent([-0, 8]).on("zoom", zoomed));
-
 d3.csv("./src/fullmcmspecs.csv", function(error, csv) {this.csvdata=csv});     //get list of all species etc
-
 window.color = d3.interpolate("#F6089E", "#3864EB")    //https://github.com/d3/d3-scale
-
-
-
+window.v=undefined;
 
 require("./forcegraph.js");
 

@@ -24,7 +24,7 @@ simulation.stop();
 
 
 var mySVG = d3.select("#selector").append("svg").attr('width',width).attr('height',height).on('dblclick', polyClick), point =[];
-var w = window.width/2 , h=window.height/2;
+
 
 function polyClick() {
   point.push(d3.mouse(this));
@@ -51,18 +51,16 @@ function polyClick() {
 }
 
 function drawNodes(d,i){
-context.beginPath();
-context.fillStyle = "rgba(100,100,100,0.1)";
-//context.moveTo(d.x, d.y);
-context.arc(d.x, d.y, plus_ns+node_sizes[i], 0, 2 * Math.PI);
-context.lineWidth = (plus_ns*1.8+node_sizes[i])/6;
-context.strokeStyle = (window.primary.indexOf(d.name) == -1)? 'rgba(0,120,10,1)':
-context.stroke();
-context.fill();
-context.closePath();
+  context.beginPath();
+  context.fillStyle = "rgba(100,100,100,0.1)";
+  //context.moveTo(d.x, d.y);
+  context.arc(d.x, d.y, 10*plus_ns*node_sizes[i], 0, 2 * Math.PI);
+  context.lineWidth = (2 + plus_ns*1.8+node_sizes[i])/6;
+  context.strokeStyle = (window.primary.indexOf(d.name) == -1)? 'rgba(0,105,0,0.8)':"#2979ff";
+  context.stroke();
+  context.fill();
+  context.closePath();
 };
-
-
 
 
 function drawLink(d) {
@@ -95,6 +93,8 @@ function drawLink(d) {
         context.closePath();
         }
 
+
+
 function central(voronoi,group){
   voronoi.polygons(graph.nodes).filter(function(d){v.push( d3.polygonCentroid(d))},v=[]);
 
@@ -107,8 +107,6 @@ function central(voronoi,group){
             .attr("r", 8);
 
 }
-
-
 
 function fitTextOnCanvas(text, fontface,t_width){ return measureTextBinaryMethod(text, fontface, 0, 600, t_width); }
 
@@ -129,21 +127,21 @@ function measureTextBinaryMethod(text, fontface, min, max, desiredWidth) {
 
 
 /*
-
-
 font-family: 'Open Sans', sans-serif;
 
 font-family: 'Lato', sans-serif;
 
 font-family: 'Fredericka the Great', cursive;
-
-
 */
 
 function textstyle(d,i){
+   voronoi.polygons(graph.nodes).filter(function(d){v.push( d3.polygonCentroid(d))},v=[]);
     var txt_width = 20;//node_sizes[i];
 	  var fontsize = fitTextOnCanvas(d.name, "Fredericka the Great",2*txt_width);
-    context.fillText(d.name,d.x,d.y);
+    if (window.v==='undefined') {pos=[d.x,d.y]}else{ pos = window.v[i]};
+    context.fillText(d.name,pos[0],pos[1]);
+
+
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     }
@@ -163,11 +161,11 @@ function for_print(adjustable){
         var txt_width = 100*node_sizes[i];
 
 
-        context.font = "13px Titillium";
-        if (adjustable==='undefined') {var fontsize = fitTextOnCanvas(d.name, "Titillium",2*txt_width)};
-
-
-        context.fillText(d.name,d.x,d.y);
+        context.font = "18px Ubuntu";
+        var fontsize = fitTextOnCanvas(d.name, "Fredericka the Great",(80 + 30*node_sizes[i]));
+        //if (adjustable==='undefined') {var fontsize = fitTextOnCanvas(d.name, "Ubuntu",2*txt_width)};
+        if (window.v==='undefined') {pos=[d.x,d.y]}else{ pos = window.v[i]};
+        context.fillText(d.name,pos[0],pos[1]);
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         }
@@ -187,40 +185,39 @@ function canvas2file(canvas){
   simulation.stop();
  simulation.alpha(0);
   //add svg to canvas
-for_print();
-d3.selectAll('svg').remove();
-
-if (simulation.alpha() ==0 ) {
-   console.log('fsdf');
-  context.clearRect(0, 0, width, height);
-  context.save();
-  context.translate(width / 2, height / 2);
-  graph.links.forEach(drawLink);
-
-  graph.nodes.forEach(drawNodes);
-
-  context.fillStyle = window.textcolour;
-  graph.nodes.forEach(textstyle);
-  context.restore();
-}
-  var data = canvas.toDataURL(type, quality);
-  var img = typeof nativeImage.createFromDataURL === 'function'
-    ? nativeImage.createFromDataURL(data) // electron v0.36+
-    : nativeImage.createFromDataUrl(data) // electron v0.30
-  //select type
-   var imdata = (/^image\/jpe?g$/.test(type))?
-      img.toJpeg(Math.floor(quality * 100)) : img.toPng();
-
-  fs.writeFile('image.png', imdata, function (err) {throw err})
-  //var image = window.canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
-  //window.location.href=image;
+  for_print();
   d3.selectAll('svg').remove();
 
+  if (simulation.alpha() ==0 ) {
+     console.log('fsdf');
+    context.clearRect(0, 0, width, height);
+    context.save();
+    context.translate(width / 2, height / 2);
+    graph.links.forEach(drawLink);
+
+    graph.nodes.forEach(drawNodes);
+
+    context.fillStyle = window.textcolour;
+    graph.nodes.forEach(textstyle);
+    context.restore();
+  }
+    var data = canvas.toDataURL(type, quality);
+    var img = typeof nativeImage.createFromDataURL === 'function'
+      ? nativeImage.createFromDataURL(data) // electron v0.36+
+      : nativeImage.createFromDataUrl(data) // electron v0.30
+    //select type
+     var imdata = (/^image\/jpe?g$/.test(type))?
+        img.toJpeg(Math.floor(quality * 100)) : img.toPng();
+
+    fs.writeFile('image.png', imdata, function (err) {throw err})
+    //var image = window.canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
+    //window.location.href=image;
+    d3.selectAll('svg').remove();
+
 };
-
-
       ///save node locations
-      function saveloc(graph){
+
+function saveloc(graph){
         var fs = require('fs');
           graph.dims= [window.width, window.height];
         var filepath = "locations.json";// you need to save the filepath when you open the file to update without use the filechooser dialog againg
@@ -238,7 +235,7 @@ if (simulation.alpha() ==0 ) {
 
 
 
- function zoomed() {
+function zoomed() {
       context.save();
       context.clearRect(0, 0, width, height);
       context.translate(d3.event.transform.x, d3.event.transform.y);

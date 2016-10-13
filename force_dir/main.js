@@ -42,8 +42,6 @@ app.on('ready', function() {
     mainWindow.openDevTools();    // and load the index.html of the app.
     mainWindow.loadURL( myLocation + '/index.html');
 
-console.log(mainWindow)
-
     var prefsWindow = new BrowserWindow({
         width: 400,
         height: 400,
@@ -51,8 +49,17 @@ console.log(mainWindow)
         title: 'This is where the magic happens'
       });
 
+
     prefsWindow.loadURL( myLocation + '/controls.html');
-prefsWindow.openDevTools();
+    prefsWindow.openDevTools();
+
+    ipc.on('forwarder',(event,arg)=> {
+    console.log(eval(arg[0]));
+    eval(arg[0]).webContents.send('data' , {name:arg[1],values:arg[2]});
+
+
+
+  });
 
 /*
     ipc.on('toggle-prefs', (event,arg)=> {
@@ -61,6 +68,11 @@ prefsWindow.openDevTools();
     else
       prefsWindow.show()
   });
+
+  getWindow('windowName').webContents.send('info' , {msg:'hello from main process'});
+
+
+
 */
 
 ///menu

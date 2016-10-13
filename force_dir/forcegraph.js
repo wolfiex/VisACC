@@ -22,27 +22,10 @@ d3.json("./ics/eth_144.json", function(error, graph) { if (error) throw error;
 //move further out
 graph.nodes = graph.nodes.filter(function(d){node_sizes.push( d.s * ptsize );d.x = 100*d.x;d.y=100*d.y;return d}, node_sizes=[]);
 
-window.voronoi = d3.voronoi()
-    .x(function(d) { return d.x; })
-    .y(function(d) { return d.y; })
-    .extent([[-1, -1], [width + 1, height + 1]]);
-
-/*  // svg nodes
-var circles = group
-    .selectAll("circle.node")
-    .data(graph.nodes).enter()
-    .append('circle')
-    .on('mouseover',function(d){console.log(d)})
-    .classed("node", true)
-    .style('fill','white')
-    .style('fill-opacity', 0.15) //0.2 0.15
-    .style('stroke-opacity',1)
-    .attr('stroke', function(d){return (window.primary.indexOf(d.name) == -1)? 'rgb(0,120,10)': "#2979ff"}) //pink nice ff2979
-    .attr('stroke-width',  function(d,i){return (plus_ns*1.8+node_sizes[i])/7})
-    .attr("r", function(d,i){return plus_ns + node_sizes[i]})
-
-*/
-
+  window.voronoi = d3.voronoi()
+      .x(function(d) { return d.x; })
+      .y(function(d) { return d.y; })
+      .extent([[-1, -1], [width + 1, height + 1]]);
 
     var voronoi_path = group.selectAll("vornouli.cells")
       .attr('width',width).attr('height',height)
@@ -61,7 +44,7 @@ var circles = group
             .attr("clip-path", function(d, i) { return "url(#clip-" + i + ")"; });
 
 
-
+for_print();
 
 
   simulation
@@ -72,14 +55,43 @@ simulation.force("link").strength(function(d){0});
 simulation.force("charge", d3.forceManyBody().strength(-300000 ))
 
 
-var charge = -300   ;
+
+//send ipc links to other
+linkleneq='Math.pow(dv,1/9)'
+graph.links.forEach(function(d){var dv= d.value;dummy.push(eval(linkleneq))},dummy=[]);
+ipc.send('forwarder',['prefsWindow','links',dummy]);
+
+var charge = -300 ;
 simulation.force("link")
       .links(graph.links)
-      .distance(function(d){var dv=  d.value; return 8*dv}) // 1-dval 500*0.4+(dv*dv*dv)/0.6
-      .strength(function(d){var dv = d.value;return 1- (dv*dv)+ 0.2});
+      .distance(function(d){var dv= d.value;return width*eval(linkleneq)}) // 1-dval 500*0.4+(dv*dv*dv)/0.6
+      .strength(function(d){var dv = d.value;return 1});
 /*.distance(function(d){var dv=  1-d.value; return 0.3+(dv*dv)/3 }) // 1-dval
       .strength(function(d){var dv = d.value; return 0.3+(dv*dv)/3 });
 */
+
+
+
+window.dummy = width/2;
+
+(function theres_no_limit() {
+  setTimeout(function () {
+window.graph.nodes.forEach(function(d){x.push(d.x); y.push(d.y)},x=[],y=[]);
+limits = {minx:d3.min(x),miny:d3.min(y),maxx:d3.max(x),maxy:d3.max(y)};
+clearInterval(window.interval);
+if ( limits.maxx > width || limits.maxy > height|| limits.minx < 10 || limits.miny < 10){
+//console.log('run')
+window.interval = setInterval(function(){
+window.dummy *=0.99;
+simulation.force("link").distance(function(d){var dv= d.value;return window.dummy  * eval(linkleneq)});
+}, 100);
+simulation.alpha(0.1);
+theres_no_limit();
+}else{console.log('within size')}
+},500);
+}());
+clearInterval(window.interval);
+
 
 
 simulation.force("charge", d3.forceManyBody().strength(charge))
@@ -91,8 +103,8 @@ simulation.force("charge", d3.forceManyBody().strength(charge))
 
   function ticked() {
 
-window.cell = window.cell.data(voronoi.polygons(graph.nodes)).attr("d", renderCell);
-
+   window.cell = window.cell.data(voronoi.polygons(graph.nodes)).attr("d", renderCell);
+  voronoi.polygons(graph.nodes).filter(function(d){window.v.push( d3.polygonCentroid(d))},window.v=[]);
 
   /*if (simulation.alpha() < 0.9) simulation.force("charge", d3.forceManyBody().strength(-3000));
   if (simulation.alpha() < 0.80) simulation

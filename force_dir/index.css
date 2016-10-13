@@ -1,7 +1,7 @@
 body { margin: 0; }
 svg,container,canvas,heatmapiframe{position: absolute;
-    width:200%;
-    height:200%;
+    width:110%;
+    height:110%;
     margin: 0;
     border:0 ;
 

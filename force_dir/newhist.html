@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.bar {
+  fill: #bbb;
+  shape-rendering: crispEdges;
+}
+
+.bar text {
+  fill: #fff;
+  font: 10px sans-serif;
+}
+
+.line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.y.axis path {
+  display: none;
+}
+
+</style>
+<body>
+<script src="./d3.v4.min.js"></script>
+<script>
+
+var data = d3.range(1000).map(d3.randomBates(10));
+
+var formatCount = d3.format(",.0f");
+
+var margin = {top: 15, right: 10, bottom: 20, left: 50},
+    width = window.innerWidth - margin.left - margin.right,
+    height = window.innerHeight*.95 - margin.top - margin.bottom;
+
+
+
+var x = d3.scaleLinear()
+    .rangeRound([0, width]);
+
+var bins = d3.histogram()
+    .domain(x.domain())
+    .thresholds(x.ticks(50))
+    (data);
+
+var y = d3.scaleLinear().domain([0, 1])
+    .range([height, 0]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var yAxis = d3.axisLeft(y)
+        .tickFormat(d3.format(",.0%"));
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+var bar = svg.selectAll(".bar")
+    .data(bins)
+  .enter().append("g")
+    .attr("class", "bar")
+
+bar.append("rect")
+    .attr("x",1)
+    .attr("y",1)
+    .attr("width", x(bins[0].x1) - x(bins[0].x0) - 2)
+    .attr("height", function(d) { console.log(height * (d.length/data.length),'fds'); return  100* (d.length/data.length); })
+    .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + (height- 100*(d.length/data.length)-2 ) + ")"; });
+
+bar.append("text")
+    .attr("dy", ".75em")
+    .attr("y", 6)
+    .attr("x", (x(bins[0].x1) - x(bins[0].x0)) / 2)
+    .attr("text-anchor", "middle")
+    .text(function(d) { return formatCount(d.length); });
+
+svg.append("g")
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
+
+
+console.log('colour same as links')
+
+    var  kde = kernelDensityEstimator(epanechnikovKernel(1), x.ticks(100));
+
+    var line = d3.line()
+        .x(function(d) { return x(d[0]); })
+        .y(function(d) { return y(d[1]); });
+
+
+
+    svg.append("path")
+        .datum(kde(data.filter(function(d){return d*100})))
+        .attr("class", "line")
+        .attr("d", line);
+
+
+
+    function kernelDensityEstimator(kernel, x) {
+      return function(sample) {
+        return x.map(function(x) {
+          return [x, d3.mean(sample, function(v) { return kernel(x - v); })];
+        });
+      };
+    }
+
+    function epanechnikovKernel(scale) {
+      return function(u) {
+        return Math.abs(u /= scale) <= 1 ? .75 * (1 - u * u) / scale : 0;
+      };
+    }
+
+
+
+
+
+</script>

@@ -92,3 +92,20 @@ filter.append("stop")
 
 
 };
+
+
+/*  // svg nodes
+var circles = group
+    .selectAll("circle.node")
+    .data(graph.nodes).enter()
+    .append('circle')
+    .on('mouseover',function(d){console.log(d)})
+    .classed("node", true)
+    .style('fill','white')
+    .style('fill-opacity', 0.15) //0.2 0.15
+    .style('stroke-opacity',1)
+    .attr('stroke', function(d){return (window.primary.indexOf(d.name) == -1)? 'rgb(0,120,10)': "#2979ff"}) //pink nice ff2979
+    .attr('stroke-width',  function(d,i){return (plus_ns*1.8+node_sizes[i])/7})
+    .attr("r", function(d,i){return plus_ns + node_sizes[i]})
+
+*/
