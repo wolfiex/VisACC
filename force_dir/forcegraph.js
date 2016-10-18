@@ -6,12 +6,10 @@ window.simulation = d3.forceSimulation()
     .force('collide', d3.forceCollide())
     .alphaDecay(1-Math.pow(0.0001,1/3000));//timesteps
 
+d3.json("./ics/but_144.json", function(error, graph) { if (error) throw error; window.graph=graph;run()});
 
-
-d3.json("./ics/eth_144.json", function(error, graph) { if (error) throw error;
-  this.graph=graph;
-
-
+function run(){
+ graph=window.graph;
   //scale factor
   var ptsize = ((width*height)/graph.nodes.length)/100000; //300
   console.log(ptsize)
@@ -57,14 +55,14 @@ simulation.force("charge", d3.forceManyBody().strength(-300000 ))
 
 
 //send ipc links to other
-linkleneq='Math.pow(dv,1/9)'
+
 graph.links.forEach(function(d){var dv= d.value;dummy.push(eval(linkleneq))},dummy=[]);
-ipc.send('forwarder',['prefsWindow','links',dummy]);
+ipc.send('forwarder',['prefsWindow',window.linkleneq,dummy]);
 
 var charge = -300 ;
 simulation.force("link")
       .links(graph.links)
-      .distance(function(d){var dv= d.value;return width*eval(linkleneq)}) // 1-dval 500*0.4+(dv*dv*dv)/0.6
+      .distance(function(d){var dv= d.value;return width*eval(window.linkleneq)}) // 1-dval 500*0.4+(dv*dv*dv)/0.6
       .strength(function(d){var dv = d.value;return 1});
 /*.distance(function(d){var dv=  1-d.value; return 0.3+(dv*dv)/3 }) // 1-dval
       .strength(function(d){var dv = d.value; return 0.3+(dv*dv)/3 });
@@ -72,25 +70,8 @@ simulation.force("link")
 
 
 
-window.dummy = width/2;
-
-(function theres_no_limit() {
-  setTimeout(function () {
-window.graph.nodes.forEach(function(d){x.push(d.x); y.push(d.y)},x=[],y=[]);
-limits = {minx:d3.min(x),miny:d3.min(y),maxx:d3.max(x),maxy:d3.max(y)};
-clearInterval(window.interval);
-if ( limits.maxx > width || limits.maxy > height|| limits.minx < 10 || limits.miny < 10){
-//console.log('run')
-window.interval = setInterval(function(){
-window.dummy *=0.99;
-simulation.force("link").distance(function(d){var dv= d.value;return window.dummy  * eval(linkleneq)});
-}, 100);
-simulation.alpha(0.1);
+window.dummy = {max: width/2, min:width/2, findmax:true, count :0, done:false };
 theres_no_limit();
-}else{console.log('within size')}
-},500);
-}());
-clearInterval(window.interval);
 
 
 
@@ -100,45 +81,55 @@ simulation.force("charge", d3.forceManyBody().strength(charge))
 
 
 
-
   function ticked() {
 
-   window.cell = window.cell.data(voronoi.polygons(graph.nodes)).attr("d", renderCell);
-  voronoi.polygons(graph.nodes).filter(function(d){window.v.push( d3.polygonCentroid(d))},window.v=[]);
-
-  /*if (simulation.alpha() < 0.9) simulation.force("charge", d3.forceManyBody().strength(-3000));
-  if (simulation.alpha() < 0.80) simulation
-  */
-  if (simulation.alpha() < 0.000112) { simulation.stop(); // 0.012
-  function dragstarted(d) {};
-  function dragended(d) {};
-  savecanvas(canvas);
-    alert('simulation completed')};
-
-  //canvas
-    context.clearRect(0, 0, width, height);
-    context.save();
-    //context.translate(width / 2, height / 2);
-    graph.links.forEach(drawLink);
-    context.setLineDash([1,0]);
-    graph.nodes.forEach(drawNodes);
-    context.fillStyle = window.textcolour;
-    graph.nodes.forEach(textstyle);
-    context.restore();
 
 
+  if (window.animate){
+     window.cell = window.cell.data(voronoi.polygons(graph.nodes)).attr("d", renderCell);
+     voronoi.polygons(graph.nodes).filter(function(d){window.v.push( d3.polygonCentroid(d))},window.v=[]);
+
+    /*if (simulation.alpha() < 0.9) simulation.force("charge", d3.forceManyBody().strength(-3000));
+    if (simulation.alpha() < 0.80) simulation
+    */
+    if (simulation.alpha() < 0.001) { simulation.stop(); // 0.012
+    function dragstarted(d) {};
+    function dragended(d) {};
+    canvas2file(canvas);
+      //alert('simulation completed');
+      //ipc.send('decimate',[]);
+  };
+
+
+    //canvas
+      context.clearRect(0, 0, width, height);
+      context.save();
+
+      //context.translate(width / 2, height / 2);
+      graph.links.forEach(drawLink);
+      context.setLineDash([1,0]);
+
+
+      graph.nodes.forEach(drawNodes);
+
+
+      context.fillStyle = window.textcolour;
+      graph.nodes.forEach(textstyle);
+    }
+
+      context.restore();
+
+  }
+
+}
+
+
+ipc.on('command', (event,arg)=> {
+  console.log(event,arg);
+  eval(arg); })
+/*
    //svg
     svg.selectAll("circle.node")
       .attr("cx", function(d) { return d.x })
       .attr("cy", function(d) { return d.y })
-
-      window.test = svg;
-
-  };
-
-
-
-
-
-
-});
+*/

@@ -31,6 +31,8 @@ app.on('ready', function() {
     //sync init con files
     var child = cp.exec('bash ./src/updateics.sh', function (error, stdout, stderr) {  console.log('updated ics');  child.stdout.pipe(process.stdout);});
     cp.exec('touch heatmap.html && touch locations.json && rm heatmap.html && rm locations.json');
+    console.log('add datafile to read from web, iff this older, update');
+
     //var execSync = require('exec-sync');
     //execSync('bash ./updateics.sh') ;
     //require('child_process').exec('python celulas.py', function (error, stdout, stderr) {    child.stdout.pipe(process.stdout);});
@@ -38,14 +40,23 @@ app.on('ready', function() {
 
     // Create the browser window.
     const myLocation = 'file://' + __dirname
-    mainWindow = new BrowserWindow({width:900, height: 800,resizable: true,title:'Dan Ellis 2016' });
-    mainWindow.openDevTools();    // and load the index.html of the app.
+    mainWindow = new BrowserWindow({width:900, height: 800,resizable: true,title:'Dan Ellis 2016' ,
+    show:false
+      });
+    //mainWindow.openDevTools();    // and load the index.html of the app.
     mainWindow.loadURL( myLocation + '/index.html');
 
+
+    splash = new BrowserWindow({width:800, height: 450,resizable: false ,title:'VisACC 2016' ,
+    show:true      });
+    splash.loadURL( myLocation + '/hexbin.html');
+    splash.openDevTools();
+
+
     var prefsWindow = new BrowserWindow({
-        width: 400,
-        height: 400,
-        show: true,
+        width: 990,
+        height: 140,
+        show: false,
         title: 'This is where the magic happens'
       });
 
@@ -53,13 +64,24 @@ app.on('ready', function() {
     prefsWindow.loadURL( myLocation + '/controls.html');
     prefsWindow.openDevTools();
 
+
+
+
+
     ipc.on('forwarder',(event,arg)=> {
     console.log(eval(arg[0]));
     eval(arg[0]).webContents.send('data' , {name:arg[1],values:arg[2]});
+    //can send directly.
 
+    ipc.on('decimate',(event,arg)=> {app.quit()});
+
+    ipc.on('closewindow',(event,arg)=> {eval(arg[0]).close()});
+
+    ipc.on('show',(event,arg)=> {eval(arg[0]).show()});
 
 
   });
+
 
 /*
     ipc.on('toggle-prefs', (event,arg)=> {
@@ -88,6 +110,9 @@ app.on('ready', function() {
       editMenu.append(new MenuItem({ label: "New DataFile", accelerator: "Ctrl+n",  click:function(){console.log('hi');mainWindow.webContents.send('toggle-prefs' ,'hello from main process')}}));
 //function(){alert('add new data here')}}));
 
+var saveMenu = new Menu();
+saveMenu.append(new MenuItem({ label: "save", accelerator: "Ctrl+s",  click:function(){mainWindow.webContents.send('command' ,'canvas2file(canvas)')}}));
+
       var visMenu = new Menu({});
 
 
@@ -95,6 +120,7 @@ app.on('ready', function() {
       menubar.append(new MenuItem({ label: "File", submenu: fileMenu }));
       menubar.append(new MenuItem({ label: "Edit", submenu: editMenu }));
       menubar.append(new MenuItem({ label: "Change Visual Style", submenu: visMenu }));
+      menubar.append(new MenuItem({ label: "Save", submenu: saveMenu }));
       Menu.setApplicationMenu(menubar);
 
 

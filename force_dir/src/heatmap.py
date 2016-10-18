@@ -13,8 +13,9 @@ datastring = ''
 vals=[]
 for node in data['nodes']:
 
-    values=1#*(node['vx']**2 + node['vy']**2)**0.5
-    datastring += '{x: %d, y: %d, value: %d, radius:%d},'%( node['x']+float(width)/2, node['y']+float(height)/2 , values , radius*values)
+    #values=1#*(node['vx']**2 + node['vy']**2)**0.5
+    values = int(node['s']*3)
+    datastring += '{x: %d, y: %d, value: %d, radius:%d},'%( node['x'], node['y'], values , radius*values)
     vals.append(values)
 
 filedata = '''<!doctype html>

@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "description": "D3 Froce directed Graph",
   "main": "main.js",
-  "dependencies": { },
+  "dependencies": {
+    "photon": "^2.0.0",
+    "react": "^15.3.2",
+    "react-bootstrap": "^0.30.5",
+    "react-dom": "^15.3.2"
+  },
   "devDependencies": {
     "electron": "^1.4.0",
     "electron-packager": "^8.1.0"

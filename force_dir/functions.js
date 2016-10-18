@@ -12,7 +12,6 @@ var child = require('child_process').exec(cmd,
 		 ifr.height=window.height;
 		 ifr.src='./heatmap.html';
 	 	 });
-
      document.getElementById('heatmapiframe').src='./heatmap.html';
 }
 
@@ -176,9 +175,12 @@ function for_print(adjustable){
 
 // save canvas element to file
 function canvas2file(canvas){
+
+
+
   var fs = require('fs');
   var nativeImage = require('electron').nativeImage;
-  var types = ['image/png', 'image/jpg', 'image/jpeg'];
+  //var types = ['image/png', 'image/jpg', 'image/jpeg'];
   type = 'image/png';
   quality = 1;
 
@@ -192,24 +194,36 @@ function canvas2file(canvas){
      console.log('fsdf');
     context.clearRect(0, 0, width, height);
     context.save();
-    context.translate(width / 2, height / 2);
+    //context.translate(width / 2, height / 2);
     graph.links.forEach(drawLink);
-
+    context.setLineDash([1,0]);
     graph.nodes.forEach(drawNodes);
 
-    context.fillStyle = window.textcolour;
-    graph.nodes.forEach(textstyle);
-    context.restore();
-  }
-    var data = canvas.toDataURL(type, quality);
-    var img = typeof nativeImage.createFromDataURL === 'function'
-      ? nativeImage.createFromDataURL(data) // electron v0.36+
-      : nativeImage.createFromDataUrl(data) // electron v0.30
-    //select type
-     var imdata = (/^image\/jpe?g$/.test(type))?
-        img.toJpeg(Math.floor(quality * 100)) : img.toPng();
+    base_image = new Image();
+    base_image.src = window.linkleneq+'.png';
+    base_image.onload = function(){
+    context.drawImage(base_image, 0, height-140);
 
-    fs.writeFile('image.png', imdata, function (err) {throw err})
+context.fillStyle = window.textcolour;
+graph.nodes.forEach(textstyle);
+context.restore();
+var data = canvas.toDataURL(type, quality);
+var img = typeof nativeImage.createFromDataURL === 'function'
+  ? nativeImage.createFromDataURL(data) // electron v0.36+
+  : nativeImage.createFromDataUrl(data) // electron v0.30
+//select type
+ var imdata = (/^image\/jpe?g$/.test(type))?
+    img.toJpeg(Math.floor(quality * 100)) : img.toPng();
+
+fs.writeFile(window.linkleneq+'.png', imdata, function (err) {throw err})
+
+  }
+
+
+  }
+
+
+
     //var image = window.canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
     //window.location.href=image;
     d3.selectAll('svg').remove();
@@ -219,6 +233,7 @@ function canvas2file(canvas){
 
 function saveloc(graph){
         var fs = require('fs');
+
           graph.dims= [window.width, window.height];
         var filepath = "locations.json";// you need to save the filepath when you open the file to update without use the filechooser dialog againg
         var content = JSON.stringify(graph);
@@ -233,6 +248,39 @@ function saveloc(graph){
          });
       }
 
+
+function theres_no_limit() {
+        setTimeout(function () {
+      if (window.dummy.findmax){
+          window.graph.nodes.forEach(function(d){x.push(d.x); y.push(d.y)},x=[],y=[]);
+          limits = {minx:d3.min(x),miny:d3.min(y),maxx:d3.max(x),maxy:d3.max(y)};
+          simulation.force("link").distance(function(d){var dv= d.value;return window.dummy.min  * eval(linkleneq)});
+          if ( limits.maxx > width || limits.maxy > height|| limits.minx < 0.1*width/1.1 || limits.miny < 0.1*width/1.1){
+            window.dummy.max=window.dummy.min;
+            window.dummy.min/=2;
+          }else{ window.dummy.findmax=false;    }
+        theres_no_limit();
+      }else{
+            window.dummy.count+=1;
+            var midrange = (window.dummy.max + window.dummy.min )/2.;
+            window.graph.nodes.forEach(function(d){x.push(d.x); y.push(d.y)},x=[],y=[]);
+            limits = {minx:d3.min(x),miny:d3.min(y),maxx:d3.max(x),maxy:d3.max(y)};
+            simulation.force("link").distance(function(d){var dv= d.value;return midrange * eval(linkleneq)});
+            if ( limits.maxx > width || limits.maxy > height|| limits.minx < 0.1*width/1.1 || limits.miny < 0.1*width/1.1){
+              window.dummy.max=midrange ;
+            }else{window.dummy.min=midrange}
+        if (window.dummy.count<11){
+          simulation.alpha(0.1);
+          theres_no_limit();
+        }else{console.log('within size');
+          simulation.force("link").distance(function(d){var dv= d.value;return window.dummy.min * eval(linkleneq)});
+          simulation.alpha(1);window.dummy.done=true};
+        }
+      },1000);
+      }
+
+
+///show new window. 
 
 
 function zoomed() {

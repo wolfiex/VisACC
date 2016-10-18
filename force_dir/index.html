@@ -5,12 +5,19 @@
 <!--<canvas id ='heatmp'></canvas>-->
 <iframe id='heatmapiframe' src="" style='position:absolute;border:0;' ></iframe>
 <canvas id='canvas_main'></canvas>
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+
 <svg></svg>
 <div id="selector"></div>
 
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="./d3.v4.min.js"></script>
 <script src="./functions.js"></script>
-<link href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu' rel='stylesheet' type='text/css'>
+
+<link src='./fonts'  rel='stylesheet' type='text/css'>
+<!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
+-->
+
 <script>
 
 const electron = require('electron');
@@ -26,6 +33,9 @@ this.graph=[]
 //default params
 window.onresize = function(event) {location.reload()};
 window.scrollTo(window.innerWidth/2, window.innerHeight/2);
+window.animate=false;
+window.linkleneq='(1-dv)';
+//'Math.abs(Math.log(dv+0.00001)*Math.pow(Math.log(9),-1))'
 
 var constant = 0.5,
     scaled=1.1, // if scale >1 multiply css by that number too
@@ -37,28 +47,30 @@ var constant = 0.5,
     plus_ns=10;
 
 
+//loadscreen
+    var ifr = document.getElementById('heatmapiframe')
+    ifr.width=window.width;
+    ifr.height=window.height;
+    ifr.contentWindow.graph=graph;
+    //ifr.src='./loadscreen.html';
+
+
 // drawing platforms
 
 var svg = d3.select("svg").attr('width',width).attr('height',height);// nodes
 var group = svg.append("g")//.attr("transform", "translate(" + [width/2, height/2] + ")");
-var canvas = document.querySelector("canvas"),
+var canvas = document.getElementById('canvas_main'),//document.querySelector("canvas"),
     context = canvas.getContext("2d");
-
-d3.selectAll('canvas').style('opacity',.65).attr('width', width ).attr('height',height);  //0.5 opacity
+d3.select('canvas').style('opacity',.65).attr('width', width ).attr('height',height);  //0.5 opacity
 d3.select('body').style('background-color', '#222'); // bg colour
 d3.select('selector').call(d3.zoom().scaleExtent([-0, 8]).on("zoom", zoomed));
 d3.csv("./src/fullmcmspecs.csv", function(error, csv) {this.csvdata=csv});     //get list of all species etc
-window.color = d3.interpolate("#F6089E", "#3864EB")    //https://github.com/d3/d3-scale
-window.v=undefined;
+window.color = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
 
-require("./forcegraph.js");
+
 
 console.log(' text stroke, dim rings, svg text option?), selection, freeze mode. hilight stroke   primary hilight, anothe rsystem lasso selection https://github.com/skokenes/D3-Lasso-Plugin, on select grow text, on hover grow text list  OXYGEN sensor rpi github force    vernouli cells around groupings    ');
 
+console.log('start with all species clumped together into goo, which then fly into node positions.')
 </script>
-<script>
-
-
-
-
-</script>
+<script src ="./forcegraph.js"></script>
