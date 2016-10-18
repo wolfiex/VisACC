@@ -41,14 +41,14 @@ app.on('ready', function() {
     // Create the browser window.
     const myLocation = 'file://' + __dirname
     mainWindow = new BrowserWindow({width:900, height: 800,resizable: true,title:'Dan Ellis 2016' ,
-    show:false
+    show:true
       });
-    //mainWindow.openDevTools();    // and load the index.html of the app.
-    mainWindow.loadURL( myLocation + '/index.html');
+    mainWindow.openDevTools();    // and load the index.html of the app.
+    mainWindow.loadURL( myLocation + '/hexbinheatmap.html');
 
 
     splash = new BrowserWindow({width:800, height: 450,resizable: false ,title:'VisACC 2016' ,
-    show:true      });
+    show:false      });
     splash.loadURL( myLocation + '/hexbin.html');
     splash.openDevTools();
 
