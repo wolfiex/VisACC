@@ -51,7 +51,7 @@ function drawhistogram(canvas,context,recieveddata){
 
     var line = d3.line()
         .x(function(d) { return x(d[0]); })
-        .y(function(d) { return y(d[1]*100); })
+        .y(function(d) { return y(d[1]*500); })
         .curve(d3.curveStep)
         .context(context)
 
@@ -107,7 +107,7 @@ var img = typeof nativeImage.createFromDataURL === 'function'
   : nativeImage.createFromDataUrl(data) // electron v0.30
 var imdata = img.toPng();
 fs.writeFile(window.plotname+'.png', imdata, function (err) {throw err});
-electron.remote.getCurrentWindow().close();
+//electron.remote.getCurrentWindow().close();
 
 };
 

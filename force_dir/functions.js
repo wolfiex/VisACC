@@ -206,6 +206,11 @@ function canvas2file(canvas){
 
 context.fillStyle = window.textcolour;
 graph.nodes.forEach(textstyle);
+
+context.fillStyle = 'red';
+context.font = "14px Source Sans Pro";
+context.fillText(window.linkleneq,width/2,50);
+
 context.restore();
 var data = canvas.toDataURL(type, quality);
 var img = typeof nativeImage.createFromDataURL === 'function'
@@ -215,7 +220,7 @@ var img = typeof nativeImage.createFromDataURL === 'function'
  var imdata = (/^image\/jpe?g$/.test(type))?
     img.toJpeg(Math.floor(quality * 100)) : img.toPng();
 
-fs.writeFile(window.linkleneq+'.png', imdata, function (err) {throw err})
+fs.writeFile('./save/'+window.linkleneq+'.png', imdata, function (err) {throw err})
 
   }
 
@@ -255,18 +260,19 @@ function theres_no_limit() {
           window.graph.nodes.forEach(function(d){x.push(d.x); y.push(d.y)},x=[],y=[]);
           limits = {minx:d3.min(x),miny:d3.min(y),maxx:d3.max(x),maxy:d3.max(y)};
           simulation.force("link").distance(function(d){var dv= d.value;return window.dummy.min  * eval(linkleneq)});
-          if ( limits.maxx > width || limits.maxy > height|| limits.minx < 0.1*width/1.1 || limits.miny < 0.1*width/1.1){
+          if ( limits.maxx > 0.9*width/1.1 || limits.maxy > 0.9*height/1.1|| limits.minx < 0.1*width/1.1 || limits.miny < 0.1*width/1.1){
             window.dummy.max=window.dummy.min;
             window.dummy.min/=2;
-          }else{ window.dummy.findmax=false;    }
-        theres_no_limit();
+          }else{ window.dummy.findmax=false; window.dummy.count=0; }
+          if (window.dummy.min<0.25){alert('Cant shrink any more, expand window size')
+        }else{theres_no_limit()};
       }else{
             window.dummy.count+=1;
             var midrange = (window.dummy.max + window.dummy.min )/2.;
             window.graph.nodes.forEach(function(d){x.push(d.x); y.push(d.y)},x=[],y=[]);
             limits = {minx:d3.min(x),miny:d3.min(y),maxx:d3.max(x),maxy:d3.max(y)};
             simulation.force("link").distance(function(d){var dv= d.value;return midrange * eval(linkleneq)});
-            if ( limits.maxx > width || limits.maxy > height|| limits.minx < 0.1*width/1.1 || limits.miny < 0.1*width/1.1){
+            if ( limits.maxx > 0.99*width/1.1 || limits.maxy > 0.99*height/1.1|| limits.minx < 0.01*width/1.1 || limits.miny < 0.01*width/1.1){
               window.dummy.max=midrange ;
             }else{window.dummy.min=midrange}
         if (window.dummy.count<11){
@@ -280,7 +286,7 @@ function theres_no_limit() {
       }
 
 
-///show new window. 
+///show new window.
 
 
 function zoomed() {

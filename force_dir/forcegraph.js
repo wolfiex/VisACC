@@ -71,7 +71,7 @@ simulation.force("link")
 
 
 window.dummy = {max: width/2, min:width/2, findmax:true, count :0, done:false };
-theres_no_limit();
+setTimeout(theres_no_limit, 5000);
 
 
 
@@ -96,8 +96,8 @@ simulation.force("charge", d3.forceManyBody().strength(charge))
     function dragstarted(d) {};
     function dragended(d) {};
     canvas2file(canvas);
-      //alert('simulation completed');
-      //ipc.send('decimate',[]);
+      alert('simulation completed');
+      ipc.send('decimate',[]);
   };
 
 
