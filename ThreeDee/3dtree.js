@@ -89,7 +89,10 @@ tree3d.Graph = Graph;
 (tree3d || (tree3d = {}));
 
 
-d3.json("../force_dir/locations.json", function (error, graph) {
+d3.json("./locations.json", function (error, graph) {
+    //correct to central
+    graph.nodes.filter(function(d){d.x-=graph.dims[0]/2; d.y-= graph.dims[1]/2; return d})
+
     window.run=true;
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -115,7 +118,6 @@ d3.json("../force_dir/locations.json", function (error, graph) {
         return parseInt(str);
     });
 
-  graph.nodes = graph.nodes.filter(function(d){d.x = d.x+graph.dims[0]; d.y=d.y+graph.dims[1]; return d});
 
 ///ANAGLYPHIC
     window.anaglyph=true;
@@ -132,35 +134,49 @@ d3.json("../force_dir/locations.json", function (error, graph) {
 
     console.log(graph);
 
-    var minimum = d3.min(graph.nodes);
+
+    var minimum = Math.min(graph.nodes);
     var maximum = d3.max(graph.nodes);
     var mx = maximum.x-minimum.x;
     var mn = maximum.y-minimum.y;
 
+
+x = []
+y = []
+graph.nodes.forEach(function(d){
+y.push(d.y);
+x.push(d.x);
+})
+
+dx = Math.abs(d3.min(x)-d3.max(x))/2;
+dy = Math.abs(d3.min(y)-d3.max(y))/2;
 
 
     all_planes =  new THREE.Object3D();//create an empty container to hold apll plane groups
     material = new THREE.MeshNormalMaterial({color: 0xFFFF00, transparent: true,opacity: .34});
 
 
-    plane = new THREE.Mesh(new THREE.PlaneGeometry(mn, mx),material);
+    plane = new THREE.Mesh(new THREE.PlaneGeometry(dx, dy),material);
     //plane.material.color.setHex( 0xffffff );
     plane.material.side = THREE.DoubleSide;
-    plane.position.x = width/2;
+    //plane.position.x = 0;
     all_planes.add(plane)
 
-    plane1 = new THREE.Mesh(new THREE.PlaneGeometry(mn, mx),material);
+console.log(mx,mn,minimum,maximum,graph.nodes)
+
+
+    plane1 = new THREE.Mesh(new THREE.PlaneGeometry(dx, dy),material);
     //plane.material.color.setHex( 0xffffff );
     plane1.material.side = THREE.DoubleSide;
-    plane1.position.z = 10;
-    plane1.position.x = width/2;
+    plane1.position.z = 100;
+    //plane1.position.x = width/2;
     all_planes.add(plane1)
 
-    plane2 = new THREE.Mesh(new THREE.PlaneGeometry(mn, mx),material);
+    plane2 = new THREE.Mesh(new THREE.PlaneGeometry(dx, dy),material);
     //plane.material.color.setHex( 0xffffff );
     plane2.material.side = THREE.DoubleSide;
-    plane2.position.z = -10;
-    plane2.position.x = width/2;
+    plane2.position.z = -100;
+    //plane2.position.x = width/2;
     all_planes.add(plane2)
 
     // rotation.z is rotation around the z-axis, measured in radians (rather than degrees)
