@@ -1,6 +1,7 @@
 
 //stats window
 (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='stats.js';document.head.appendChild(script);})()
+const cp = require('child_process');
 
 var tree3d;
 (function (tree3d) {
@@ -234,7 +235,21 @@ console.log(mx,mn,minimum,maximum,graph.nodes)
             mouse.dy = e.clientY - mouse.y;
             mouse.y = e.clientY;
         }
+
+ var child = cp.exec('curl http://192.168.0.18:8080', function (error, stdout, stderr) {  window.rotation = stdout ; child.stdout.pipe(process.stdout);});
+
+ if (typeof window.rotation == 'string'){
+  var dummy= window.rotation.split(/\s/).map(parseFloat);
+  console.log(dummy)
+mouse.x = dummy[0]
+mouse.y = dummy[1]
+ }
+
+
+
     }
+
+
 
 //var mouse = new THREE.Vector2(), INTERSECTED;
 
