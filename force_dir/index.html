@@ -13,6 +13,9 @@
 
 <script src="./d3.v4.min.js"></script>
 <script src="./functions.js"></script>
+<script src="./gpu.js"></script>
+
+
 
 <link src='./fonts'  rel='stylesheet' type='text/css'>
 <!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
@@ -34,7 +37,9 @@ this.graph=[]
 window.onresize = function(event) {location.reload()};
 window.scrollTo(window.innerWidth/2, window.innerHeight/2);
 window.animate=true;
-window.linkleneq='Math.pow(dv,1)';
+window.linkleneq=  'Math.pow(dv,4) + Math.pow(dv,Math.pow(0.1,-1)) + Math.abs(Math.log((1-dv)+0.00001)*Math.pow(Math.log(7.2),-1))'
+
+//'Math.pow(dv,2)+Math.pow(dv,1/.1)';
 //'Math.abs(Math.log(dv+0.00001)*Math.pow(Math.log(9),-1))'
 
 var constant = 0.5,

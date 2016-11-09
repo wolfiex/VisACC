@@ -1,0 +1,238 @@
+<style>
+body {
+        font-family:Courier New;
+        font-size:12px;
+}
+</style>
+
+<script src="./d3.v4.min.js"></script>
+<script src="./gpu.js"></script>
+
+
+<script>
+
+// Gene.code=gene[0] gene.cost=gene[1] - remapped for gpu usage
+
+window.permutations = [[1,1,1],[1,1,0],[1,0,1],[0,1,1],[0,1,0],[0,0,1]];
+window.data=[];
+gpu = new GPU();
+window.mfun = gpu.createKernel(function(d,code){
+    //function internal() {
+
+
+
+
+      var sm =0;
+      for (var i=0; i<436; i++) { // number of links
+
+        var log = Math.abs(Math.log((1-d[i])+0.00001)*(1/Math.log(code[2])));
+        var pow = Math.pow(d[i],code[0]);
+        var root = Math.pow(d[i],1/code[1]);
+
+        var math = 1*log + 1*pow + 1*root;
+        //if (math > 0 &&  code[1] != 0 && log != 0 ){
+        sm = sm +  Math.abs(math-0.5);
+       //}else{ sm = 9999.};
+      }
+    //sum.push(sm)
+    //}
+
+
+
+
+    return Math.abs(sm/300);
+
+
+
+   //}return internal()
+
+
+  }).dimensions([1]);
+
+
+
+
+
+d3.json("./locs.json", function(graph) { graph.links.filter(function(d){local.push(d.value)},local=[]);window.data=local;});
+
+
+
+var Gene = function(code) {
+    if (code) this[0] = code;
+    this[1] = 9999;
+};
+
+Gene.prototype[0] = [];
+
+Gene.prototype.random = function(length) {
+
+  var myArray = [];
+  var limit = 4
+  for (var i = 0; i < limit-1; i++) {
+  myArray.push(Math.floor(Math.random()*limit+Math.random()*limit));
+  }
+  this[0]=myArray;
+};
+
+Gene.prototype.mutate = function(chance) {
+
+    if (Math.random() > chance) return;
+
+    var index = Math.floor(Math.random() * this[0].length);
+    var multiplier = Math.floor(Math.random() * 3);
+    var upOrDown = Math.random() <= 0.5 ? - 0.1 : 0.1;
+
+    this[0][index] += multiplier* upOrDown;
+
+
+};
+
+Gene.prototype.mate = function(gene) {
+    var swap = Math.round(this[0].length / 2) - 1;
+    var dummy = this[0][swap];
+
+    this[0][swap] = gene[0][swap];
+    gene[0][swap] = dummy;
+
+    var child1 = this[0];
+    var child2 = gene[0];
+
+    return [new Gene(child1), new Gene(child2)];
+};
+
+
+Gene.prototype.calcCost = function(compareTo) {
+    var total = this[0].reduce(function(a, b) { return a + b; })
+    //this[1] = (Math.abs((total/this[0].length)-compareTo));
+
+
+    this[1] = window.mfun(window.data,this[0],300 );
+    if (this[1]<0.0000001){ this[1] = 999999}
+
+
+
+};
+
+
+var Population = function(goal, size) {
+    this.members = [];
+    this.goal = goal;
+    this.generationNumber = 0;
+    this.size= size
+    while (size--) {;
+        var gene = new Gene();
+        gene.random(this.goal.length);
+        this.members.push(gene);
+    }
+};
+Population.prototype.display = function() {
+    document.body.innerHTML = '';
+    document.body.innerHTML += ("<h2>Generation: " + this.generationNumber + "</h2>");
+    document.body.innerHTML += ("<ul>");
+    for (var i = 0; i < this.members.length; i++) {
+        document.body.innerHTML +=  ("<li>" +" (" + this.members[i][1] + ")" + this.members[i][0] );
+    }
+    document.body.innerHTML += ("</ul>");
+};
+Population.prototype.sort = function() {
+    this.members.sort(function(a, b) {
+        return a[1] - b[1];
+    });
+}
+
+Population.prototype.generation = function() {
+
+    //console.log('remove duplicates');
+
+    //only top 20% survive
+    var lenswp = Math.floor(this.size*0.3); // top 20% survive
+    this.members.splice(lenswp, this.size);
+
+
+    //rm duplicates
+    window.members=this.members;
+    this.members.filter(function(d) {a.push(String(d[0]))},a=[]);
+    set = new Set(a);
+    set.forEach(function(d){inx.push(a.indexOf(d))},inx=[]);
+    newmembers=[];
+    inx.forEach(function (i){  newmembers.push(window.members[i]); })
+    this.members=newmembers;
+    //console.log(this.members.length,newmembers.length, window.members.length, inx.length);
+
+    Array.prototype.push.apply(this.members,this.members)
+
+    // unselected mating between top 20%
+
+
+    //console.log('mating',this.size - this.members.length)
+        for (var i = 0; i < Math.floor((this.size-lenswp)/2); i++) {
+            var i0 = Math.floor(Math.random() * lenswp);
+            var i1 = Math.floor(Math.random() * lenswp);
+            var children = this.members[i0].mate(this.members[i1]);
+            this.members.push(children[0]);
+            this.members.push(children[1]);
+          };
+
+        //rm duplicates
+          window.members=this.members;
+        this.members.filter(function(d) {a.push(String(d[0]))},a=[]);
+          set = new Set(a);
+          set.forEach(function(d){inx.push(a.indexOf(d))},inx=[]);
+          newmembers=[];
+          inx.forEach(function (i){  newmembers.push(window.members[i]); })
+          this.members=newmembers;
+
+
+          // new external species
+              //console.log('new species', this.size - this.members.length)
+              for (var i=0;i<this.size - this.members.length; i++){
+                var gene = new Gene();
+                gene.random(this.goal.length);
+                this.members.push(gene);
+              }
+
+
+
+
+
+    // dont mutate top 20%
+    for (var i = lenswp; i < this.members.length; i++) {
+        this.members[i].mutate(1); //mutate all as we already have a copy of all the champions
+        this.members[i].calcCost(this.goal);
+
+/*
+//console.log(this.members[i][1])
+        if (this.members[i][1] == 0) {
+            this.sort();
+            this.display();
+            return true;
+        }
+*/
+
+
+    }
+
+this.sort();
+//this.display();
+
+
+    this.generationNumber++;
+    var scope = this;
+    if (this.generationNumber<60){
+
+      setTimeout(function() {
+          scope.generation();
+      }, 4);
+
+    }else{
+    this.display();
+}
+
+};
+
+  setTimeout(function() {
+var population = new Population(10, 300);
+population.generation();
+},400)
+
+</script>
