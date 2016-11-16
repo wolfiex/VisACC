@@ -5,9 +5,7 @@
   "main": "main.js",
   "dependencies": {
     "photon": "^2.0.0",
-    "react": "^15.3.2",
-    "react-bootstrap": "^0.30.5",
-    "react-dom": "^15.3.2"
+    " webhamsters":"^3.7.0"
   },
   "devDependencies": {
     "electron": "^1.4.0",
