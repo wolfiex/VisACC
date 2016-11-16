@@ -13,24 +13,29 @@ body {
 
 // Gene.code=gene.code gene.cost=gene[1] - remapped for gpu usage
 
-window.permutations = [[1,1,1],[1,1,0],[1,0,1],[0,1,1],[0,1,0],[0,0,1]];
+//window.permutations = [[1,1,1],[1,1,0],[1,0,1],[0,1,1],[0,1,0],[0,0,1]];
 
 
 window.data=[];
 gpu = new GPU();
-window.mfun = gpu.createKernel(function(d,code){
+window.mfun = gpu.createKernel(function(d,code,perm){
       var sm =0;
       for (var i=0; i<436; i++) { // number of links
         var log = Math.abs(Math.log((1-d[i])+0.00001)*(1/Math.log(code[2])));
         var pow = Math.pow(d[i],code[0]);
         var root = Math.pow(d[i],1/code[1]);
-        var math = 1*log + 1*pow + 1*root;
+        var math = perm[0]*log + perm[1]*pow + perm[2]*root;
+
         sm = sm +  Math.abs(math-0.5);
       }
     return Math.abs(sm/300);
   }).dimensions([1]);
 
 
+  window.test = gpu.createKernel(function(d,code,perm){
+
+        return perm[0];
+    }).dimensions([1]);
 
 
 
@@ -40,9 +45,10 @@ d3.json("./locs.json", function(graph) { graph.links.filter(function(d){local.pu
 
 var Gene = function(code) {
     if (code) this.code = code;
-    this[1] = 9999;
-};
+    this[1] = false;
 
+};
+Gene.prototype.perm = [[1,1,1],[1,1,0],[1,0,1],[0,1,1],[0,1,0],[0,0,1]];
 Gene.prototype[0] = [];
 
 Gene.prototype.random = function(length) {
@@ -84,10 +90,28 @@ Gene.prototype.mate = function(gene) {
 
 Gene.prototype.calcCost = function(compareTo) {
     var total = this.code.reduce(function(a, b) { return a + b; })
-    //this[1] = (Math.abs((total/this.code.length)-compareTo));
+
+    //if (!this.perm) this.perm=window.permutations;
+
+    if (this[1]) {return};
+
+    var cost=9999,
+    combination,
+    dummy=cost;
+
+    for (var i = 0; i < this.perm.length; i++) {
+      dummy = window.mfun(window.data,this.code,this.perm[i])[0];
+      window.i = this.perm;
+      if (dummy < cost){
+        cost = dummy;
+        combination = this.perm[i];
+      }}
+      this.perm = combination;
+      this[1] = cost;
 
 
-    this[1] = window.mfun(window.data,this.code,300 );
+
+    //this[1] = window.mfun(window.data,this.code,300 );
     if (this[1]<0.0000001){ this[1] = 999999}
 
 
@@ -111,7 +135,7 @@ Population.prototype.display = function() {
     document.body.innerHTML += ("<h2>Generation: " + this.generationNumber + "</h2>");
     document.body.innerHTML += ("<ul>");
     for (var i = 0; i < this.members.length; i++) {
-        document.body.innerHTML +=  ("<li>" +" (" + this.members[i][1] + ")" + this.members[i][0] );
+        if(this.members[i][1]>0) document.body.innerHTML +=  ("<li>" +" (" + this.members[i][1] + ")" + '['+ this.members[i].code+']  c: '+this.members[i].perm );
     }
     document.body.innerHTML += ("</ul>");
 };
@@ -180,7 +204,7 @@ Population.prototype.generation = function() {
     for (var i = lenswp; i < this.members.length; i++) {
         this.members[i].mutate(1); //mutate all as we already have a copy of all the champions
         this.members[i].calcCost(this.goal);
-
+}
 /*
 //console.log(this.members[i][1])
         if (this.members[i][1] == 0) {
@@ -191,7 +215,7 @@ Population.prototype.generation = function() {
 */
 
 
-    }
+
 
 this.sort();
 //this.display();
@@ -212,8 +236,12 @@ this.sort();
 };
 
   setTimeout(function() {
-var population = new Population(10, 300);
+var population = new Population(10, 150);
 population.generation();
-},400)
+},30)
+
+
+console.log('reduce run cycle', 'sort by active pairs and mutate')
+
 
 </script>
