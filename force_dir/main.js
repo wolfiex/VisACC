@@ -44,7 +44,7 @@ app.on('ready', function() {
     show:true
       });
     mainWindow.openDevTools();    // and load the index.html of the app.
-    mainWindow.loadURL( myLocation + '/geneticalgorithm.html');
+    mainWindow.loadURL( myLocation + '/gavis.html');
 
 
     splash = new BrowserWindow({width:800, height: 450,resizable: false ,title:'VisACC 2016' ,
