@@ -3,22 +3,25 @@ import multiprocessing, math
 import json
 
 with open('locs.json') as data_file: data = json.load(data_file)
-global edges
+global edges, mean_edge , norm
 edges = [i['value'] for i in data['links']]
-
+mean_edge= np.mean(edges)
 global datastring
 datastring =''
 
+norm = np.sum([abs(mean_edge - x) for  x in edges])
+
 # logbase , root , powerx
-def f_111 (code) : return np.mean([ (np.abs(math.log(x+1e-9,code[0])/math.log(1e-9,code[0])) + x**(1./code[1]) + x**code[2]) for x in edges])
+def f_111 (code) : return np.sum([abs(mean_edge - ( (np.abs(math.log(x+1e-9,code[0])/math.log(1e-9,code[0])) + x**(1./code[1]) + x**code[2]) )) for x in edges]) /norm
 
-def f_110 (code) : return np.mean([ np.abs(math.log(x+1e-9,code[0])/math.log(1e-9,code[0])) + x**(1./code[1]) for x in edges])
-def f_101 (code) : return np.mean([ np.abs(math.log(x+1e-9,code[0])/math.log(1e-9,code[0])) + x**code[1] for x in edges])
-def f_011 (code) : return np.mean([ x**(1./code[0]) + x**code[1] for x in edges])
+def f_110 (code) : return np.sum([ abs(mean_edge - (math.log(x+1e-9,code[0])/math.log(1e-9,code[0])) + x**(1./code[1]) ) for  x in edges])/norm
+def f_101 (code) : return np.sum([ abs(mean_edge - (abs(math.log(x+1e-9,code[0])/math.log(1e-9,code[0])) + x**code[1] )) for  x in edges])/norm
+def f_011 (code) : return np.sum([ abs(mean_edge - (x**(1./code[0]) + x**code[1] )) for  x in edges])/norm
 
-def f_100 (code) : return np.mean([ np.abs(math.log(x+1e-9,code[0])/math.log(1e-9,code[0])) for x in edges])
-def f_001 (code): return np.mean([x**code[0] for x in edges])
-def f_010 (code) : return np.mean([ x**(1./code[0]) for x in edges])
+def f_100 (code) : return np.sum([ abs(mean_edge - (abs(math.log(x+1e-9,code[0])/math.log(1e-9,code[0])) )) for  x in edges])/norm
+def f_001 (code): return np.sum([abs(mean_edge - (x**code[0] )) for  x in edges])/norm
+def f_010 (code) : return np.sum([abs(mean_edge - ( x**(1./code[0]) )) for  x in edges])/norm
+
 
 functions = ['111','110','011','101','010','100','001']
 
@@ -36,7 +39,7 @@ class Gene:
         self.value = value
         self.elements = nvals
         self.range= [15]*nvals
-        self.min=[0]*nvals
+        self.min=[-2]*nvals
         self.style = ''
         if str(code): self.random()
         else: self.code = code
@@ -49,8 +52,8 @@ class Gene:
         self.style='random'
 
     def mutate (self):
-        prob = 0.9
-        magnitude = 1
+        prob = 0.8
+        magnitude = .1
         sign =  np.random.random_integers(-1,1,3)
         mutate_factor = [np.random.random()*magnitude*i  for i in sign]
         self.code = [self.code[i] + mutate_factor[i] for i in xrange(self.elements)]
@@ -194,7 +197,7 @@ for fun in functions:
         try: nval+= int(f)
         except:None
 
-    p = Population(40, eval('f_%s'%fun), runs = 150, nvals=nval )
+    p = Population(100, eval('f_%s'%fun), runs = 350, nvals=nval )
     p.spawn()
     p.start()
     print fun
@@ -235,3 +238,5 @@ dataset = dataset.replace("'",'"').replace('},','},\n')
 f = open('ga.json','w')
 f.write(dataset)
 f.close()
+
+print datastring
