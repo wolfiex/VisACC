@@ -5,11 +5,11 @@
   "main": "main.js",
 
   "dependencies": {
-
+   "d3": "^4.4.0"
   },
   "devDependencies": {
     "electron-prebuilt": "^1.4.0"
-  
+
   },
   "repository": {
   "type": "git",
