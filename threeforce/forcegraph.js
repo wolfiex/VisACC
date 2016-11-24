@@ -59,11 +59,8 @@ graph.nodes = graph.nodes.filter(function(d){node_sizes.push( d.s * ptsize );d.x
           //alert('simulation completed'); UDE On.end
            };
 
-
-
            window.plotobject.setNodePositions(graph)
            window.plotobject.update();
-
     }
 
 
@@ -75,6 +72,10 @@ ipc.on('command', (event,arg)=> {
 
 
 };
+
+
+
+
 
 
 window.simulation.vert = d3.forceSimulation()

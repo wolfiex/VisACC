@@ -26,8 +26,6 @@
 </body>
 
 
-
-
 <script>
 
 const electron = require('electron');
@@ -57,7 +55,7 @@ plus_ns=10;
 
 d3.csv("./src/fullmcmspecs.csv", function(error, csv) {this.csvdata=csv});     //get list of all species etc
 window.color = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
-window.color1 = d3.interpolate('#222','orange') ///'blue',"#F6089E");
+window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
 
 
 console.log(' text stroke, dim rings, svg text option?), selection, freeze mode. hilight stroke   primary hilight, anothe rsystem lasso selection https://github.com/skokenes/D3-Lasso-Plugin, on select grow text, on hover grow text list  OXYGEN sensor rpi github force    vernouli cells around groupings    ');
@@ -128,14 +126,48 @@ var renderer = new THREE.WebGLRenderer({
 
 
 
+
+  function constrain(v, min, max){
+    if( v < min )
+    v = min;
+    else
+    if( v > max )
+    v = max;
+    return v;
+  }
+
+    function createLinePoints(startPoint, endPoint){
+      var numPoints = 30;
+      var returnPoints = [];
+      for(i=0; i <= numPoints; i ++){
+        var thisPoint = startPoint.clone().lerp(endPoint, i/numPoints);
+        returnPoints.push(thisPoint);
+      }
+      return returnPoints;
+    }
+
+
+
+
+  var numParticles = 400;
+  var material = new THREE.LineBasicMaterial({color: 0x0000ff });
+  //First create the line that we want to animate the particles along
+
+
+  var startPoint = new THREE.Vector3(-80, 0, -800)
+  var endPoint = new THREE.Vector3(800, 0, 800)
+
+
+
+
   render();
-
-
 
   function render() {
     controls.update();
     requestAnimationFrame(render);
-    renderer.render(scene, camera);
+      renderer.render(scene, camera);
+      if (window.help) window.plotobject.river();
+    //UpdateParticles();
   }
 
 

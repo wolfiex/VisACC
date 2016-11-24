@@ -1,8 +1,89 @@
+//moving particles
+
+var flow = class particleflow {
+constructor(startPoint, endPoint,size){
+this.startPoint= startPoint; this.endPoint = endPoint;
+var numPoints = 30,numParticles=100*size;
+this.animationPoints = [];
+for(var i=0; i <= numPoints; i ++){
+        var thisPoint = startPoint.clone().lerp(endPoint, i/numPoints);
+        this.animationPoints.push(thisPoint);
+      }
+
+var particleGeometry = new THREE.Geometry();
+  //add particles to scene
+  for ( i = 0; i < numParticles; i ++ ) {
+  var desiredIndex = i / numParticles * this.animationPoints.length;
+  function constrain(v, min, max){
+    if( v < min )
+    v = min;
+    else
+    if( v > max )
+    v = max;
+    return v;
+  }
+  var rIndex = constrain(Math.floor(desiredIndex),0,this.animationPoints.length-1);
+  var particle = new THREE.Vector3();
+  var particle = this.animationPoints[rIndex].clone();
+  particle.moveIndex = rIndex;
+  particle.nextIndex = rIndex+1;
+  if(particle.nextIndex >= this.animationPoints.length )
+  particle.nextIndex = 0;
+  particle.lerpN = 0;
+  particle.path = this.animationPoints;
+  particleGeometry.vertices.push( particle );
+  }
+
+  //set particle material
+
+  var pMaterial = new THREE.ParticleBasicMaterial({
+    //color: window.color(size),
+    size: 3* (1-size),
+
+  blending: THREE.AdditiveBlending,
+  transparent: true
+  });
+
+this.particles = new THREE.ParticleSystem( particleGeometry, pMaterial );
+    this.particles.sortParticles = true;
+    this.particles.dynamic = true;
+    scene.add(this.particles);
+}
+
+
+ UpdateParticles(){
+    for( var i = 0; i < this.particles.geometry.vertices.length; i++ ){
+      var particle = this.particles.geometry.vertices[i];
+      var path = particle.path;
+      particle.lerpN += 0.05;
+      if(particle.lerpN > 1){
+        particle.lerpN = 0;
+        particle.moveIndex = particle.nextIndex;
+        particle.nextIndex++;
+        if( particle.nextIndex >= path.length ){
+          particle.moveIndex = 0;
+          particle.nextIndex = 1;
+        }
+      }
+
+      var currentPoint = path[particle.moveIndex];
+      var nextPoint = path[particle.nextIndex];
+
+
+      particle.copy( currentPoint );
+      particle.lerp( nextPoint, particle.lerpN );
+    }
+    this.particles.geometry.verticesNeedUpdate = true;
+  };
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
 var ThreeLayout;
-
-(
-
-function (ThreeLayout) {
+( function (ThreeLayout) {
 
     var Graph = ThreeLayout.Graph = (function () {
         function Graph(parentObject, graph) {
@@ -43,8 +124,20 @@ function (ThreeLayout) {
                 p.z = nd.z;
                 this.nodeMeshes[i].position = p             }
         };
+
+
+        Graph.prototype.addflow = function () {
+            this.edgeList.forEach(function (e) {return e.addflow(); });
+        };
+
+        Graph.prototype.river = function () {
+            this.edgeList.forEach(function (e) {return e.flowfeed.UpdateParticles(); });
+        };
+
+
+
         Graph.prototype.update = function () {
-            this.edgeList.forEach(function (e) { return e.update(); });
+            this.edgeList.forEach(function (e) {return e.update(); });
         };
         // Remove self from the scene so that the object can be GC'ed
         Graph.prototype.destroy = function () {
@@ -54,11 +147,15 @@ function (ThreeLayout) {
     })();
 
 
+
+
     var Edge = ThreeLayout.Edge = (function () {
         function Edge(parentObject, sourcePoint, targetPoint,strength ) {
             this.parentObject = parentObject;
             this.sourcePoint = sourcePoint;
             this.targetPoint = targetPoint;
+
+
             this.strength=strength;
             this.shape = this.makeCylinder();
             parentObject.add(this.shape);
@@ -83,8 +180,19 @@ function (ThreeLayout) {
             return cylinder;
         };
 
+        Edge.prototype.addflow=function(){
+          this.flowfeed = new flow(this.sourcePoint,this.targetPoint,this.strength);
+          window.help=true;
+};
+
+
+
+
+
         Edge.prototype.update = function () {
+
             var a = this.sourcePoint, b = this.targetPoint;
+
             var m = new THREE.Vector3();
             m.addVectors(a, b).divideScalar(2);
             this.shape.position = m;
@@ -93,7 +201,7 @@ function (ThreeLayout) {
             targetVec.subVectors(b, a);
             var l = targetVec.length();
 
-            this.shape.scale.set(1,2, l);
+            this.shape.scale.set(2,4*(1-this.strength), l);
             //this.shape.scale.set(parseInt(4*this.strength), parseInt(4*this.strength) , l);
 
             targetVec.normalize();
