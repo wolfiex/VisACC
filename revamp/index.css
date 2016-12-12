@@ -1,0 +1,18 @@
+body { margin: 0; }
+svg,container,canvas,heatmapiframe{position: absolute;
+    width:110%;
+    height:110%;
+    margin: 0;
+    border:0 ;
+
+}
+polygon{fill:orange;
+        stroke:1;
+        opacity:0.4;
+        stroke-width:10;
+}
+path {
+  pointer-events: all;
+  fill: none;
+  stroke: red;
+  stroke-opacity: 0.2;

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+@import url(./style.css);
+#graphdiv {
+  position: absolute;
+  left: 0px;
+}
+</style>
+
+<script src="three.js"></script>
+<script src="./TrackballControls.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src = './graph_classes.js'></script>
+<script src="./functions.js"></script>
+<script src="./stats.js"></script>
+<link src='./fonts'  rel='stylesheet' type='text/css'>
+<!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
+-->
+
+<body>
+  <div id="graphdiv">
+  </div>
+
+
+</body>
+
+
+<script>
+/// main action script
+const electron = require('electron');
+const fs = require('fs');
+const NetCDFReader = require('netcdfjs');
+var ipc = electron.ipcRenderer;
+ipc.on('toggle-prefs', (event,arg)=> {console.log(event,arg)});
+
+
+//parameters - netcdf
+var data = fs.readFileSync('volcano.nc');
+var reader = new NetCDFReader(data); // read the header
+// get data dimentions
+reader.dimensions.forEach(function(d){dims[d.name] = d.size},dims={})
+
+
+
+
+//    reader.getDataVariable('wmoId'); // go to offset and read it
+
+
+class nc2D {
+  constructor(name, width, arr_type) { //Float32Array
+    this.width = dims[width];
+    this.arr_type = arr_type
+    this.data = new arr_type(reader.getDataVariable(name));
+  }
+}
+
+function get_row (data, index){
+   start = index*data.width
+   return new data.arr_type(data.data.slice(start,start+data.width))
+}
+
+
+
+set(frozenset(i) for i in [set([3,4]), set([4,3]), {5,4}])
+
+
+
+
+this.csvdata=[]
+this.graph=[]
+//default params
+window.onresize = function(event) {location.reload()};
+window.scrollTo(window.innerWidth/2, window.innerHeight/2);
+window.linkleneq=  'dv'
+
+var constant = 0.5,
+scaled=1.1, // if scale >1 multiply css by that number too
+width = window.innerWidth*scaled,
+height = window.innerHeight*scaled,
+node_sizes=[],
+textcolour='white',
+primary = ["BENZENE", "C2H2", "C2H6", "TOLUENE", "IC4H10", "NC4H10", "C3H8", "CH4", "APINENE", "C5H8", "C3H6", "CO"],
+plus_ns=10;
+
+
+//d3.select('body').style('background-color', '#222'); // bg colour
+
+
+d3.csv("./src/fullmcmspecs.csv", function(error, csv) {this.csvdata=csv});     //get list of all species etc
+window.color = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
+window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
+
+
+console.log(' text stroke, dim rings, svg text option?), selection, freeze mode. hilight stroke   primary hilight, anothe rsystem lasso selection https://github.com/skokenes/D3-Lasso-Plugin, on select grow text, on hover grow text list  OXYGEN sensor rpi github force    vernouli cells around groupings    ');
+console.log('start with all species clumped together into goo, which then fly into node positions.')
+</script>
+
+<script>
+
+//stats window
+(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='stats.js';document.head.appendChild(script);})()
+const cp = require('child_process');
+
+
+var scene = new THREE.Scene();
+
+var camera = new THREE.PerspectiveCamera(450, width / height, 0.1, 1000);
+//var camera = new THREE.OrthographicCamera( -200, 200, -200, 200, 1, 1000 );
+camera.up = new THREE.Vector3( 0, 0, 1 );
+
+camera.position.x = -0;
+camera.position.y = -0.1;
+camera.position.z = +300;
+camera.lookAt(scene.position);
+
+//Math.tan(45* Math.PI/180)*-50;
+
+var renderer = new THREE.WebGLRenderer({
+  precision: 'highp',
+  antialias: true,
+  //alpha: true  ,
+  preserveDrawingBuffer: true});
+  renderer.setSize(width, height);
+  //renderer.shadowMapEnabled = true;
+  //renderer.shadowMapSoft = true;
+
+
+
+  /*
+  var cube = new THREE.BoxHelper() ;
+  cube.material.color='black';
+  cube.scale.set( 10, 10, 10);
+  cube.material.fragmentShader='black'
+
+  scene.add( cube );
+  */
+
+
+
+  var controls = new THREE.TrackballControls(camera);
+
+  document.getElementById('graphdiv').appendChild(renderer.domElement);
+
+  //scene.add(new THREE.AmbientLight(0x111111));
+
+  var light = new THREE.DirectionalLight(0xffffff, 1);
+  light.shadowCameraVisible = true;
+  light.position.set(-0,0,100);
+  scene.add(light);
+
+  var light = new THREE.DirectionalLight(0xffffff, 1);
+  light.shadowCameraVisible = true;
+  light.position.set(-0,0,-100);
+  scene.add(light);
+
+
+  var ambientLight = new THREE.AmbientLight(0x090909);
+  scene.add(ambientLight);
+
+
+
+
+  function constrain(v, min, max){
+    if( v < min )
+    v = min;
+    else
+    if( v > max )
+    v = max;
+    return v;
+  }
+
+    function createLinePoints(startPoint, endPoint){
+      var numPoints = 30;
+      var returnPoints = [];
+      for(i=0; i <= numPoints; i ++){
+        var thisPoint = startPoint.clone().lerp(endPoint, i/numPoints);
+        returnPoints.push(thisPoint);
+      }
+      return returnPoints;
+    }
+
+
+
+
+  var numParticles = 400;
+  var material = new THREE.LineBasicMaterial({color: 0x0000ff });
+  //First create the line that we want to animate the particles along
+
+
+  var startPoint = new THREE.Vector3(-80, 0, -800)
+  var endPoint = new THREE.Vector3(800, 0, 800)
+
+
+
+
+  render();
+
+  function render() {
+    controls.update();
+    requestAnimationFrame(render);
+      renderer.render(scene, camera);
+      if (window.help) window.plotobject.river();
+    //UpdateParticles();
+  }
+
+
+
+
+  </script>
+
+  <script src ="./forcegraph.js"></script>

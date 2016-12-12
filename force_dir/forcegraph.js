@@ -6,7 +6,7 @@ window.simulation = d3.forceSimulation()
     .force('collide', d3.forceCollide())
     .alphaDecay(1-Math.pow(0.0001,1/3000));//timesteps
 
-d3.json("./ics/pro_144.json", function(error, graph) { if (error) throw error; window.graph=graph;run()});
+d3.json("./ics/Nhe_144.json", function(error, graph) { if (error) throw error; window.graph=graph;run()});
 
 function run(){
  graph=window.graph;
