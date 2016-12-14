@@ -2,7 +2,7 @@
 window.simulation = d3.forceSimulation()
     //.force("charge", d3.forceManyBody().strength(-30))//- 18 -550 -32 -34
     .force("link", d3.forceLink().id(function(d) { return parseFloat(d.id); }))
-    .force("center", d3.forceCenter(0,0))//(width/2,height/2))
+    .force("center", d3.forceCenter(width/2,height/2))
     .force('collide', d3.forceCollide())
     .alphaDecay(1-Math.pow(0.0001,1/3000));//timesteps
 
@@ -11,13 +11,13 @@ window.simulation = d3.forceSimulation()
 
 
 
-
+run()
 
 function run(){
 console.log(graphlinks);
 
 
-  //simulation.force('collide', d3.forceCollide().radius(function(d,i){return  (plus_ns+node_sizes[i])/8 + plus_ns + node_sizes[i]}))
+  simulation.force('collide', d3.forceCollide().radius(function(d,i){return  20}))
 
 
 nodes.filter(function(d){if(isFinite(window.concs[d.id])) ; nd.push(d)},nd=[]);
@@ -30,9 +30,9 @@ var node = svg.append("g")
     .selectAll("circle")
     .data(nodes)
     .enter().append("circle")
-      .attr("r", 20)//function (d){ return (!isFinite(concs[d.id]))? 0.01 : 10 + 30. * window.concs[d.id]  }  )
+      .attr("r", function(d){return (concs[d.id] > 0 )?   20 : 0.1  }  )
       .attr("fill", 'red')// function(d) { return color(concs[d.id]); })
-
+      .text((d)=> d.names)
 
         var link = svg.append("g")
             .attr("class", "links")
@@ -65,11 +65,11 @@ var node = svg.append("g")
 
   simulation.force("link")
         .links(graph.links)
-        .distance(5)//(isFinite(edge_length[d.index]))? 1+4.*edge_length[d.index] : 0 })//*eval(window.linkleneq)}) // 1-dval 500*0.4+(dv*dv*dv)/0.6
+        .distance(300)//(isFinite(edge_length[d.index]))? 1+4.*edge_length[d.index] : 0 })//*eval(window.linkleneq)}) // 1-dval 500*0.4+(dv*dv*dv)/0.6
         .strength(1)//function(d){return(isFinite(edge_length[d.index])? 1 : 0 )});//edge_length.map((d)=>(d==Infinity)? 0:1 ));
 
 
-simulation.force("charge", d3.forceManyBody().strength(charge));//function(d) {return(isFinite(concs[d.id]))? charge : 0}))
+//simulation.force("charge", d3.forceManyBody().strength(charge));//function(d) {return(isFinite(concs[d.id]))? charge : 0}))
 
 
 console.log('here');
@@ -94,16 +94,15 @@ console.log('here');
 */
   function ticked() {
 
-console.log('tick');
     node
-.attr("cx", function(d) { return graph.nodes[d.id].x + window.pw; })
-.attr("cy", function(d) { return graph.nodes[d.id].y + window.ph; });
+.attr("cx", function(d) { return graph.nodes[d.id].x })
+.attr("cy", function(d) { return graph.nodes[d.id].y });
 
     link
-        .attr("x1", function(d) { return d.source.x+ window.pw; })
-        .attr("y1", function(d) { return d.source.y+ window.ph; })
-        .attr("x2", function(d) { return d.target.x+ window.pw; })
-
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
 
 
 

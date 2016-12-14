@@ -77,8 +77,8 @@ const concentration = new nc2D('concentration','specs',Float32Array);
 const flux = new nc2D('edge-length','fluxes',Float32Array);
 const dict = JSON.parse(reader.getDataVariable('nodes').join(''));
 const combine = JSON.parse(reader.getDataVariable('combinations').join(''));
-const tar = new Uint8Array(reader.getDataVariable('target')).slice(0,combine.length); // remove extra appended numbers
-const src = new Uint8Array(reader.getDataVariable('source')).slice(0,combine.length);
+const tar = reader.getDataVariable('target');
+const src = reader.getDataVariable('source');
 //time array
 //location array
 //primary spec list
@@ -95,7 +95,7 @@ var print = (d) => console.log(d);
 
 
 
-timestep=0;
+timestep=1;
 
 const edge_len = flux.row(timestep)
 window.concs = concentration.row(timestep)
