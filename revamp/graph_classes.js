@@ -96,10 +96,13 @@ var ThreeLayout;
             // Create all the node meshes
             this.nodeMeshes = Array(n);
             for (var i = 0; i < n; ++i) {
+                var con = window.concs[i];
+
+                if (isNaN(con)){con = 0.01};
                 var sphere = this.nodeMeshes[i] = new THREE.Mesh(
-                  new THREE.SphereGeometry(2+10*graph.nodes[i].s,  50, 50), //radius, segments, rings
+                  new THREE.SphereGeometry(2+10*window.concs[i] ,  50, 50), //radius, segments, rings  (i)=> {isNan(conc[i])?0.1:2+ 12*conc[i]}
                   new THREE.MeshPhongMaterial( {
-          color: window.color1(graph.nodes[i].s),
+          color: window.color1(concs[i]),
           specular: 0x050505,
           shininess: 100
       } )
@@ -111,7 +114,19 @@ var ThreeLayout;
             graph.links.forEach(function (e) {
                 _this.edgeList.push(
                   new Edge(_this.rootObject, _this.nodeMeshes[e.source.index].position,
-                     _this.nodeMeshes[e.target.index].position,e.value));
+                     _this.nodeMeshes[e.target.index].position, (isNaN(window.concs[e.id])?0:concs[e.id]))); ///////// (isNaN(window.concs[e.id])?0:concs[e.id])
+
+                     ////// concs here
+                     ////// concs here
+                     ////// concs here
+                     ////// concs here
+                     ////// concs here
+                     ////// concs here
+                     ////// concs here
+
+
+
+
             });
         }
         Graph.prototype.setNodePositions = function (graph) {
