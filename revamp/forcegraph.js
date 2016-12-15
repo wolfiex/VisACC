@@ -3,53 +3,57 @@ window.simulation = d3.forceSimulation()
     //.force("charge", d3.forceManyBody().strength(-30))//- 18 -550 -32 -34
     .force("link", d3.forceLink().id(function(d) { return parseFloat(d.id); }))
     .force("center", d3.forceCenter(width/2,height/2))
-    .force('collide', d3.forceCollide())
+    .force("x", d3.forceX(width/2).strength(center))
+		.force("y", d3.forceY(height/2).strength(center))
     .alphaDecay(1-Math.pow(0.0001,1/3000));//timesteps
 
 
 //d3.json("./ics/Nhe_144.json", function(error, graph) { if (error) throw error; console.log('aaa',graph);window.graph=graph;run()});
-
-
+function center (d) {return (concs[d.id] > 0 )? 0.1   : 0  }
 
 run()
 
 function run(){
-console.log(graphlinks);
+
+  simulation.force('collide', d3.forceCollide().radius(function(d){return (concs[d.id] > 0 )? 7   : 0  } ))
 
 
-  simulation.force('collide', d3.forceCollide().radius(function(d,i){return  20}))
+var link = svg.append("g")
+    .attr("class", "links")
+  .selectAll("line")
+  .data(graphlinks)
+  .enter().append("line")
+    .attr("stroke-width",(d)=>d.v)//(d) =>{(isFinite(edge_length[d.index]))? 10*window.edge_length[d] : 0.001} )
+    //.attr("stroke-opacity",(d) =>{(isFinite(edge_length[d.index]))? 1: 0.001} )
+    //.attr("opacity",(d) =>{(isFinite(edge_length[d.index]))? 1: 0.0 })
+.attr('fill','red');
 
 
-nodes.filter(function(d){if(isFinite(window.concs[d.id])) ; nd.push(d)},nd=[]);
-
-graph.nodes=window.nodes;
-graph.links= window.graphlinks;
 
 var node = svg.append("g")
     .attr("class", "nodes")
     .selectAll("circle")
     .data(nodes)
     .enter().append("circle")
-      .attr("r", function(d){return (concs[d.id] > 0 )?   20 : 0.1  }  )
+      .attr("r", function(d){return (concs[d.id] > 0 )?   7 : 02  }  )
       .attr("fill", 'red')// function(d) { return color(concs[d.id]); })
-      .text((d)=> d.names)
+      .call(d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended))
+    .on('mouseover',print);
 
-        var link = svg.append("g")
-            .attr("class", "links")
-          .selectAll("line")
-          .data(graphlinks)
-          .enter().append("line")
-            .attr("stroke-width",10)//(d) =>{(isFinite(edge_length[d.index]))? 10*window.edge_length[d] : 0.001} )
-            //.attr("stroke-opacity",(d) =>{(isFinite(edge_length[d.index]))? 1: 0.001} )
-            //.attr("opacity",(d) =>{(isFinite(edge_length[d.index]))? 1: 0.0 })
-.attr('fill','red');
+node.append("title")
+.text(function(d) { return d.id; });
+
+
 
 
 
 /// d.index for edge length
 
   simulation
-      .nodes(graph.nodes)
+      .nodes(nodes)
 
 
 
@@ -64,12 +68,12 @@ var node = svg.append("g")
 
 
   simulation.force("link")
-        .links(graph.links)
-        .distance(300)//(isFinite(edge_length[d.index]))? 1+4.*edge_length[d.index] : 0 })//*eval(window.linkleneq)}) // 1-dval 500*0.4+(dv*dv*dv)/0.6
+        .links(graphlinks)
+        .distance( (d) => 1 + 300.*d.v)//*eval(window.linkleneq)}) // 1-dval 500*0.4+(dv*dv*dv)/0.6
         .strength(1)//function(d){return(isFinite(edge_length[d.index])? 1 : 0 )});//edge_length.map((d)=>(d==Infinity)? 0:1 ));
 
 
-//simulation.force("charge", d3.forceManyBody().strength(charge));//function(d) {return(isFinite(concs[d.id]))? charge : 0}))
+simulation.force("charge", d3.forceManyBody().strength(function(d){return (concs[d.id] > 0 )? charge   : 0  }));//function(d) {return(isFinite(concs[d.id]))? charge : 0}))
 
 
 console.log('here');
@@ -78,25 +82,11 @@ console.log('here');
 //http://stackoverflow.com/questions/40018270/d3js-v4-add-nodes-to-force-directed-graph
 
 
-//len = sum of fluxes
-
-
-
-
-
-
-/*
-  var ThreeObj = new THREE.Object3D();
-  window.plotobject = new ThreeLayout.Graph(ThreeObj,window.graph)
-
-  scene.add(ThreeObj);
-
-*/
   function ticked() {
 
     node
-.attr("cx", function(d) { return graph.nodes[d.id].x })
-.attr("cy", function(d) { return graph.nodes[d.id].y });
+.attr("cx", function(d) { return nodes[d.id].x })
+.attr("cy", function(d) { return nodes[d.id].y });
 
     link
         .attr("x1", function(d) { return d.source.x; })
@@ -111,15 +101,16 @@ console.log('here');
           if (simulation.alpha() < 0.001) { simulation.stop(); // 0.012
           function dragstarted(d) {};
           function dragended(d) {};
-          //alert('simulation completed'); UDE On.end
+
            };
 
-           //window.plotobject.setNodePositions(graph)
-           //window.plotobject.update();
+
     }
 
 
-console.log('there');
+
+
+
 
 ipc.on('command', (event,arg)=> {
   console.log(event,arg);

@@ -23,10 +23,9 @@
 
 </style>
 
-<script src="three.js"></script>
-<script src="./TrackballControls.js"></script>
+
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<script src = './graph_classes.js'></script>
+
 <script src="./functions.js"></script>
 <script src="./stats.js"></script>
 <link src='./fonts'  rel='stylesheet' type='text/css'>
@@ -44,6 +43,8 @@
 
 
 <script>
+
+
 /// main action script
 const electron = require('electron');
 const fs = require('fs');
@@ -72,6 +73,11 @@ nc2D.prototype.row = function (index) {
 }
 
 
+var print = (d) => console.log(d);
+
+const width = window.innerWidth;
+const height = window.innerHeight;
+
 
 const concentration = new nc2D('concentration','specs',Float32Array);
 const flux = new nc2D('edge-length','fluxes',Float32Array);
@@ -79,6 +85,9 @@ const dict = JSON.parse(reader.getDataVariable('nodes').join(''));
 const combine = JSON.parse(reader.getDataVariable('combinations').join(''));
 const tar = reader.getDataVariable('target');
 const src = reader.getDataVariable('source');
+
+d3.csv("./src/fullmcmspecs.csv", function(error, csv) {this.csvdata=csv});     //get list of all species etc
+
 //time array
 //location array
 //primary spec list
@@ -88,37 +97,25 @@ Object.keys(dict).forEach(function(d){var i = dict[d];rdict[i]=d;}, rdict={}, no
 
 window.nodes =[];for (i = 0; i < combine.length; i++) { window.nodes.push({"names":rdict[i],"id":i,"x":2*(0.5-Math.random()),
 "y":2*(0.5-Math.random()),"z":0.5-Math.random()}) };
-//all_links =[];for (i = 0; i < src.length; i++) { all_links.push({"source":src[i],"target":tar[i],"index":i}) };
-
-
-var print = (d) => console.log(d);
 
 
 
-timestep=1;
+
+
+
+timestep=111;
 
 const edge_len = flux.row(timestep)
-window.concs = concentration.row(timestep)
 
-//all_links.filter(function(d){if(isFinite(window.edge_len[d.index])){d.l = window.edge_len[d.index] ; links.push(d)}},links=[]);
-
-
-// edge_length.map((d)=>1000*d);
-
-// map for combination
-
-window.pw=window.innerWidth/2.;
-window.ph=window.innerHeight/2.;
 var svg = d3.select("svg");
-svg.style('width', window.innerWidth);
-svg.style('height', window.innerHeight);
+svg.style('width', width);
+svg.style('height', height);
 svg.style("transform", "translate("+window.innerWidth/2.+","+window.innerHeight/2.+")")
 
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 
-
-
+window.concs = concentration.row(timestep)
 
 
 combine.forEach(function(f){
@@ -150,9 +147,7 @@ window.graphlinks =[]
 for (i = 0; i < combine.length; i++) {
 
 if (sign[i] !== 0) {
-  console.log(mylink[i],i)
-  graphlinks.push({"source":src[i],"target":tar[i], "kkv":Number(mylink[i].toFixed(3)), "kkd":sign[i]}) };
-
+  graphlinks.push({"source":src[i],"target":tar[i], "v":Number(mylink[i].toFixed(3)), "d":sign[i]}) };
 }
 
 
@@ -163,27 +158,15 @@ if (sign[i] !== 0) {
 
 
 
-this.csvdata=[]
-this.graph=[]
-//default params
 window.onresize = function(event) {location.reload()};
 window.scrollTo(window.innerWidth/2, window.innerHeight/2);
-window.linkleneq=  'dv'
 
-var constant = 0.5,
-scaled=1.1, // if scale >1 multiply css by that number too
-width = window.innerWidth*scaled,
-height = window.innerHeight*scaled,
-node_sizes=[],
-textcolour='white',
-primary = ["BENZENE", "C2H2", "C2H6", "TOLUENE", "IC4H10", "NC4H10", "C3H8", "CH4", "APINENE", "C5H8", "C3H6", "CO"],
-plus_ns=10;
+
 
 
 //d3.select('body').style('background-color', '#222'); // bg colour
 
 
-d3.csv("./src/fullmcmspecs.csv", function(error, csv) {this.csvdata=csv});     //get list of all species etc
 
 
 window.color = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
@@ -197,109 +180,6 @@ window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
 //stats window
 (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='stats.js';document.head.appendChild(script);})()
 const cp = require('child_process');
-
-
-var scene = new THREE.Scene();
-
-var camera = new THREE.PerspectiveCamera(450, width / height, 0.1, 1000);
-//var camera = new THREE.OrthographicCamera( -200, 200, -200, 200, 1, 1000 );
-camera.up = new THREE.Vector3( 0, 0, 1 );
-
-camera.position.x = -0.1;
-camera.position.y = -0.1;
-camera.position.z = +200;
-camera.lookAt(scene.position);
-
-//Math.tan(45* Math.PI/180)*-50;
-
-var renderer = new THREE.WebGLRenderer({
-  precision: 'highp',
-  antialias: true,
-  //alpha: true  ,
-  preserveDrawingBuffer: true});
-  renderer.setSize(width, height);
-  //renderer.shadowMapEnabled = true;
-  //renderer.shadowMapSoft = true;
-
-
-
-  /*
-  var cube = new THREE.BoxHelper() ;
-  cube.material.color='black';
-  cube.scale.set( 10, 10, 10);
-  cube.material.fragmentShader='black'
-
-  scene.add( cube );
-  */
-
-
-
-  var controls = new THREE.TrackballControls(camera);
-
-  document.getElementById('graphdiv').appendChild(renderer.domElement);
-
-  //scene.add(new THREE.AmbientLight(0x111111));
-
-  var light = new THREE.DirectionalLight(0xffffff, 1);
-  light.shadowCameraVisible = true;
-  light.position.set(-0,0,100);
-  scene.add(light);
-
-  var light = new THREE.DirectionalLight(0xffffff, 1);
-  light.shadowCameraVisible = true;
-  light.position.set(-0,0,-100);
-  scene.add(light);
-
-
-  var ambientLight = new THREE.AmbientLight(0x090909);
-  scene.add(ambientLight);
-
-
-
-
-  function constrain(v, min, max){
-    if( v < min )
-    v = min;
-    else
-    if( v > max )
-    v = max;
-    return v;
-  }
-
-    function createLinePoints(startPoint, endPoint){
-      var numPoints = 30;
-      var returnPoints = [];
-      for(i=0; i <= numPoints; i ++){
-        var thisPoint = startPoint.clone().lerp(endPoint, i/numPoints);
-        returnPoints.push(thisPoint);
-      }
-      return returnPoints;
-    }
-
-
-
-
-  var numParticles = 400;
-  var material = new THREE.LineBasicMaterial({color: 0x0000ff });
-  //First create the line that we want to animate the particles along
-
-
-  var startPoint = new THREE.Vector3(-80, 0, -800)
-  var endPoint = new THREE.Vector3(800, 0, 800)
-
-
-
-
-  render();
-
-  function render() {
-    controls.update();
-    requestAnimationFrame(render);
-      renderer.render(scene, camera);
-      if (window.help) window.plotobject.river();
-    //UpdateParticles();
-  }
-
 
 
 
