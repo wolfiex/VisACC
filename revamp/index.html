@@ -19,7 +19,7 @@
   stroke-width: 1.5px;
 }
 
-
+canvas{ position:'absolute'; }
 
 </style>
 
@@ -33,11 +33,16 @@
 -->
 
 <body>
-  <svg>
-  </svg>
+
+
+  <svg>  </svg>
+
+    <canvas id='canvas'></canvas>
+
 
   <div id="graphdiv">
   </div>
+
 
 </body>
 
@@ -103,7 +108,7 @@ window.nodes =[];for (i = 0; i < combine.length; i++) { window.nodes.push({"name
 
 
 
-timestep=111;
+timestep=21;
 
 const edge_len = flux.row(timestep)
 
@@ -115,7 +120,7 @@ svg.style("transform", "translate("+window.innerWidth/2.+","+window.innerHeight/
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 
-window.concs = concentration.row(timestep)
+var concs = concentration.row(timestep)
 
 
 combine.forEach(function(f){
@@ -150,7 +155,28 @@ if (sign[i] !== 0) {
   graphlinks.push({"source":src[i],"target":tar[i], "v":Number(mylink[i].toFixed(3)), "d":sign[i]}) };
 }
 
+var concs = concentration.row(timestep)
 
+
+var node_size=[]; dummy = [];
+
+
+
+for (i = 0; i < concs.length; i++){
+      var f = concs[i];
+      if (f>0) {f = Math.log10(f); dummy.push(f)};
+      node_size.push(f);
+}
+
+//normalize
+var min =  d3.min(dummy);
+var max =  d3.max(dummy)-min;
+node_size = node_size.map((d)=>(d-min+1e-6)/max);
+
+
+
+
+//concs = normconcs(concs)
 
 </script>
 
@@ -186,3 +212,81 @@ const cp = require('child_process');
   </script>
 
   <script src ="./forcegraph.js"></script>
+
+
+
+  <script type="text/javascript" src="./d3-ForceEdgeBundling.js"></script>
+
+  <script>
+
+
+  function hedge (){
+
+
+    simulation.stop();
+
+d3.selectAll('svg').select('g').remove()
+
+
+var canvas = document.getElementById('canvas');
+canvas.width = width;
+canvas.height = height;
+var ctx = canvas.getContext('2d');
+ctx.strokeStyle = '#000';
+ctx.lineWidth = 1;
+ctx.fillStyle = '#000'
+
+
+
+nodes.forEach(function(d){node_data[d.names]={'x':d.x ,'y':d.y , 'col':d.x}},node_data ={});
+graphlinks.forEach(function(d){link_data.push({'source':d.source.names ,'target':d.target.names , 'col':d.x})},link_data =[]);
+
+
+var fbundling = ForceEdgeBundling()
+.step_size(0.1)
+.compatibility_threshold(0.55)
+.nodes(node_data).edges(link_data);
+var results = fbundling();
+
+
+
+var d3line = d3.line()
+           .x(function (d) {
+               return d.x;
+           })
+           .y(function (d) {
+               return d.y;
+           })
+           .curve(d3.curveLinear);
+       //plot the data
+       for (var i = 0; i < results.length; i++) {
+           svg.append("path")
+               .attr("d", d3line(results[i]))
+               .attr('id', 'link'+i)
+               .style("stroke-width", 1.23)
+               .style("stroke", '#999')//"steelblue")
+               .style("fill", "none")
+               .style('stroke-opacity', 0.315);
+
+
+          var p = new Path2D(d3line(results[i]));
+          ctx.stroke(p)
+//ctx.fill(p);
+
+
+       }
+
+
+
+
+
+
+//http://stackoverflow.com/questions/9458239/draw-path-in-canvas-with-svg-path-data-svg-paths-to-canvas-paths
+
+
+  }
+
+
+
+
+  </script>

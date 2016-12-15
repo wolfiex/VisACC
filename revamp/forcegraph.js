@@ -35,8 +35,9 @@ var node = svg.append("g")
     .selectAll("circle")
     .data(nodes)
     .enter().append("circle")
-      .attr("r", function(d){return (concs[d.id] > 0 )?   7 : 02  }  )
-      .attr("fill", 'red')// function(d) { return color(concs[d.id]); })
+      .attr("r", function(d){return (node_size[d.id] > 0 )?   node_size[d.id] * 7 : 02  }  )// remove tertiary operator and just multiply
+      .attr("fill", (d)=> (concentration.row(0)[d.id]>0)?  ((d.names == 'OH')? 'green':'steelblue'):'red' )// function(d) { return color(concs[d.id]); })
+.attr("id", (d)=> 'node'+d.id)
       .call(d3.drag()
     .on("start", dragstarted)
     .on("drag", dragged)
@@ -64,7 +65,7 @@ node.append("title")
 //graph.links.forEach(function(d){var dv= d.value;dummy.push(eval(linkleneq))},dummy=[]);
 //ipc.send('forwarder',['prefsWindow',window.linkleneq,dummy]);
 
-  var charge = -30 ;
+  var charge = -80 ;
 
 
   simulation.force("link")
