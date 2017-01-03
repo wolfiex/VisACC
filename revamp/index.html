@@ -1,34 +1,29 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
-@import url(./style.css);
+@import url(./src/style.css);
 #graphdiv {
   position: absolute;
   left: 0px;
 }
 
-
-
 .links line {
   stroke: #999;
   stroke-opacity: 0.6;
 }
-
 .nodes circle {
   stroke: #fff;
   stroke-width: 1.5px;
 }
-
 canvas{ position:'absolute'; }
-
 </style>
 
 
-<script src="https://d3js.org/d3.v4.min.js"></script>
-
-<script src="./functions.js"></script>
-<script src="./stats.js"></script>
-<link src='./fonts'  rel='stylesheet' type='text/css'>
+<script src="./src//d3.v4.min.js"></script>
+<script src="./graphfunctions.js"></script>
+<script src="./postfunctions.js"></script>
+<script src="./src/stats.js"></script>
+<link src='./src/fonts'  rel='stylesheet' type='text/css'>
 <!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
 -->
 
@@ -43,12 +38,20 @@ canvas{ position:'absolute'; }
   <div id="graphdiv">
   </div>
 
+  <div class="window">
+    <div class="window-content">
+      <div class="pane-group">
+        <div class="pane-mini sidebar">...</div>
+        <div class="pane">...</div>
+      </div>
+    </div>
+  </div>
+
 
 </body>
 
 
 <script>
-
 
 /// main action script
 const electron = require('electron');
@@ -63,22 +66,6 @@ var data = fs.readFileSync('volcano.nc');
 var reader = new NetCDFReader(data); // read the header
 // get data dimentions
 reader.dimensions.forEach(function(d){dims[d.name] = d.size},dims={});
-
-class nc2D {
-  constructor(name, width, arr_type) { //Float32Array
-    this.width = dims[width];
-    this.arr_type = arr_type
-    this.data = new arr_type(reader.getDataVariable(name));
-  }
-};
-
-nc2D.prototype.row = function (index) {
-   start = index*this.width;
-   return new this.arr_type(this.data.slice(start,start+this.width))
-}
-
-
-var print = (d) => console.log(d);
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -176,24 +163,13 @@ node_size = node_size.map((d)=>(d-min+1e-6)/max);
 
 
 
-//concs = normconcs(concs)
-
-</script>
-
-<script>
 
 
 
 window.onresize = function(event) {location.reload()};
 window.scrollTo(window.innerWidth/2, window.innerHeight/2);
 
-
-
-
 //d3.select('body').style('background-color', '#222'); // bg colour
-
-
-
 
 window.color = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
 window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
@@ -201,124 +177,8 @@ window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
 
 </script>
 
-<script>
 
-//stats window
-(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='stats.js';document.head.appendChild(script);})()
-const cp = require('child_process');
-
-
-
-  </script>
 
   <script src ="./forcegraph.js"></script>
 
-
-
-  <script type="text/javascript" src="./d3-ForceEdgeBundling.js"></script>
-
-  <script>
-
-
-  function hedge (){
-
-
-    simulation.stop();
-
-d3.selectAll('svg').select('g').remove()
-
-
-var canvas = document.getElementById('canvas');
-canvas.width = width;
-canvas.height = height;
-var ctx = canvas.getContext('2d');
-ctx.strokeStyle = '#000';
-ctx.lineWidth = 1;
-ctx.fillStyle = '#000'
-
-
-
-nodes.forEach(function(d){node_data[d.names]={'x':d.x ,'y':d.y , 'col':d.x}},node_data ={});
-graphlinks.forEach(function(d){link_data.push({'source':d.source.names ,'target':d.target.names , 'col':d.x})},link_data =[]);
-
-
-var fbundling = ForceEdgeBundling()
-.step_size(0.1)
-.compatibility_threshold(0.55)
-.nodes(node_data).edges(link_data);
-var results = fbundling();
-
-
-
-var d3line = d3.line()
-           .x(function (d) {
-               return d.x;
-           })
-           .y(function (d) {
-               return d.y;
-           })
-           .curve(d3.curveLinear);
-       //plot the data
-       for (var i = 0; i < results.length; i++) {
-           svg.append("path")
-               .attr("d", d3line(results[i]))
-               .attr('id', 'link'+i)
-               .style("stroke-width", 1.23)
-               .style("stroke", '#999')//"steelblue")
-               .style("fill", "none")
-               .style('stroke-opacity', 0.315);
-
-
-          var p = new Path2D(d3line(results[i]));
-          ctx.stroke(p)
-//ctx.fill(p);
-
-
-       }
-
-
-
-
-
-
-//http://stackoverflow.com/questions/9458239/draw-path-in-canvas-with-svg-path-data-svg-paths-to-canvas-paths
-
-
-  }
-
-//ropa : http://bl.ocks.org/deciob/raw/ffd5c65629e43449246cb80a0af280c7/
-
-function ropaplot (){
-
-var spec  = dict['NO'];
-
-var loss_id = src.reduce(function(a, e, i) {
-    if (e === spec)
-        a.push(i);
-    return a;
-}, []);   // find all index values
-
-var prod_id = tar.reduce(function(a, e, i) {
-    if (e === spec)
-        a.push(i);
-    return a;
-}, []);   // find all index values
-
-
-var prod = [];
-var loss = [];
-
-
-p_f = (e)=> prod.push(e);
-l_f = (e)=> loss.push(e);
-
-prod_id.forEach((z)=> {var d = combine[z]; d[0].forEach(p_f); d[1].forEach(l_f)});
-loss_id.forEach((z)=> {var d = combine[z]; d[1].forEach(p_f); d[0].forEach(l_f)});
-
-prod = new Set(prod);
-loss = new Set(loss);
-
-
-}
-
-  </script>
+  <script type="text/javascript" src="./src/d3-ForceEdgeBundling.js"></script>

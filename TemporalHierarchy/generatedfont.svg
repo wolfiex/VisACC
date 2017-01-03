@@ -1,0 +1,188 @@
+<?xml version="1.0"?>
+<svg width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg">
+	<metadata>
+
+		Project: pixigraph
+		Font exported on 2016-12-29 at 17:49:04
+
+		Created by Daniel Ellis
+        daniel.ellis.research@googlemail.com
+		Version 1.07
+
+
+	</metadata>
+	<defs>
+		<font id="pixigraphfont" horiz-adv-x="1000">
+			<font-face
+				units-per-em="1010"
+				cap-height="1010"
+				x-height="100"
+				ascent="500"
+				descent="0"
+				bbox="0, 0, 0, 0"
+				unicode-range="U+20-126"
+				font-family="pixigraph"
+				font-style="normal"
+				panose-1="2 0 0 0 0 0 0 0 0 0"
+				designer="Daniel Ellis"
+				designerURL="www-users.york.ac.uk/~dp626/"
+				manufacturer="daniel.ellis.research@googlemail.com"
+				manufacturerURL=""
+				license=""
+				licenseURL=""
+				version=""
+				description=""
+				copyright=""
+				trademark=""
+				font-variant="normal"
+				font-weight="400"
+				font-stretch="normal"
+				stemv=""
+				stemh=""
+				slope=""
+				underline-position="0"
+				underline-thickness="0"
+				strikethrough-position="00"
+				strikethrough-thickness="0"
+				overline-position="0"
+				overline-thickness="0">
+				<font-face-src>
+					<font-face-name name="pixigraph" />
+				</font-face-src>
+			</font-face>
+
+         	<missing-glyph horiz-adv-x="309" d="M0,0 v500 h309 v-500 h-309z M5,5 v490 h299 v-490 h-299z" />
+
+			<!-- Ligatures M- move x,y  L line to x y fill='red?'  Z close path -->
+
+            <glyph glyph-name="Ligature_0" unicode="&#x0030;&#x0030;" horiz-adv-x="148" d="M 0,0 L0,5 L500,5 L500,0 L0,0" />
+<glyph glyph-name="Ligature_1" unicode="&#x0030;&#x0031;" horiz-adv-x="148" d="M 0,0 L0,5 L500,105 L500,100 L0,0" />
+<glyph glyph-name="Ligature_2" unicode="&#x0030;&#x0032;" horiz-adv-x="148" d="M 0,0 L0,5 L500,205 L500,200 L0,0" />
+<glyph glyph-name="Ligature_3" unicode="&#x0030;&#x0033;" horiz-adv-x="148" d="M 0,0 L0,5 L500,305 L500,300 L0,0" />
+<glyph glyph-name="Ligature_4" unicode="&#x0030;&#x0034;" horiz-adv-x="148" d="M 0,0 L0,5 L500,405 L500,400 L0,0" />
+<glyph glyph-name="Ligature_5" unicode="&#x0030;&#x0035;" horiz-adv-x="148" d="M 0,0 L0,5 L500,505 L500,500 L0,0" />
+<glyph glyph-name="Ligature_6" unicode="&#x0030;&#x0036;" horiz-adv-x="148" d="M 0,0 L0,5 L500,605 L500,600 L0,0" />
+<glyph glyph-name="Ligature_7" unicode="&#x0030;&#x0037;" horiz-adv-x="148" d="M 0,0 L0,5 L500,705 L500,700 L0,0" />
+<glyph glyph-name="Ligature_8" unicode="&#x0030;&#x0038;" horiz-adv-x="148" d="M 0,0 L0,5 L500,805 L500,800 L0,0" />
+<glyph glyph-name="Ligature_9" unicode="&#x0030;&#x0039;" horiz-adv-x="148" d="M 0,0 L0,5 L500,905 L500,900 L0,0" />
+<glyph glyph-name="Ligature_10" unicode="&#x0030;&#x005E;" horiz-adv-x="148" d="M 0,0 L0,5 L500,1005 L500,1000 L0,0" />
+<glyph glyph-name="Ligature_11" unicode="&#x0031;&#x0030;" horiz-adv-x="148" d="M 0,100 L0,105 L500,5 L500,0 L0,100" />
+<glyph glyph-name="Ligature_12" unicode="&#x0031;&#x0031;" horiz-adv-x="148" d="M 0,100 L0,105 L500,105 L500,100 L0,100" />
+<glyph glyph-name="Ligature_13" unicode="&#x0031;&#x0032;" horiz-adv-x="148" d="M 0,100 L0,105 L500,205 L500,200 L0,100" />
+<glyph glyph-name="Ligature_14" unicode="&#x0031;&#x0033;" horiz-adv-x="148" d="M 0,100 L0,105 L500,305 L500,300 L0,100" />
+<glyph glyph-name="Ligature_15" unicode="&#x0031;&#x0034;" horiz-adv-x="148" d="M 0,100 L0,105 L500,405 L500,400 L0,100" />
+<glyph glyph-name="Ligature_16" unicode="&#x0031;&#x0035;" horiz-adv-x="148" d="M 0,100 L0,105 L500,505 L500,500 L0,100" />
+<glyph glyph-name="Ligature_17" unicode="&#x0031;&#x0036;" horiz-adv-x="148" d="M 0,100 L0,105 L500,605 L500,600 L0,100" />
+<glyph glyph-name="Ligature_18" unicode="&#x0031;&#x0037;" horiz-adv-x="148" d="M 0,100 L0,105 L500,705 L500,700 L0,100" />
+<glyph glyph-name="Ligature_19" unicode="&#x0031;&#x0038;" horiz-adv-x="148" d="M 0,100 L0,105 L500,805 L500,800 L0,100" />
+<glyph glyph-name="Ligature_20" unicode="&#x0031;&#x0039;" horiz-adv-x="148" d="M 0,100 L0,105 L500,905 L500,900 L0,100" />
+<glyph glyph-name="Ligature_21" unicode="&#x0031;&#x005E;" horiz-adv-x="148" d="M 0,100 L0,105 L500,1005 L500,1000 L0,100" />
+<glyph glyph-name="Ligature_22" unicode="&#x0032;&#x0030;" horiz-adv-x="148" d="M 0,200 L0,205 L500,5 L500,0 L0,200" />
+<glyph glyph-name="Ligature_23" unicode="&#x0032;&#x0031;" horiz-adv-x="148" d="M 0,200 L0,205 L500,105 L500,100 L0,200" />
+<glyph glyph-name="Ligature_24" unicode="&#x0032;&#x0032;" horiz-adv-x="148" d="M 0,200 L0,205 L500,205 L500,200 L0,200" />
+<glyph glyph-name="Ligature_25" unicode="&#x0032;&#x0033;" horiz-adv-x="148" d="M 0,200 L0,205 L500,305 L500,300 L0,200" />
+<glyph glyph-name="Ligature_26" unicode="&#x0032;&#x0034;" horiz-adv-x="148" d="M 0,200 L0,205 L500,405 L500,400 L0,200" />
+<glyph glyph-name="Ligature_27" unicode="&#x0032;&#x0035;" horiz-adv-x="148" d="M 0,200 L0,205 L500,505 L500,500 L0,200" />
+<glyph glyph-name="Ligature_28" unicode="&#x0032;&#x0036;" horiz-adv-x="148" d="M 0,200 L0,205 L500,605 L500,600 L0,200" />
+<glyph glyph-name="Ligature_29" unicode="&#x0032;&#x0037;" horiz-adv-x="148" d="M 0,200 L0,205 L500,705 L500,700 L0,200" />
+<glyph glyph-name="Ligature_30" unicode="&#x0032;&#x0038;" horiz-adv-x="148" d="M 0,200 L0,205 L500,805 L500,800 L0,200" />
+<glyph glyph-name="Ligature_31" unicode="&#x0032;&#x0039;" horiz-adv-x="148" d="M 0,200 L0,205 L500,905 L500,900 L0,200" />
+<glyph glyph-name="Ligature_32" unicode="&#x0032;&#x005E;" horiz-adv-x="148" d="M 0,200 L0,205 L500,1005 L500,1000 L0,200" />
+<glyph glyph-name="Ligature_33" unicode="&#x0033;&#x0030;" horiz-adv-x="148" d="M 0,300 L0,305 L500,5 L500,0 L0,300" />
+<glyph glyph-name="Ligature_34" unicode="&#x0033;&#x0031;" horiz-adv-x="148" d="M 0,300 L0,305 L500,105 L500,100 L0,300" />
+<glyph glyph-name="Ligature_35" unicode="&#x0033;&#x0032;" horiz-adv-x="148" d="M 0,300 L0,305 L500,205 L500,200 L0,300" />
+<glyph glyph-name="Ligature_36" unicode="&#x0033;&#x0033;" horiz-adv-x="148" d="M 0,300 L0,305 L500,305 L500,300 L0,300" />
+<glyph glyph-name="Ligature_37" unicode="&#x0033;&#x0034;" horiz-adv-x="148" d="M 0,300 L0,305 L500,405 L500,400 L0,300" />
+<glyph glyph-name="Ligature_38" unicode="&#x0033;&#x0035;" horiz-adv-x="148" d="M 0,300 L0,305 L500,505 L500,500 L0,300" />
+<glyph glyph-name="Ligature_39" unicode="&#x0033;&#x0036;" horiz-adv-x="148" d="M 0,300 L0,305 L500,605 L500,600 L0,300" />
+<glyph glyph-name="Ligature_40" unicode="&#x0033;&#x0037;" horiz-adv-x="148" d="M 0,300 L0,305 L500,705 L500,700 L0,300" />
+<glyph glyph-name="Ligature_41" unicode="&#x0033;&#x0038;" horiz-adv-x="148" d="M 0,300 L0,305 L500,805 L500,800 L0,300" />
+<glyph glyph-name="Ligature_42" unicode="&#x0033;&#x0039;" horiz-adv-x="148" d="M 0,300 L0,305 L500,905 L500,900 L0,300" />
+<glyph glyph-name="Ligature_43" unicode="&#x0033;&#x005E;" horiz-adv-x="148" d="M 0,300 L0,305 L500,1005 L500,1000 L0,300" />
+<glyph glyph-name="Ligature_44" unicode="&#x0034;&#x0030;" horiz-adv-x="148" d="M 0,400 L0,405 L500,5 L500,0 L0,400" />
+<glyph glyph-name="Ligature_45" unicode="&#x0034;&#x0031;" horiz-adv-x="148" d="M 0,400 L0,405 L500,105 L500,100 L0,400" />
+<glyph glyph-name="Ligature_46" unicode="&#x0034;&#x0032;" horiz-adv-x="148" d="M 0,400 L0,405 L500,205 L500,200 L0,400" />
+<glyph glyph-name="Ligature_47" unicode="&#x0034;&#x0033;" horiz-adv-x="148" d="M 0,400 L0,405 L500,305 L500,300 L0,400" />
+<glyph glyph-name="Ligature_48" unicode="&#x0034;&#x0034;" horiz-adv-x="148" d="M 0,400 L0,405 L500,405 L500,400 L0,400" />
+<glyph glyph-name="Ligature_49" unicode="&#x0034;&#x0035;" horiz-adv-x="148" d="M 0,400 L0,405 L500,505 L500,500 L0,400" />
+<glyph glyph-name="Ligature_50" unicode="&#x0034;&#x0036;" horiz-adv-x="148" d="M 0,400 L0,405 L500,605 L500,600 L0,400" />
+<glyph glyph-name="Ligature_51" unicode="&#x0034;&#x0037;" horiz-adv-x="148" d="M 0,400 L0,405 L500,705 L500,700 L0,400" />
+<glyph glyph-name="Ligature_52" unicode="&#x0034;&#x0038;" horiz-adv-x="148" d="M 0,400 L0,405 L500,805 L500,800 L0,400" />
+<glyph glyph-name="Ligature_53" unicode="&#x0034;&#x0039;" horiz-adv-x="148" d="M 0,400 L0,405 L500,905 L500,900 L0,400" />
+<glyph glyph-name="Ligature_54" unicode="&#x0034;&#x005E;" horiz-adv-x="148" d="M 0,400 L0,405 L500,1005 L500,1000 L0,400" />
+<glyph glyph-name="Ligature_55" unicode="&#x0035;&#x0030;" horiz-adv-x="148" d="M 0,500 L0,505 L500,5 L500,0 L0,500" />
+<glyph glyph-name="Ligature_56" unicode="&#x0035;&#x0031;" horiz-adv-x="148" d="M 0,500 L0,505 L500,105 L500,100 L0,500" />
+<glyph glyph-name="Ligature_57" unicode="&#x0035;&#x0032;" horiz-adv-x="148" d="M 0,500 L0,505 L500,205 L500,200 L0,500" />
+<glyph glyph-name="Ligature_58" unicode="&#x0035;&#x0033;" horiz-adv-x="148" d="M 0,500 L0,505 L500,305 L500,300 L0,500" />
+<glyph glyph-name="Ligature_59" unicode="&#x0035;&#x0034;" horiz-adv-x="148" d="M 0,500 L0,505 L500,405 L500,400 L0,500" />
+<glyph glyph-name="Ligature_60" unicode="&#x0035;&#x0035;" horiz-adv-x="148" d="M 0,500 L0,505 L500,505 L500,500 L0,500" />
+<glyph glyph-name="Ligature_61" unicode="&#x0035;&#x0036;" horiz-adv-x="148" d="M 0,500 L0,505 L500,605 L500,600 L0,500" />
+<glyph glyph-name="Ligature_62" unicode="&#x0035;&#x0037;" horiz-adv-x="148" d="M 0,500 L0,505 L500,705 L500,700 L0,500" />
+<glyph glyph-name="Ligature_63" unicode="&#x0035;&#x0038;" horiz-adv-x="148" d="M 0,500 L0,505 L500,805 L500,800 L0,500" />
+<glyph glyph-name="Ligature_64" unicode="&#x0035;&#x0039;" horiz-adv-x="148" d="M 0,500 L0,505 L500,905 L500,900 L0,500" />
+<glyph glyph-name="Ligature_65" unicode="&#x0035;&#x005E;" horiz-adv-x="148" d="M 0,500 L0,505 L500,1005 L500,1000 L0,500" />
+<glyph glyph-name="Ligature_66" unicode="&#x0036;&#x0030;" horiz-adv-x="148" d="M 0,600 L0,605 L500,5 L500,0 L0,600" />
+<glyph glyph-name="Ligature_67" unicode="&#x0036;&#x0031;" horiz-adv-x="148" d="M 0,600 L0,605 L500,105 L500,100 L0,600" />
+<glyph glyph-name="Ligature_68" unicode="&#x0036;&#x0032;" horiz-adv-x="148" d="M 0,600 L0,605 L500,205 L500,200 L0,600" />
+<glyph glyph-name="Ligature_69" unicode="&#x0036;&#x0033;" horiz-adv-x="148" d="M 0,600 L0,605 L500,305 L500,300 L0,600" />
+<glyph glyph-name="Ligature_70" unicode="&#x0036;&#x0034;" horiz-adv-x="148" d="M 0,600 L0,605 L500,405 L500,400 L0,600" />
+<glyph glyph-name="Ligature_71" unicode="&#x0036;&#x0035;" horiz-adv-x="148" d="M 0,600 L0,605 L500,505 L500,500 L0,600" />
+<glyph glyph-name="Ligature_72" unicode="&#x0036;&#x0036;" horiz-adv-x="148" d="M 0,600 L0,605 L500,605 L500,600 L0,600" />
+<glyph glyph-name="Ligature_73" unicode="&#x0036;&#x0037;" horiz-adv-x="148" d="M 0,600 L0,605 L500,705 L500,700 L0,600" />
+<glyph glyph-name="Ligature_74" unicode="&#x0036;&#x0038;" horiz-adv-x="148" d="M 0,600 L0,605 L500,805 L500,800 L0,600" />
+<glyph glyph-name="Ligature_75" unicode="&#x0036;&#x0039;" horiz-adv-x="148" d="M 0,600 L0,605 L500,905 L500,900 L0,600" />
+<glyph glyph-name="Ligature_76" unicode="&#x0036;&#x005E;" horiz-adv-x="148" d="M 0,600 L0,605 L500,1005 L500,1000 L0,600" />
+<glyph glyph-name="Ligature_77" unicode="&#x0037;&#x0030;" horiz-adv-x="148" d="M 0,700 L0,705 L500,5 L500,0 L0,700" />
+<glyph glyph-name="Ligature_78" unicode="&#x0037;&#x0031;" horiz-adv-x="148" d="M 0,700 L0,705 L500,105 L500,100 L0,700" />
+<glyph glyph-name="Ligature_79" unicode="&#x0037;&#x0032;" horiz-adv-x="148" d="M 0,700 L0,705 L500,205 L500,200 L0,700" />
+<glyph glyph-name="Ligature_80" unicode="&#x0037;&#x0033;" horiz-adv-x="148" d="M 0,700 L0,705 L500,305 L500,300 L0,700" />
+<glyph glyph-name="Ligature_81" unicode="&#x0037;&#x0034;" horiz-adv-x="148" d="M 0,700 L0,705 L500,405 L500,400 L0,700" />
+<glyph glyph-name="Ligature_82" unicode="&#x0037;&#x0035;" horiz-adv-x="148" d="M 0,700 L0,705 L500,505 L500,500 L0,700" />
+<glyph glyph-name="Ligature_83" unicode="&#x0037;&#x0036;" horiz-adv-x="148" d="M 0,700 L0,705 L500,605 L500,600 L0,700" />
+<glyph glyph-name="Ligature_84" unicode="&#x0037;&#x0037;" horiz-adv-x="148" d="M 0,700 L0,705 L500,705 L500,700 L0,700" />
+<glyph glyph-name="Ligature_85" unicode="&#x0037;&#x0038;" horiz-adv-x="148" d="M 0,700 L0,705 L500,805 L500,800 L0,700" />
+<glyph glyph-name="Ligature_86" unicode="&#x0037;&#x0039;" horiz-adv-x="148" d="M 0,700 L0,705 L500,905 L500,900 L0,700" />
+<glyph glyph-name="Ligature_87" unicode="&#x0037;&#x005E;" horiz-adv-x="148" d="M 0,700 L0,705 L500,1005 L500,1000 L0,700" />
+<glyph glyph-name="Ligature_88" unicode="&#x0038;&#x0030;" horiz-adv-x="148" d="M 0,800 L0,805 L500,5 L500,0 L0,800" />
+<glyph glyph-name="Ligature_89" unicode="&#x0038;&#x0031;" horiz-adv-x="148" d="M 0,800 L0,805 L500,105 L500,100 L0,800" />
+<glyph glyph-name="Ligature_90" unicode="&#x0038;&#x0032;" horiz-adv-x="148" d="M 0,800 L0,805 L500,205 L500,200 L0,800" />
+<glyph glyph-name="Ligature_91" unicode="&#x0038;&#x0033;" horiz-adv-x="148" d="M 0,800 L0,805 L500,305 L500,300 L0,800" />
+<glyph glyph-name="Ligature_92" unicode="&#x0038;&#x0034;" horiz-adv-x="148" d="M 0,800 L0,805 L500,405 L500,400 L0,800" />
+<glyph glyph-name="Ligature_93" unicode="&#x0038;&#x0035;" horiz-adv-x="148" d="M 0,800 L0,805 L500,505 L500,500 L0,800" />
+<glyph glyph-name="Ligature_94" unicode="&#x0038;&#x0036;" horiz-adv-x="148" d="M 0,800 L0,805 L500,605 L500,600 L0,800" />
+<glyph glyph-name="Ligature_95" unicode="&#x0038;&#x0037;" horiz-adv-x="148" d="M 0,800 L0,805 L500,705 L500,700 L0,800" />
+<glyph glyph-name="Ligature_96" unicode="&#x0038;&#x0038;" horiz-adv-x="148" d="M 0,800 L0,805 L500,805 L500,800 L0,800" />
+<glyph glyph-name="Ligature_97" unicode="&#x0038;&#x0039;" horiz-adv-x="148" d="M 0,800 L0,805 L500,905 L500,900 L0,800" />
+<glyph glyph-name="Ligature_98" unicode="&#x0038;&#x005E;" horiz-adv-x="148" d="M 0,800 L0,805 L500,1005 L500,1000 L0,800" />
+<glyph glyph-name="Ligature_99" unicode="&#x0039;&#x0030;" horiz-adv-x="148" d="M 0,900 L0,905 L500,5 L500,0 L0,900" />
+<glyph glyph-name="Ligature_100" unicode="&#x0039;&#x0031;" horiz-adv-x="148" d="M 0,900 L0,905 L500,105 L500,100 L0,900" />
+<glyph glyph-name="Ligature_101" unicode="&#x0039;&#x0032;" horiz-adv-x="148" d="M 0,900 L0,905 L500,205 L500,200 L0,900" />
+<glyph glyph-name="Ligature_102" unicode="&#x0039;&#x0033;" horiz-adv-x="148" d="M 0,900 L0,905 L500,305 L500,300 L0,900" />
+<glyph glyph-name="Ligature_103" unicode="&#x0039;&#x0034;" horiz-adv-x="148" d="M 0,900 L0,905 L500,405 L500,400 L0,900" />
+<glyph glyph-name="Ligature_104" unicode="&#x0039;&#x0035;" horiz-adv-x="148" d="M 0,900 L0,905 L500,505 L500,500 L0,900" />
+<glyph glyph-name="Ligature_105" unicode="&#x0039;&#x0036;" horiz-adv-x="148" d="M 0,900 L0,905 L500,605 L500,600 L0,900" />
+<glyph glyph-name="Ligature_106" unicode="&#x0039;&#x0037;" horiz-adv-x="148" d="M 0,900 L0,905 L500,705 L500,700 L0,900" />
+<glyph glyph-name="Ligature_107" unicode="&#x0039;&#x0038;" horiz-adv-x="148" d="M 0,900 L0,905 L500,805 L500,800 L0,900" />
+<glyph glyph-name="Ligature_108" unicode="&#x0039;&#x0039;" horiz-adv-x="148" d="M 0,900 L0,905 L500,905 L500,900 L0,900" />
+<glyph glyph-name="Ligature_109" unicode="&#x0039;&#x005E;" horiz-adv-x="148" d="M 0,900 L0,905 L500,1005 L500,1000 L0,900" />
+<glyph glyph-name="Ligature_110" unicode="&#x005E;&#x0030;" horiz-adv-x="148" d="M 0,1000 L0,1005 L500,5 L500,0 L0,1000" />
+<glyph glyph-name="Ligature_111" unicode="&#x005E;&#x0031;" horiz-adv-x="148" d="M 0,1000 L0,1005 L500,105 L500,100 L0,1000" />
+<glyph glyph-name="Ligature_112" unicode="&#x005E;&#x0032;" horiz-adv-x="148" d="M 0,1000 L0,1005 L500,205 L500,200 L0,1000" />
+<glyph glyph-name="Ligature_113" unicode="&#x005E;&#x0033;" horiz-adv-x="148" d="M 0,1000 L0,1005 L500,305 L500,300 L0,1000" />
+<glyph glyph-name="Ligature_114" unicode="&#x005E;&#x0034;" horiz-adv-x="148" d="M 0,1000 L0,1005 L500,405 L500,400 L0,1000" />
+<glyph glyph-name="Ligature_115" unicode="&#x005E;&#x0035;" horiz-adv-x="148" d="M 0,1000 L0,1005 L500,505 L500,500 L0,1000" />
+<glyph glyph-name="Ligature_116" unicode="&#x005E;&#x0036;" horiz-adv-x="148" d="M 0,1000 L0,1005 L500,605 L500,600 L0,1000" />
+<glyph glyph-name="Ligature_117" unicode="&#x005E;&#x0037;" horiz-adv-x="148" d="M 0,1000 L0,1005 L500,705 L500,700 L0,1000" />
+<glyph glyph-name="Ligature_118" unicode="&#x005E;&#x0038;" horiz-adv-x="148" d="M 0,1000 L0,1005 L500,805 L500,800 L0,1000" />
+<glyph glyph-name="Ligature_119" unicode="&#x005E;&#x0039;" horiz-adv-x="148" d="M 0,1000 L0,1005 L500,905 L500,900 L0,1000" />
+<glyph glyph-name="Ligature_120" unicode="&#x005E;&#x005E;" horiz-adv-x="148" d="M 0,1000 L0,1005 L500,1005 L500,1000 L0,1000" />
+		</font>
+    	</defs>
+
+    	<text x="100" y="150" style="font-size:48px;" font-family="pixigraph">pixigraph</text>
+    	<text x="100" y="220" style="font-size:48px;" font-family="pixigraph">ABCDEFGHIJKLMNOPQRSTUVWXYZ</text>
+    	<text x="100" y="290" style="font-size:48px;" font-family="pixigraph">abcdefghijklmnopqrstuvwxyz</text>
+    	<text x="100" y="360" style="font-size:48px;" font-family="pixigraph">1234567890</text>
+    	<text x="100" y="430" style="font-size:48px;" font-family="pixigraph">!"#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</text>
+        <text x="100" y="460" style="font-size:480px;" font-family="pixigraph">02 25 5^ ^3 32 27 75 59 98 87 78 88 89 97</text>
+    </svg>

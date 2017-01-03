@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+@import url(../revamp/src/style.css);
+#graphdiv {
+  position: absolute;
+  left: 0px;
+}
+
+
+	  	.legendTitle {
+	      	font-size: 14px;
+	      	fill: #4F4F4F;
+	      	font-weight: 300;
+	  	}
+
+      .axisText {
+	  		fill: #C4C4C4;
+	  		font-size: 11px;
+	  		font-weight: 300;
+	  		text-anchor: middle;
+	  		text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+	  	}
+
+
+
+div {
+  width:60px;
+  height: 60px;
+  float: left;
+  margin: 1px;
+}
+
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+canvas{ position:'absolute'; }
+svg{ position:'absolute'; }
+
+</style>
+
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="./colours.js"></script>
+
+<script src="../revamp/src/stats.js"></script>
+<script src="./netcdfjs.min.js"></script>
+<link src='../revamp/src/fonts'  rel='stylesheet' type='text/css'>
+
+<!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
+-->
+
+<body>
+  <canvas id='canvas' style="position:absolute;"></canvas>
+  <svg style="position:absolute;">  </svg>
+
+
+
+  </div>
+
+
+</body>
+
+<style>
+  #progress_bar {
+    margin: 10px 0;
+    padding: 3px;
+    border: 1px solid #000;
+    font-size: 14px;
+    clear: both;
+    opacity: 0;
+    -moz-transition: opacity 1s linear;
+    -o-transition: opacity 1s linear;
+    -webkit-transition: opacity 1s linear;
+  }
+  #progress_bar.loading {
+    opacity: 1.0;
+  }
+  #progress_bar .percent {
+    background-color: #99ccff;
+    height: auto;
+    width: 0;
+  }
+</style>
+
+
+
+<script>
+"use strict";
+
+///classes and defns
+class nc2D {
+  constructor(name, width, arr_type) { //Float32Array
+    this.width = dims[width];
+    this.arr_type = arr_type;
+    this.data = new arr_type(reader.getDataVariable(name));
+  }
+};
+
+nc2D.prototype.row = function (index) {
+   var start = index*this.width;
+   return new this.arr_type(this.data.slice(start,start+this.width))
+}
+
+var print = (d) => console.log(d);
+const width = window.innerWidth;
+const height = window.innerHeight;
+
+
+
+
+
+///file read
+var reader,reader_url,dims;
+// read browser, adjust from there try except
+try{
+  const fs = require('fs');
+  const data = fs.readFileSync(__dirname+'/volcano.nc');
+  reader = new netcdfjs(data);
+
+}catch (err) {
+
+  console.log('switching to browser mode',err)
+  var urlpath = document.URL + "volcano.nc"
+  var oReq = new XMLHttpRequest();
+  oReq.open("GET", urlpath, true);
+  oReq.responseType = "blob";
+
+  oReq.onload = function(oEvent) {
+    var blob = oReq.response;
+    reader_url = new FileReader();
+    reader_url.onload = function(e) {
+         window.reader = new netcdfjs(this.result);
+         console.log('ready')
+        }
+    reader_url.readAsArrayBuffer(blob);
+  };
+  oReq.send(); //start process
+}
+
+
+var everythingLoaded = setInterval(function() {
+  if (/loaded|complete/.test(document.readyState)) {
+    clearInterval(everythingLoaded);
+     console.log('ready all'); // this is the function that gets called when everything is loaded
+  }
+}, 10);
+// MASS EXECUTED CODE
+reader.dimensions.forEach(function(d){dims[d.name] = d.size},dims={});
+const concentration = new nc2D('concentration','specs',Float32Array);
+const flux = new nc2D('edge-length','fluxes',Float32Array);
+const dict = JSON.parse(reader.getDataVariable('nodes').join(''));
+const combine = JSON.parse(reader.getDataVariable('combinations').join(''));
+const tar = reader.getDataVariable('target');
+const src = reader.getDataVariable('source');
+const time = reader.getDataVariable('timeseconds');
+
+  // creates reverse dictionary rdict below
+  var rdict,nodes,i;
+  Object.keys(dict).forEach(function(d){var i = dict[d];rdict[i]=d;}, rdict={}, nodes=[]);
+
+  window.nodes =[];for (i = 0; i < combine.length; i++) { window.nodes.push({"names":rdict[i],"id":i,"x":2*(0.5-Math.random()),
+  "y":2*(0.5-Math.random()),"z":0.5-Math.random()}) };
+
+  const formatTime = d3.timeFormat("%b %d, %H:%M");
+  //time => datetime
+  const datetime=time.map(function(e){
+      var utcSeconds = e;var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+      d.setUTCSeconds(utcSeconds);
+      return d })
+
+
+
+
+
+///////////
+/////program code
+////////////
+
+
+
+var colour  = ColourScheme(visual_cinnamon,false); //colourScale
+//var colour  = ColourScheme(viridis,true); //colourScale
+var orderBylast=true;
+var selected='24h';
+var start,end,steps
+
+switch (selected){
+  case '24h': null; break;
+  case 'constime':null; break;
+  case 'steps':null; break;
+}
+
+var sti = 80+0*6*24 ,
+    eni = 80+3*6*24,
+     by = 144.;
+
+print((eni-sti)/by)
+
+
+
+///draw function
+function draw (){
+
+
+  var svg = d3.select("svg");
+  svg.selectAll('*').remove();
+  svg.style('width', width);
+  svg.style('height', height);
+  svg.style("transform", "translate("+window.innerWidth/2.+","+window.innerHeight/2.+")")
+
+
+
+  legend(colour,svg)//add a legend
+
+  var theta = 2.*Math.PI/concentration.row(0).length;
+  var max_radius= 300
+  var px = 6
+
+  var row = concentration.row(dims['time']-1); //select last row for ordering
+
+  //sort by names
+  var names = Object.keys(dict).sort();
+
+  if (orderBylast){  // sort by final flux
+    var dummy = concentration.row(dims['time']-1).sort();
+    dummy.forEach((d)=> {
+      names.push(rdict[row.indexOf(d)])
+    }, names =[]);
+  };
+
+  // generate name labels
+  var labels =[];
+  for (var j = 0; j < names.length; j++) {
+    var d=names[j];
+    i = dict[d];
+    if (row[i] > 0){
+      labels.push({'x': max_radius*Math.cos(j*theta), 'y':max_radius*Math.sin(j*theta),
+      'name':d,'angle':j*theta, 'id':i})  };
+  };
+
+
+
+
+  svg.selectAll(".node")
+        .data(labels)
+        .enter().append("g")
+        .attr("class", "node")
+        .attr("transform", function(d) { return "translate(" +(d.x +width/2)+' '+ (d.y+height/2)+ ")"; })
+        .append("text")
+        .attr("transform", function(d) { return (d.angle > (Math.PI/2)  & d.angle < (Math.PI/2.)*3. )?
+               'rotate('+ (360-180+180*d.angle/Math.PI) +' 0 -'+px/2+')' : 'rotate('+ (180*d.angle/Math.PI) +' 0 -'+px/2+')'; })
+        .style('text-anchor', function(d) { return (d.angle > (Math.PI/2)  & d.angle < (Math.PI/2.)*3. )?'end':'start'})
+        .style("font-size",px+"px")
+        .text(function(d) { return d.name; })
+        .on('mouseover', function(d){d3.select(this).style("fill", "steelblue").style("font-size",10+px+"px");
+            d3.select('path#arc').attr('transform',
+            "translate("+width/2+","+height/2+")rotate("+
+            (360*(d.angle/(2*Math.PI))+90)+")").attr('opacity',.3)
+          })
+        .on('mouseout', function(d){d3.select(this).style("fill", "black").style("font-size",px+"px");
+             d3.select('path#arc').attr('opacity',0)
+           })
+
+
+
+  //for in labels , draw arc, rotate
+  var can = document.getElementById('canvas');
+  can.width = width;
+  can.height=height;
+  var ctx = can.getContext('2d');
+
+
+
+  var range = 0.85*(max_radius/((eni-sti)/by));
+
+  ctx.save();
+  ctx.translate(width/2, height/2);
+  var outer_arc_radius = 0;
+  for (var j = sti; j < eni; j=j+by) {
+
+    var dummy = concentration.row(j).map((d)=> d>0?Math.log10(d):0);
+    var min =  d3.min(dummy);
+    var max =  d3.max(dummy)-min;
+    var row = dummy.map((d)=>(d-min+1e-6)/max);
+
+    var inner_arc_radius = outer_arc_radius+0.1*range;
+    var outer_arc_radius = inner_arc_radius+range;
+    labels.forEach(function(d){
+
+        ctx.beginPath()
+        ctx.fillStyle = row[d.id]<0 ? 'grey' : colour(row[d.id]);
+        ctx.rotate(d.angle);
+        ctx.arc(0,0,outer_arc_radius,0,theta, false); // outer (filled)
+        ctx.arc(0,0,inner_arc_radius,theta,0, true); // outer (unfills it)
+        ctx.fill();
+        ctx.closePath();
+        ctx.rotate(-d.angle)// IMPORTANT - must undo rotation
+    });
+/*
+console.log('move these to svg')
+   //add dates and ti,e
+  ctx.font = "33px";//fontname after space
+  ctx.fillStyle = "white";
+  ctx.textAlign = "center";
+  ctx.fillText(formatTime(datetime[j]), 0, (inner_arc_radius + outer_arc_radius)/2);
+  */
+  };
+  ctx.restore();
+
+
+  var arc = d3.arc()
+      .innerRadius(0)
+      .outerRadius(max_radius*.97)
+      .startAngle(theta) //convert from degs to radians
+      .endAngle(2*Math.PI ) //just radians
+
+  var a = svg.append("path")
+      .attr("d", arc)
+      .attr('id','arc')
+      .attr('opacity',0)
+      .attr("transform", "translate("+width/2+","+height/2+")")
+
+
+  //d3.select('path#arc')//.attr
+}
+
+draw()
+</script>

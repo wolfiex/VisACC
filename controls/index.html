@@ -1,0 +1,271 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>bars</title>
+    <style>
+      .axis {
+        font: 10px sans-serif;
+      }
+
+      .axis path,
+      .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+      }
+
+      .axis--y path {
+        display: none;
+      }
+
+      .bar {
+        fill: #3182bd;
+        fill-opacity: .9;
+      }
+
+      .wld {
+        fill: #9ecae1;
+      }
+
+      .chart-title {
+        margin-bottom: 0;
+      }
+
+      .source {
+        margin-top: 0;
+        font-size: 11px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <h4 class="chart-title">timesteps DSMA CC
+        (%) <span class="year"></span></h4>
+      <div class="chart"></div>
+      <p class="source"> ladida- model run information hyere </p>
+    </div>
+
+
+    <script src="../revamp/d3.v4.min.js"></script>
+
+
+  <script>
+    'use strict';
+
+
+    /// main action script
+    const electron = require('electron');
+    const fs = require('fs');
+    const NetCDFReader = require('netcdfjs');
+    var ipc = electron.ipcRenderer;
+    ipc.on('toggle-prefs', (event,arg)=> {console.log(event,arg)});
+
+
+    //parameters - netcdf
+    var dims={};
+    var data = fs.readFileSync('../revamp/volcano.nc');
+    var reader = new NetCDFReader(data); // read the header
+
+    // get data dimentions
+    reader.dimensions.forEach(function(d){dims[d.name] = d.size},dims={});
+
+
+
+    class nc2D {
+      constructor(name, width, arr_type) { //Float32Array
+        this.width = dims[width];
+        this.arr_type = arr_type
+        this.data = new arr_type(reader.getDataVariable(name));
+      }
+    };
+
+    nc2D.prototype.row = function (index) {
+       var start = index*this.width;
+       return new this.arr_type(this.data.slice(start,start+this.width))
+    }
+
+
+    var print = (d) => console.log(d);
+
+    //const width = window.innerWidth;
+    //const height = window.innerHeight;
+
+
+    const concentration = new nc2D('concentration','specs',Float32Array);
+    const flux = new nc2D('edge-length','fluxes',Float32Array);
+    const dict = JSON.parse(reader.getDataVariable('nodes').join(''));
+    const combine = JSON.parse(reader.getDataVariable('combinations').join(''));
+    const tar = reader.getDataVariable('target');
+    const src = reader.getDataVariable('source');
+
+
+
+    var spec  = dict['NO'];
+
+    var loss_id = src.reduce(function(a, e, i) {
+        if (e === spec)
+            a.push(i);
+        return a;
+    }, []);   // find all index values
+
+    var prod_id = tar.reduce(function(a, e, i) {
+        if (e === spec)
+            a.push(i);
+        return a;
+    }, []);   // find all index values
+
+
+    var prod = [];
+    var loss = [];
+
+
+  function   p_f(e){ prod.push(e)};
+    function l_f(e){loss.push(e)};
+
+    prod_id.forEach((z)=> {var d = combine[z]; d[0].forEach(p_f); d[1].forEach(l_f)});
+    loss_id.forEach((z)=> {var d = combine[z]; d[1].forEach(p_f); d[0].forEach(l_f)});
+
+    prod = new Set(prod);
+    loss = new Set(loss);
+
+
+
+
+///////////////////////////////////
+
+
+    const margin = {top: 20, right: 30, bottom: 40, left: 260};
+    const width = 960 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+    const percentFormat = d3.format('.0%');
+    const leftPadding = 5;
+
+    const delay = function(d, i) {
+      return i * 40;
+    };
+
+    function sortData(data) {
+      return data.sort((a, b) => b.value - a.value);
+    }
+
+//    function removeGeoAreasWithNoData(data) {
+  //    return data.filter(d => d.value);
+    //}
+
+
+    function xAccessor(d) {
+      return d.value;
+    }
+
+    function yAccessor(d,i) {
+
+      return i;// it was d.gename
+    }
+
+    const xScale = d3.scaleLinear()
+        .range([0, width])
+        .domain([0, 1]);
+
+    const yScale = d3.scaleBand()
+        .rangeRound([0, height], 0.1)
+        .padding(0.1);
+
+    function drawXAxis(el) {
+      el.append('g')
+          .attr('class', 'axis axis--x')
+          .attr('transform', `translate(${leftPadding},${height})`)
+          .call(d3.axisBottom(xScale).tickFormat(percentFormat));
+    }
+
+
+/// axis
+    function drawYAxis(el, data, t) {
+      let axis = el.select('.axis--y');
+      if (axis.empty()) {
+        axis = el.append('g')
+          .attr('class', 'axis axis--y');
+      }
+
+      axis.transition(t)
+          .call(d3.axisLeft(yScale))
+        .selectAll('g')
+          .delay(delay);
+    }
+
+
+    function drawBars(el, data, t) {
+      let barsG = el.select('.bars-g');
+      if (barsG.empty()) {
+        barsG = el.append('g')
+          .attr('class', 'bars-g');
+      }
+
+
+      const bars = barsG
+        .selectAll('.bar')
+        .data(data, yAccessor);
+      bars.exit()
+        .remove();
+      bars.enter()
+        .append('rect')
+          .attr('class', 'bar')// d => d.geoCode === 'WLD' ? 'bar wld' : 'bar')
+          .attr('x', leftPadding)
+            .merge(bars).transition(t)
+          .attr('y', d => 1-d*height)//yscale
+          .attr('width', d => xScale(d))
+          .attr('height', 10)//yScale.bandwidth())
+          .delay(delay);
+    }
+
+    const svg = d3.select('.chart').append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+function run(){
+        //const data = prepareData(d3.csvParse(res));
+        const years = dims['time']-44;
+        const lastYear = dims['time']-1;
+
+
+        console.log(data)
+        var startYear = 44;
+
+        var selectedData = [];
+
+        flux.row(44 ).forEach((d)=> { var i  = Math.abs(Math.log10(d));
+                if (isFinite(i)) selectedData.push(i)   },selectedData = []);
+
+        print(selectedData);
+        d3.select('.year').text(startYear);
+
+        //yScale.domain(geoAreas);
+        drawXAxis(svg, selectedData);
+        drawYAxis(svg, selectedData);
+        drawBars(svg, selectedData);
+
+        const interval = d3.interval(() => {
+          const t = d3.transition().duration(400);
+
+          startYear += 1;
+
+
+                  flux.row(startYear ).forEach((d)=> { var i  = Math.abs(Math.log10(d)); if (isFinite(i)) selectedData.push(i)   },selectedData = []);
+
+          d3.select('.year').text(startYear);
+
+          yScale.domain(selectedData.map(yAccessor));
+          drawYAxis(svg, selectedData, t);
+          drawBars(svg, selectedData, t);
+
+          if (startYear === lastYear) {
+            interval.stop();
+          }
+        }, 1000);
+      };
+  </script>
+  </body>
+</html>
