@@ -1,186 +1,321 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
-
+.textval{ fill:white}
 .bar { fill: steelblue; }
-
+body{font-family: 'Lato', sans-serif;}
 </style>
+<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+
+  <div class="top">
+    <div style="float: left; width: 20%;">
+        <select class="form-control" id='dropdown'
+            onchange='spec = value; draw(spec,document.getElementById("valueslider").value);update_cplot(spec)'> </select>
+    </div>
+    <div style="float: left; width: 5%;"><br> </div>
+    <div style="float: left; width: 50%;">
+      <form>
+        <input type="range" id="valueslider" value="0" step="1" min="0" max="500"   style='width: 100%;
+            display: block;  margin: 0 auto;'   oninput="document.getElementById('output').value=ncdata.datetime[value]"
+            onchange='draw(spec,value)'>
+            <svg id='miniplot' style='width: 100%; display: block; position:absolute; margin: 0 auto;'></svg>
+      </form>
+      <br>
+      <svg id='miniplot' style='width: 100%; display: block; position:absolute; margin: 0 auto;'></svg>
+    </div>
+    <div style="float: left; width: 5%;"> <br></div>
+    <div style="float: left; width: 20%;">
+        <output form=value id="output">0</output>
+    </div>
+  </div>
 <body>
 
-<script src="http://d3js.org/d3.v4.min.js"></script>
-<script src="./netcdfjs.min.js"></script>
-<script>
-
-"use strict";
-
-///classes and defns
-class nc2D {
-  constructor(name, width, arr_type) { //Float32Array
-    this.width = dims[width];
-    this.arr_type = arr_type;
-    this.data = new arr_type(reader.getDataVariable(name));
-  }
-};
-
-nc2D.prototype.row = function (index) {
-   var start = index*this.width;
-   return new this.arr_type(this.data.slice(start,start+this.width))
-}
-
-var print = (d) => console.log(d);
 
 
 
 
-///file read
-var reader,reader_url,dims;
-// read browser, adjust from there try except
-try{
-  const fs = require('fs');
-  const data = fs.readFileSync(__dirname+'/volcano.nc');
-  reader = new netcdfjs(data);
-  ncparse(reader);
-  }catch (err) {
-  console.log('switching to browser mode',err)
-  var urlpath = document.URL + "volcano.nc"
-  var oReq = new XMLHttpRequest();
-  oReq.open("GET", urlpath, true);
-  oReq.responseType = "blob";
+  <script src="http://d3js.org/d3.v4.min.js"></script>
+  <script src="./netcdfjs.min.js"></script>
+  <script>
 
-  oReq.onload = function(oEvent) {
-    var blob = oReq.response;
-    reader_url = new FileReader();
-    reader_url.onload = function(e) {
-         reader = new netcdfjs(this.result);
-         ncparse(reader);
-         (function(){draw()})()
-        }
-    reader_url.readAsArrayBuffer(blob);
+  "use strict";
+
+  ///classes and defns
+  class nc2D {
+    constructor(name, width, arr_type) { //Float32Array
+      this.width = dims[width];
+      this.arr_type = arr_type;
+      this.data = new arr_type(reader.getDataVariable(name));
+    }
   };
-  oReq.send(); //start process
-}
 
+  nc2D.prototype.row = function (index) {
+    var start = index*this.width;
+    return new this.arr_type(this.data.slice(start,start+this.width))
+  }
 
-
- function ncparse (reader){
-                //all parts we require from the netcdf file
-                reader.dimensions.forEach(function(d){dims[d.name] = d.size},dims={});
-                const concentration = new nc2D('concentration','specs',Float32Array);
-                const flux = new nc2D('edge-length','fluxes',Float32Array);
-                const dict = JSON.parse(reader.getDataVariable('nodes').join(''));
-                const combine = JSON.parse(reader.getDataVariable('combinations').join(''));
-                const tar = reader.getDataVariable('target');
-                const src = reader.getDataVariable('source');
-                const time = reader.getDataVariable('timeseconds');
-                const rates = JSON.parse(reader.getDataVariable('rate').join(''));
-
-                  // creates reverse dictionary rdict below
-                 var rdict,nodes,i;
-                  Object.keys(dict).forEach(function(d){var i = dict[d];rdict[i]=d;}, rdict={}, nodes=[]);
-
-                window.nodes =[];for (i = 0; i < combine.length; i++) { window.nodes.push({"names":rdict[i],"id":i,"x":2*(0.5-Math.random()),
-                  "y":2*(0.5-Math.random()),"z":0.5-Math.random()}) };
-
-                const formatTime = d3.timeFormat("%b %d, %H:%M");
-                  //time => datetime
-                const datetime=time.map(function(e){
-                      var utcSeconds = e;var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
-                      d.setUTCSeconds(utcSeconds);
-                      return d });
-
-
-                window.ncdata ={concentration,flux,dict,rdict,combine,tar,src,formatTime,datetime,dims,rates};
-
-
-                };
+  var print = (d) => console.log(d);
 
 
 
 
+  ///file read
+  var reader,reader_url,dims;
+  // read browser, adjust from there try except
+  try{
+    const fs = require('fs');
+    const data = fs.readFileSync(__dirname+'/volcano.nc');
+    reader = new netcdfjs(data);
+    ncparse(reader);
+  }catch (err) {
+    console.log('switching to browser mode',err)
+    var urlpath = document.URL + "volcano.nc"
+    var oReq = new XMLHttpRequest();
+    oReq.open("GET", urlpath, true);
+    oReq.responseType = "blob";
 
-var spec= 'O3';
-var timestep = 99;
+    oReq.onload = function(oEvent) {
+      var blob = oReq.response;
+      reader_url = new FileReader();
+      reader_url.onload = function(e) {
+        reader = new netcdfjs(this.result);
+        ncparse(reader);
+        (function(){draw()})()
+      }
+      reader_url.readAsArrayBuffer(blob);
+    };
+    oReq.send(); //start process
+  }
+
+
+
+  function ncparse (reader){
+    //all parts we require from the netcdf file
+    reader.dimensions.forEach(function(d){dims[d.name] = d.size},dims={});
+    const concentration = new nc2D('concentration','specs',Float32Array);
+    const flux = new nc2D('edge-length','fluxes',Float32Array);
+    const dict = JSON.parse(reader.getDataVariable('nodes').join(''));
+    const combine = JSON.parse(reader.getDataVariable('combinations').join(''));
+    const tar = reader.getDataVariable('target');
+    const src = reader.getDataVariable('source');
+    const time = reader.getDataVariable('timeseconds');
+    const rates = JSON.parse(reader.getDataVariable('rate').join(''));
+
+    // creates reverse dictionary rdict below
+    var rdict,nodes,i;
+    Object.keys(dict).forEach(function(d){var i = dict[d];rdict[i]=d;}, rdict={}, nodes=[]);
+
+    window.nodes =[];for (i = 0; i < combine.length; i++) { window.nodes.push({"names":rdict[i],"id":i,"x":2*(0.5-Math.random()),
+    "y":2*(0.5-Math.random()),"z":0.5-Math.random()}) };
+
+    const formatTime = d3.timeFormat("%b %d, %H:%M");
+    //time => datetime
+    const datetime=time.map(function(e){
+      var utcSeconds = e;var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+      d.setUTCSeconds(utcSeconds);
+      return d });
+
+
+      window.ncdata ={concentration,flux,dict,rdict,combine,tar,src,formatTime,datetime,dims,rates};
+
+      document.getElementById('valueslider').max = dims.time-1;
+
+     var select = document.getElementById('dropdown');
+      var names = Object.keys(dict).sort();
+
+      names.forEach((i)=> {
+        var opt = document.createElement('option');
+        opt.value = i;
+        opt.innerHTML = i;
+        select.appendChild(opt);
+     });
+
+    };
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // make bars
+    ////////////////////////////////////////////////////////////////////////////////
+
+    var spec= 'O3';
+    var timestep = 99;
+    var data=[];
+
+    update_cplot(spec);
+    // set the dimensions and margins of the graph
+    var margin = {top: 20, right: 20, bottom: 30, left: 200},
+    width = window.innerWidth - margin.left - margin.right,
+    height = window.innerHeight - margin.top - margin.bottom;
+
+    var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+    "translate(" + margin.left + "," + margin.top + ")");
+
+    var format = d3.format(".1")
 
 
 function draw (spec,timestep) {
-  var prod = [];
-  var loss =[];
-  var specindex = ncdata.dict[spec];
+      document.getElementById('dropdown').value=spec;
+      document.getElementById('valueslider').value = timestep;
+      document.getElementById('output').value = ncdata.datetime[timestep];
 
-  for (var i = 0; i < ncdata.combine.length; i++) {
-    if (specindex === ncdata.tar[i]) {ncdata.combine[i][0].forEach((d) =>prod.push(d)); ncdata.combine[i][1].forEach((d) =>loss.push(d))}
-    if (specindex === ncdata.src[i]) {ncdata.combine[i][1].forEach((d) =>prod.push(d)); ncdata.combine[i][0].forEach((d) =>loss.push(d))}
+      svg.selectAll('*').remove()
+
+      data = [];
+      var prod = [];
+      var loss =[];
+      var specindex = ncdata.dict[spec];
+
+      for (var i = 0; i < ncdata.combine.length; i++) {
+        if (specindex === ncdata.tar[i]) {ncdata.combine[i][0].forEach((d) =>prod.push(d)); ncdata.combine[i][1].forEach((d) =>loss.push(d))}
+        if (specindex === ncdata.src[i]) {ncdata.combine[i][1].forEach((d) =>prod.push(d)); ncdata.combine[i][0].forEach((d) =>loss.push(d))}
+      }
+
+      loss = new Set(loss);
+      prod = new Set(prod);
+
+
+      var selectedflux = ncdata.flux.row(timestep);
+
+      loss.forEach((d)=> {if (selectedflux[d]>0) data.push({'reaction':ncdata.rates[d],'value':selectedflux[d],'prod':false})});
+      prod.forEach((d)=> {if (selectedflux[d]>0) data.push({'reaction':ncdata.rates[d],'value':selectedflux[d],'prod':true })});
+
+      data = sortedData(data)
+
+
+
+      // set the ranges
+      var y = d3.scaleBand()
+      .range([height, 0])
+      .padding(0.1);
+
+      var x = d3.scaleLinear()
+      .range([0, width]);
+
+      // Scale the range of the data in the domains
+      x.domain([0, d3.max(data, function(d){ return d.value; })])
+      y.domain(data.map(function(d) { return d.reaction; }));
+            //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
+
+      // append the svg object to the body of the page
+      // append a 'group' element to 'svg'
+      // moves the 'group' element to the top left margin
+
+
+
+      // append the rectangles for the bar chart
+      var bar = svg.selectAll(".bar")
+      .exit()
+      .remove()
+      .data(data)
+      .enter().append("rect")
+      .attr("class", "bar")
+      //.attr("x", function(d) { return x(d.sales); })
+      .attr("width", function(d) {return x(d.value); } )
+      .attr("y", function(d) { return y(d.reaction); })
+      .style('fill', function(d){ return (d.prod)? '#0277bd':'#fc1333'})
+      .on('mouseover',function(d){console.log(d.value)})
+      .attr("height", y.bandwidth());
+
+
+      var text = svg.selectAll(".textval").attr('id','texts')
+              .data(data)
+              .enter()
+              .append("text")
+              .attr("class", "textval")
+              .text(function (d) { return (x(d.value)/width >0.1)? format(d.value):''; })// only display if greater than 0.1%
+              .attr("x", function(d) {return x(d.value); } )
+              .attr("y", function(d) { return y(d.reaction); })
+              .on('mouseover',function(d){console.log(d.value)})
+              .style("font-size","10px")
+              .attr('text-anchor','end')
+              .attr('alignment-baseline','hanging')
+
+
+
+
+      svg.selectAll('g').remove()
+      // add the x Axis
+      svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      //.call(d3.axisBottom(x));
+      .call(d3.axisBottom(d3.scaleLinear().range([0, width]))); //percent axis rather than actual
+      // add the y Axis
+      svg.append("g")
+      .call(d3.axisLeft(y));
+    }
+
+
+//initial;
+    draw(spec,timestep);
+    update_cplot(spec);
+
+
+////////// animate
+
+function animate(){
+
+var  startYear= 0 ;
+var lastYear = dims.time-1 ;
+
+    const interval = d3.interval(() => {
+      const t = d3.transition().duration(100);
+
+      startYear += 1;
+      document.getElementById('valueslider').value = startYear;
+      document.getElementById('output').value =ncdata.datetime[startYear];
+    draw(spec,startYear);
+
+      if (startYear === lastYear) {
+        interval.stop();
+      }
+    }, 300);
+  };
+
+
+
+  var x = d3.scaleLinear().domain([0,ncdata.dims.time]).range([0, window.innerWidth*0.49]);
+  var y = d3.scaleLinear().domain([0,1]).range([20, 0]);
+  var valueline = d3.line()
+      .x(function(d,i) {  return x(i) })
+      .y(function(d) { return y(d) });
+
+
+
+function update_cplot (spec){
+  var spec=ncdata.dict[spec];
+  var conc = [];
+  for (var j = 0; j < ncdata.dims.time; j++) {
+    var dummy = ncdata.concentration.row(j).map((d)=> d>0?Math.log10(d):0);
+    conc.push(dummy[spec])
   }
 
-  loss = new Set(loss);
-  prod = new Set(prod);
+  var min =  d3.min(conc);
+  var max =  d3.max(conc)-min;
+  var conc = conc.map((d)=>(d-min+1e-6)/max);
+
+var svg = d3.select('#miniplot')
+svg.select('path').remove();
+  svg.append("path")
+                                .data([conc])
+                                .attr("class", "line")
+                                .style('stroke','green')
+                                .style('stroke-width','2px')
+                                .style('fill','none')
+                                .attr("d", valueline);
 
 
-  var selectedflux = ncdata.flux.row(timestep);
-
-  var data=[]
-
-  console.log('if selectedflux < 0' )
-  loss.forEach((d)=> data.push({'reaction':ncdata.rates[d],'value':selectedflux[d],'prod':false}))
-  prod.forEach((d)=> data.push({'reaction':ncdata.rates[d],'value':selectedflux[d],'prod':true}))
-
-
-  // set the dimensions and margins of the graph
-  var margin = {top: 20, right: 20, bottom: 30, left: 200},
-      width = window.innerWidth - margin.left - margin.right,
-      height = window.innerHeight - margin.top - margin.bottom;
-
-  // set the ranges
-  var y = d3.scaleBand()
-            .range([height, 0])
-            .padding(0.1);
-
-  var x = d3.scaleLinear()
-            .range([0, width]);
-
-  // append the svg object to the body of the page
-  // append a 'group' element to 'svg'
-  // moves the 'group' element to the top left margin
-  var svg = d3.select("body").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
-
-    // format the data
-  //  data.forEach(function(d) {
-  //    d.sales = +d.sales;
-  //  });
-
-    // Scale the range of the data in the domains
-    x.domain([0, d3.max(data, function(d){ return d.value; })])
-    y.domain(data.map(function(d) { return d.reaction; }));
-    //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
-
-    // append the rectangles for the bar chart
-    svg.selectAll(".bar")
-        .data(data)
-      .enter().append("rect")
-        .attr("class", "bar")
-        //.attr("x", function(d) { return x(d.sales); })
-        .attr("width", function(d) {return x(d.value); } )
-        .attr("y", function(d) { return y(d.reaction); })
-        .style('fill', function(d){ return (d.prod)? 'steelblue':'red'})
-        .on('mouseover',function(d){console.log(d.value)})
-        .attr("height", y.bandwidth());
-
-    // add the x Axis
-    svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
-
-    // add the y Axis
-    svg.append("g")
-        .call(d3.axisLeft(y));
 }
 
 
-draw(spec,timestep);
-</script>
-</body>
+
+    function sortedData(data) {
+      return data.sort((a, b) => a.value - b.value);
+    }
+
+    </script>
+  </body>
