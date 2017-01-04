@@ -3,15 +3,30 @@
 <style>
 .textval{ fill:white}
 .bar { fill: steelblue; }
+ .button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 11px;
+}
 body{font-family: 'Lato', sans-serif;}
 </style>
 <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+
+
 
   <div class="top">
     <div style="float: left; width: 20%;">
         <select class="form-control" id='dropdown'
             onchange='spec = value; draw(spec,document.getElementById("valueslider").value);update_cplot(spec)'> </select>
+
+<button onclick='window.animate()' style='width: 85%' >Animate</button>
     </div>
+
+
     <div style="float: left; width: 5%;"><br> </div>
     <div style="float: left; width: 50%;">
       <form>
@@ -21,14 +36,28 @@ body{font-family: 'Lato', sans-serif;}
             <svg id='miniplot' style='width: 100%; display: block; position:absolute; margin: 0 auto;'></svg>
       </form>
       <br>
-      <svg id='miniplot' style='width: 100%; display: block; position:absolute; margin: 0 auto;'></svg>
+      <svg id='miniplot' style='width: 100%; display: block; position:absolute; margin: 0 auto;'>
+        <defs>
+          <pattern id="pattern-stripe"
+            width="4" height="4"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)">
+            <rect width="2" height="4" transform="translate(0,0)" fill="white"></rect>
+          </pattern>
+          <mask id="mask">
+            <rect x="0" y="0" width="800%" height="800%" fill="url(#pattern-stripe)" />
+          </mask>
+        </defs>
+
+       </svg>
     </div>
     <div style="float: left; width: 5%;"> <br></div>
     <div style="float: left; width: 20%;">
         <output form=value id="output">0</output>
     </div>
   </div>
-<body>
+<body onload = 'update_cplot(spec);'>
+
 
 
 
@@ -130,6 +159,8 @@ body{font-family: 'Lato', sans-serif;}
         select.appendChild(opt);
      });
 
+
+
     };
 
 
@@ -141,12 +172,14 @@ body{font-family: 'Lato', sans-serif;}
     var spec= 'O3';
     var timestep = 99;
     var data=[];
+    var topten = true;
+    var topn = 6;
 
     update_cplot(spec);
     // set the dimensions and margins of the graph
-    var margin = {top: 20, right: 20, bottom: 30, left: 200},
+    var margin = {top:20, right: 20, bottom: 70, left: 200},
     width = window.innerWidth - margin.left - margin.right,
-    height = window.innerHeight - margin.top - margin.bottom;
+    height = window.innerHeight - margin.top - margin.bottom - 35 ;
 
     var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -156,6 +189,7 @@ body{font-family: 'Lato', sans-serif;}
     "translate(" + margin.left + "," + margin.top + ")");
 
     var format = d3.format(".1")
+
 
 
 function draw (spec,timestep) {
@@ -169,6 +203,7 @@ function draw (spec,timestep) {
       var prod = [];
       var loss =[];
       var specindex = ncdata.dict[spec];
+
 
       for (var i = 0; i < ncdata.combine.length; i++) {
         if (specindex === ncdata.tar[i]) {ncdata.combine[i][0].forEach((d) =>prod.push(d)); ncdata.combine[i][1].forEach((d) =>loss.push(d))}
@@ -186,7 +221,14 @@ function draw (spec,timestep) {
 
       data = sortedData(data)
 
-
+      if (topten) {
+        var prod = 0 ;
+        var loss = 0 ;
+        for (var i = 0; i < data.length-topn; i++){ (data[i].prod)? prod += data[i].value : loss += data[i].value}
+        data=data.splice(data.length-topn,data.length);
+        data.unshift({'reaction':'Total Other Prod','value':prod,'prod':true })
+        data.unshift({'reaction':'Total Other Loss','value':loss,'prod':false })
+      }
 
       // set the ranges
       var y = d3.scaleBand()
@@ -207,6 +249,9 @@ function draw (spec,timestep) {
 
 
 
+
+
+
       // append the rectangles for the bar chart
       var bar = svg.selectAll(".bar")
       .exit()
@@ -218,6 +263,7 @@ function draw (spec,timestep) {
       .attr("width", function(d) {return x(d.value); } )
       .attr("y", function(d) { return y(d.reaction); })
       .style('fill', function(d){ return (d.prod)? '#0277bd':'#fc1333'})
+      .attr('mask', (d)=> (/Other/.test(d.reaction))? 'url(#mask)':'')
       .on('mouseover',function(d){console.log(d.value)})
       .attr("height", y.bandwidth());
 
@@ -252,7 +298,7 @@ function draw (spec,timestep) {
 
 //initial;
     draw(spec,timestep);
-    update_cplot(spec);
+
 
 
 ////////// animate
@@ -273,7 +319,7 @@ var lastYear = dims.time-1 ;
       if (startYear === lastYear) {
         interval.stop();
       }
-    }, 300);
+    }, 200);
   };
 
 
@@ -300,7 +346,7 @@ function update_cplot (spec){
 
 var svg = d3.select('#miniplot')
 svg.select('path').remove();
-  svg.append("path")
+                             svg.append("path")
                                 .data([conc])
                                 .attr("class", "line")
                                 .style('stroke','green')
@@ -308,9 +354,7 @@ svg.select('path').remove();
                                 .style('fill','none')
                                 .attr("d", valueline);
 
-
 }
-
 
 
     function sortedData(data) {
