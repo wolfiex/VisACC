@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+@import url(../revamp/src/style.css);
+#graphdiv {
+  position: absolute;
+  left: 0px;
+}
+
+body {overflow: scroll;}
+
+      .axisText {
+	  		fill: #C4C4C4;
+	  		font-size: 11px;
+	  		font-weight: 300;
+	  		text-anchor: middle;
+	  		text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+	  	}
+
+
+
+.sidenav {
+    height:100%;
+    display: none;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: white;
+    overflow-x: hidden;
+    ;
+}
+
+.sidenav a {
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s
+}
+
+.sidenav a:hover, .offcanvas a:focus{
+    color: #f1f1f1;
+}
+
+#header, #footer {
+  z-index: 1;
+  display: block;
+  font-size: 26px;
+  font-weight: 300;
+  text-shadow: 0 1px 0 #fff;
+}
+
+#header {
+  top: 80px;
+  left: 140px;
+  width: 1000px;
+}
+
+#footer {
+  top: 89%;
+  right: 5%;
+  text-align: right;
+
+
+canvas{ position:'absolute'; }
+svg{ position:'absolute'; }
+
+</style>
+
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="./colours.js"></script>
+
+<script src="../revamp/src/stats.js"></script>
+<script src="./netcdfjs.min.js"></script>
+<link src='../revamp/src/fonts'  rel='stylesheet' type='text/css'>
+ <link rel="stylesheet" href="./photon.min.css">
+<!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
+-->
+
+<body>
+
+
+  <div>
+  <canvas id='canvas' style="position:absolute;"></canvas>
+  <svg style="position:absolute;">
+  </svg>
+  </div>
+
+<div></div>
+
+
+  <div id="controls" class="sidenav nav-group pane pane-sm">
+
+  <ul class="list-group">
+    <li class="list-group-header">
+      <input class="form-control" type="text" placeholder="Specification Page   (Close)" onclick='closeNav()'>
+
+    </li>
+
+
+    <li class="list-group-item">
+      <span class="icon icon-chart-line media-object pull-left"></span>
+      <div class="media-body">
+        <strong>Ordering</strong>
+
+        <div class="radio">
+
+        <div class="radio">
+        <label>
+        <input type="radio" name="order" checked onclick='window.orderBylast=true'>
+        <p>Final simulation Concentration</p>
+        </label>
+        </div>
+        </div>
+</li>
+
+
+
+
+<li class="list-group-item">
+  <span class="icon icon-water media-object pull-left"></span>
+  <div class="media-body">
+    <strong>Colour Scheme</strong>
+
+    <div id='colrad' class="radio">
+    <label>
+    <input type="radio" name="colour" unchecked onclick='window.cs = viridis ; window.colour  = ColourScheme(viridis,inv);'>
+    <p>Viridis</p>
+    </label>
+
+    <div class="radio">
+    <label>
+    <input type="radio" name="colour" checked onclick='window.cs = visual_cinnamon; window.colour  = ColourScheme(visual_cinnamon,inv);'>
+    <p>Visual Cinammon</p>
+    </label>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" onclick='window.inv=!window.inv;window.colour  = ColourScheme(window.cs,inv) '> Inverse colours
+      </label>
+    </div>
+</div>
+</li>
+
+
+
+<li class="list-group-item">
+  <span class="icon icon-hourglass media-object pull-left"></span>
+  <div class="media-body">
+    <strong>Plot Type</strong> <br>
+    <p> What type of plot would you like? (How do we filter the data) </p>
+
+    <select class="form-control" onchange= "window.selected = this.value;
+                          document.getElementById('start').disabled=false;
+                          document.getElementById('end').disabled=false;
+                          document.getElementById('by').disabled=false;
+
+                          switch (selected){
+                            case '24 Hour Slice':
+                              document.getElementById('end').disabled=true;
+                              document.getElementById('end').value = '--Disabled--'
+                              window.eni = window.sti+145;
+                              document.getElementById('by').value = 1
+                              break;
+                            case 'Diurnal Timestep':
+                              document.getElementById('by').disabled=true;
+                              document.getElementById('by').value = '--Disabled--'
+                              window.by = 14;
+                              break;
+                            case 'User Select':
+                              document.getElementById('by').disabled=true;
+                              document.getElementById('by').value = '--Disabled--'
+                              window.by = 144;
+                              break;
+
+                          }    ">
+        <option>User Select</option>
+        <option>24 Hour Slice</option>
+        <option>Diurnal Timestep</option>
+
+      </select>
+</div>
+</li>
+
+
+
+
+<li class="list-group-item">
+  <span class="icon icon-network media-object pull-left"></span>
+  <div class="media-body">
+    <strong>Plot Specifics</strong> <br>
+<div>
+
+
+Start Time
+  <div>
+        <select class="form-control" id='start' onchange='sti= parseInt(this.value);if (selected=="24 Hour Slice") window.eni=window.sti+144'> </select>
+  </div>
+End Time
+  <div>
+        <select class="form-control" id='end' onchange='eni= parseInt(this.value)'> </select>
+  </div>
+Step Size ( 1 Day = 144 )
+        <div class="form-group">
+          <input id='by'; type="text"  width=4 placeholder="step" onchange='window.by=parseInt(this.value)'>
+        </div>
+</div>
+</div>
+
+
+<div id="footer">
+ Temporal Hierarchy 0.1 <br>
+</div>
+
+<li class="list-group-item">
+<span class="icon icon-cloud-thunder media-object pull-left"></span>
+<div class="media-body">
+  <strong onclick='alert()'>Select Species (optional) </strong>
+
+
+</li>
+
+
+
+
+
+<li class="list-group-item">
+<button class="btn btn-large btn-positive" onclick=";draw()">Select</button>
+
+<--! document.getElementById('controls').remove() -->
+
+</li>
+</div>
+
+
+
+<div id="body">
+
+
+
+
+
+
+</body>
+
+
+<span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776;
+</span>
+
+<script>
+
+function openNav() {
+    document.getElementById("controls").style.display = "block";
+}
+
+function closeNav() {
+    document.getElementById("controls").style.display = "none";
+}
+
+openNav();
+</script>
+
+
+
+<script src='readnc.js'> </script>
+<script>
+"use strict";
+
+
+
+
+
+
+///////////
+/////program code
+////////////
+
+
+window.inv = false
+window.cs = visual_cinnamon;
+window.colour  = ColourScheme(visual_cinnamon,window.inv); //colourScale
+//var colour  = ColourScheme(viridis,true); //colourScale
+window.filterby = Object.keys(ncdata.dict);
+window.orderBylast=true;
+var start,end,steps
+
+
+
+var degree,
+    sti = 0 ,
+    eni = dims.time-1,
+    by = 1;//4.;
+
+document.getElementById('end').value = eni;
+document.getElementById('by').value = by;
+
+print((eni-sti)/by);
+
+
+
+///draw function
+function draw (){
+
+
+  var svg = d3.select("svg");
+  svg.selectAll('*').remove();
+  svg.style('width', width);
+  svg.style('height', height);
+  svg.style("transform", "translate("+window.innerWidth/2.+","+window.innerHeight/2.+")")
+
+  d3.select('svg').append("path")
+        //.attr("d", '')
+        .attr('id','arc')
+        .attr('fill','transparent')
+        //.attr('fill-opacity',0.1)
+        .attr('stroke-width',2.3)
+        .attr('stroke','black')
+        .attr('opacity',1)
+        .attr("transform", "translate("+width/2+","+height/2+")")
+
+
+
+  //for in labels , draw arc, rotate
+  var can = document.getElementById('canvas');
+  can.width = width;
+  can.height=height;
+  var ctx = can.getContext('2d');
+
+
+  ctx.clearRect(0, 0, width, height);
+  //legend(colour,svg)//add a legend
+
+  var row = ncdata.concentration.row(dims['time']-1); //select last row for ordering
+
+
+  var max_radius= 300
+  var px = 6
+
+
+
+  var names = [];
+  if (orderBylast){  // sort by final flux
+    var dummy = ncdata.concentration.row(ncdata.dims['time']-1).sort();
+    dummy.forEach((d)=> {
+      names.push(ncdata.rdict[row.indexOf(d)])
+    });
+  };
+
+
+  var theta = 2.*Math.PI/window.filterby.length;
+
+  // generate name labels
+  var counter = 0
+  var labels =[];
+  for (var j = 0; j < names.length; j++) {
+    var d=names[j];
+
+//filter by C,N or All
+    if (window.filterby.indexOf(d) > -1 ) {
+
+      //console.log(d,ncdata.dict[d],row[ncdata.dict[d]])
+
+      var i = ncdata.dict[d];
+      if (row[i] > 0){
+        labels.push({'x': max_radius*Math.cos((counter+0.5)*theta), 'y':max_radius*Math.sin((counter+0.5)*theta),
+        'name':d,'angle':counter*theta, 'id':i ,'path':[], 'col':j/window.filterby.length })  };
+
+      counter += 1
+
+      }
+
+  };
+
+print(labels.length);
+
+
+
+  svg.selectAll(".node")
+        .data(labels)
+        .enter().append("g")
+        .attr("class", "node")
+        .attr("transform", function(d) { return "translate(" +(d.x +width/2)+' '+ (d.y+height/2)+ ")"; })
+        .append("text")
+        .attr("transform", function(d) { return (d.angle > (Math.PI/2)  & d.angle < (Math.PI/2.)*3. )?
+               'rotate('+ (360-180+180*d.angle/Math.PI) +' 0 -'+px/2+')' : 'rotate('+ (180*d.angle/Math.PI) +' 0 -'+px/2+')'; })
+        .style('text-anchor', function(d) { return (d.angle > (Math.PI/2)  & d.angle < (Math.PI/2.)*3. )?'end':'start'})
+        .style("font-size",px+"px")
+        .style('fill',function(d,i){return colour(i/filterby.length)})
+        .text(function(d) { return d.name; })
+        .on('mouseover', function(d){
+            d3.select(this).style("font-size",10+px+"px");
+            d3.select(canvas).style('opacity',0.2);
+            //console.log(d);
+            var angle=0;
+            var path = 'M 0,0'
+            for (var j = 0; j < d.path.length; j++) {
+              angle += degree;
+              path += ' L ' + max_radius*d.path[j]*Math.cos(angle)+' '+max_radius*d.path[j]*Math.sin(angle)
+            }
+            d3.select('path#arc').style('opacity',1).attr('d',path+' Z').style('stroke',window.colour(d.col))
+          })
+        .on('mouseout', function(d){
+             d3.select(this).style("font-size",px+"px");
+             d3.select(canvas).style('opacity',1);
+           })
+
+
+
+    var degree = (2*Math.PI)/((eni-sti)/by);
+
+// times ten - to make a lotus.
+
+for (var j = sti; j < eni; j=j+by) {
+
+  var dummy = ncdata.concentration.row(j).map((d)=> d>0?Math.log10(d):0);
+  var min =  d3.min(dummy);
+  var max =  d3.max(dummy)-min;
+  var row = dummy.map((d)=>(d-min+1e-6)/max);
+
+  labels = labels.filter(function(d){d.path.push(row[d.id]); return d})}
+  console.log(labels);
+
+
+//labels = labels.slice(0,2)
+console.log(degree,'dfd')
+
+labels.filter(function(d,i){
+    var angle = 0
+     var path = d.path;
+
+     ctx.save();
+     ctx.translate(width/2, height/2);
+console.log(path.length)
+     ctx.beginPath();
+     ctx.moveTo(max_radius*path[j]*Math.cos(angle),max_radius*path[j]*Math.sin(angle));
+     for (var j = 0; j < path.length; j++) {
+       angle += degree;
+
+
+      // line 1
+      ctx.lineTo(max_radius*path[j]*Math.cos(angle),max_radius*path[j]*Math.sin(angle));
+      //console.log(max_radius*path[j]*Math.cos(angle),max_radius*path[j]*Math.sin(angle))
+}
+
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = window.colour(i/filterby.length);
+      ctx.stroke();
+      ctx.closePath();
+
+ctx.restore()
+})
+
+
+
+
+
+
+
+/*
+  var select = d3.select('#footer')
+    .append('select')
+    	.attr('class','select')
+      .on('change',function(){selectspec({'name':d3.select('select').property('value')})}) //function todo
+
+
+  var options = select
+    .selectAll('option')
+  	.data(labels).enter()
+  	.append('option')
+  		.text(function (d) { return d.name; });
+
+*/
+
+}
+
+
+draw()
+</script>

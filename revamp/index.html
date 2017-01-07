@@ -62,7 +62,7 @@ ipc.on('toggle-prefs', (event,arg)=> {console.log(event,arg)});
 
 
 //parameters - netcdf
-var data = fs.readFileSync('volcano.nc');
+var data = fs.readFileSync('volcano12.nc');
 var reader = new NetCDFReader(data); // read the header
 // get data dimentions
 reader.dimensions.forEach(function(d){dims[d.name] = d.size},dims={});
