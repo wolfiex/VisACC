@@ -20,34 +20,47 @@ const height = window.innerHeight;
 var test = []
 
 
+
 ///file read
-var reader,reader_url,dims;
+var reader,reader_url,dims, file;
 // read browser, adjust from there try except
-try{
-  const fs = require('fs');
-  const data = fs.readFileSync(__dirname+'/volcano8.nc');
-  reader = new netcdfjs(data);
-  ncparse(reader);
-  }catch (err) {
-  console.log('switching to browser mode',err)
-  var urlpath = document.URL + "volcano.nc"
-  var oReq = new XMLHttpRequest();
-  oReq.open("GET", urlpath, true);
-  oReq.responseType = "blob";
 
-  oReq.onload = function(oEvent) {
-    var blob = oReq.response;
-    reader_url = new FileReader();
-    reader_url.onload = function(e) {
-         reader = new netcdfjs(this.result);
-         ncparse(reader);
-         (function(){draw()})()
-        }
-    reader_url.readAsArrayBuffer(blob);
-  };
-  oReq.send(); //start process
+if(window.location.hash === ''){
+  // Get the modal
+  closeNav()
+  var modal = document.getElementById('myModal');
+  modal.style.display = "block";
+
+ } else {
+   document.getElementById('myModal').remove();
+   file = window.location.hash.replace('#','');
+      try{
+        const fs = require('fs');
+        const data = fs.readFileSync(__dirname+'/'+file+'.nc');
+        reader = new netcdfjs(data);
+        ncparse(reader);
+        }catch (err) {
+        console.log('switching to browser mode',err)
+        var urlpath = document.URL + file + ".nc"
+        var oReq = new XMLHttpRequest();
+        oReq.open("GET", urlpath, true);
+        oReq.responseType = "blob";
+
+        oReq.onload = function(oEvent) {
+          var blob = oReq.response;
+          reader_url = new FileReader();
+          reader_url.onload = function(e) {
+               reader = new netcdfjs(this.result);
+               ncparse(reader);
+               (function(){draw()})()
+              }
+          reader_url.readAsArrayBuffer(blob);
+        };
+        oReq.send(); //start process
+      }
+
+
 }
-
 
 
  function ncparse (reader){
@@ -110,17 +123,26 @@ try{
 
 
 //get smiles strings and species data
+
 window.csvdata=[];
 window.N=[] ;
 window.C=[];
+
+var inorganics= 'O,O3,O1D,O2,OH,NO,NO2,NO2N2O5,H2O2,HO2,HO2NO2,HONO,HNO3,CO,SO2,SO3,NA'.split(',')
+inorganics.forEach(function(d){
+  if (Object.keys(ncdata.dict).indexOf(d) >= 0 ) {
+         if (/^(.*[N].*)$/.test(d)) window.N.push(d);
+         if (/^(.*[Cc].*)$/.test(d)) window.C.push(d);
+    }
+  });
+
 d3.csv("./fullmcmspecs.csv", function(error, csv) {window.csvdata=csv;
   for (var i = 0; i < csv.length; i++){
-
-    print('add inorganics here see ropacode ')
      var j = csv[i];
      if (Object.keys(ncdata.dict).indexOf(j.item) >= 0 ) {
          if (/^(.*[N].*)$/.test(j.smiles)) window.N.push(j.item);
          if (/^(.*[Cc].*)$/.test(j.smiles)) window.C.push(j.item);
     }
   };
+
 });
