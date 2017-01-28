@@ -7,14 +7,13 @@
   left: 0px;
 }
 
+.modal {
+  position: absolute;
+  left: 30%;
+  top: 25%;
+}
+
 body {overflow: scroll;}
-
-
-	  	.legendTitle {
-	      	font-size: 14px;
-	      	fill: #4F4F4F;
-	      	font-weight: 300;
-	  	}
 
       .axisText {
 	  		fill: #C4C4C4;
@@ -24,16 +23,6 @@ body {overflow: scroll;}
 	  		text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
 	  	}
 
-
-.links line {
-  stroke: #999;
-  stroke-opacity: 0.6;
-}
-
-.nodes circle {
-  stroke: #fff;
-  stroke-width: 1.5px;
-}
 
 
 .sidenav {
@@ -83,9 +72,8 @@ body {overflow: scroll;}
 canvas{ position:'absolute'; }
 svg{ position:'absolute'; }
 
-
-
 </style>
+
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="./colours.js"></script>
@@ -98,56 +86,39 @@ svg{ position:'absolute'; }
 -->
 
 <body>
-  <table class="table-striped"  >
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Kind</th>
-        <th>File Size</th>
-      </tr>
-    </thead>
-    <tbody id = 'tablebody'>
-      <tr>
-        <td>photon.css</td>
-        <td>CSS</td>
-        <td>28K</td>
-      </tr>
-      <tr>
-        <td>photon.css</td>
-        <td>CSS</td>
-        <td><font face="pixigraph" color="green" size='0'>123454321333 eeee &#x0033;&#x0030;&#x0033;&#x0034; 1 2312 4354334898727739883288988889878969867869873323 </font></td>
-      </tr>
-      <tr >
-        <td>photon.css</td>
-        <td id = 'test'>CSS</td>
-        <td><font face="pixelgraph" color="red" size='0'>123454321  1 2312 4354334898727739883288988889878969867869873323 </font></td>
-      </tr>
-      ...
-      <tr>
-        <td>photon.css</td>
-        <td>CSS</td>
-        <td>28K</td>
-      </tr>
-    </tbody>
-  </table>
+
+  <!-- The Modal -->
+  <div id="myModal" class="modal" >
+
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">Select Data File</span>
+
+      <select class="form-control" onchange='console.log(value);window.location.hash=value,window.location.reload()'>
+
+         <option selected hidden>-No file selected-</option>
+         <option>volcano</option>
+         <option>volcano8</option>
+         <option>Option three</option>
+         <option>Option four</option>
+         <option>Option five</option>
+         <option>Option six</option>
+         <option>Option seven</option>
+         <option>Option eight</option>
+       </select>
+    </div>
+
+  </div>
 
 
   <div>
   <canvas id='canvas' style="position:absolute;"></canvas>
-  <svg style="position:absolute;">  </svg>
+  <svg style="position:absolute;">
+  </svg>
   </div>
 
 <div></div>
 
-<div id="post" class="nav-group pane pane-sm">
-
-<ul class="list-group">
-  <li class="list-group-header">
-    <input class="form-control" type="text" placeholder="Post Render Adjustment (Close)" onclick='print("dsfds")'>
-  </li>
-
-</ul>
-<div>
 
   <div id="controls" class="sidenav nav-group pane pane-sm">
 
@@ -155,27 +126,41 @@ svg{ position:'absolute'; }
     <li class="list-group-header">
       <input class="form-control" type="text" placeholder="Specification Page   (Close)" onclick='closeNav()'>
 
-
     </li>
 
 
     <li class="list-group-item">
       <span class="icon icon-chart-line media-object pull-left"></span>
       <div class="media-body">
-        <strong>Ordering</strong>
+        <strong>Filter by Grouping</strong>
+
+
 
         <div class="radio">
         <label>
-        <input type="radio" name="order" unchecked onclick='window.orderBylast=false'>
-        <p>Name: Alphabetical</p>
-        </label>
-
-        <div class="radio">
-        <label>
-        <input type="radio" name="order" checked onclick='window.orderBylast=true'>
-        <p>Final simulation Concentration</p>
+        <input type="radio" name="order" checked onclick='window.filterby = Object.keys(ncdata.dict)'>
+        <p>All Species</p>
         </label>
         </div>
+
+
+        <div class="radio">
+        <label>
+        <input type="radio" name="order" unchecked onclick='window.filterby = N'>
+        <p>Nitrogen Only</p>
+        </label>
+        </div>
+
+        <div class="radio">
+        <label>
+        <input type="radio" name="order" unchecked onclick='window.filterby = C'>
+        <p>Carbon Only</p>
+        </label>
+        </div>
+
+
+
+
         </div>
 </li>
 
@@ -223,19 +208,19 @@ svg{ position:'absolute'; }
 
                           switch (selected){
                             case '24 Hour Slice':
-                              document.getElementById('end').disabled=false;
-                              document.getElementById('end').value = 'disabled'
+                              document.getElementById('end').disabled=true;
+                              document.getElementById('end').value = '--Disabled--'
                               window.eni = window.sti+144;
                               document.getElementById('by').value = 1
                               break;
                             case 'Diurnal Timestep':
-                              document.getElementById('by').disabled=false;
-                              document.getElementById('by').value = 'disabled'
-                              window.by = 144;
+                              document.getElementById('by').disabled=true;
+                              document.getElementById('by').value = '--Disabled--'
+                              window.by = 14;
                               break;
                             case 'User Select':
-                              document.getElementById('by').disabled=false;
-                              document.getElementById('by').value = 'disabled'
+                              document.getElementById('by').disabled=true;
+                              document.getElementById('by').value = '--Disabled--'
                               window.by = 144;
                               break;
 
@@ -278,13 +263,7 @@ Step Size ( 1 Day = 144 )
  Temporal Hierarchy 0.1 <br>
 </div>
 
-<li class="list-group-item">
-<span class="icon icon-cloud-thunder media-object pull-left"></span>
-<div class="media-body">
-  <strong onclick='alert()'>Select Species (optional) </strong>
 
-
-</li>
 
 
 
@@ -326,222 +305,16 @@ function closeNav() {
 openNav();
 </script>
 
-<style>
-  #progress_bar {
-    margin: 10px 0;
-    padding: 3px;
-    border: 1px solid #000;
-    font-size: 14px;
-    clear: both;
-    opacity: 0;
-    -moz-transition: opacity 1s linear;
-    -o-transition: opacity 1s linear;
-    -webkit-transition: opacity 1s linear;
-  }
-  #progress_bar.loading {
-    opacity: 1.0;
-  }
-  #progress_bar .percent {
-    background-color: #99ccff;
-    height: auto;
-    width: 0;
-  }
-</style>
 
 
 
+
+
+
+
+<script src='readnc.js'> </script>
 <script>
 "use strict";
-
-///classes and defns
-class nc2D {
-  constructor(name, width, arr_type) { //Float32Array
-    this.width = dims[width];
-    this.arr_type = arr_type;
-    this.data = new arr_type(reader.getDataVariable(name));
-  }
-};
-
-nc2D.prototype.row = function (index) {
-   var start = index*this.width;
-   return new this.arr_type(this.data.slice(start,start+this.width))
-}
-
-var print = (d) => console.log(d);
-const width = window.innerWidth;
-const height = window.innerHeight;
-
-
-
-
-///file read
-var reader,reader_url,dims;
-// read browser, adjust from there try except
-try{
-  const fs = require('fs');
-  const data = fs.readFileSync(__dirname+'/volcano.nc');
-  reader = new netcdfjs(data);
-  ncparse(reader);
-  }catch (err) {
-  console.log('switching to browser mode',err)
-  var urlpath = document.URL + "volcano.nc"
-  var oReq = new XMLHttpRequest();
-  oReq.open("GET", urlpath, true);
-  oReq.responseType = "blob";
-
-  oReq.onload = function(oEvent) {
-    var blob = oReq.response;
-    reader_url = new FileReader();
-    reader_url.onload = function(e) {
-         reader = new netcdfjs(this.result);
-         ncparse(reader);
-         (function(){draw()})()
-        }
-    reader_url.readAsArrayBuffer(blob);
-  };
-  oReq.send(); //start process
-}
-
-
-
- function ncparse (reader){
-                //all parts we require from the netcdf file
-                reader.dimensions.forEach(function(d){dims[d.name] = d.size},dims={});
-                const concentration = new nc2D('concentration','specs',Float32Array);
-                const flux = new nc2D('edge-length','fluxes',Float32Array);
-                const dict = JSON.parse(reader.getDataVariable('nodes').join(''));
-                const combine = JSON.parse(reader.getDataVariable('combinations').join(''));
-                const tar = reader.getDataVariable('target');
-                const src = reader.getDataVariable('source');
-                const time = reader.getDataVariable('timeseconds');
-
-                  // creates reverse dictionary rdict below
-                 var rdict,nodes,i;
-                  Object.keys(dict).forEach(function(d){var i = dict[d];rdict[i]=d;}, rdict={}, nodes=[]);
-
-                window.nodes =[];for (i = 0; i < combine.length; i++) { window.nodes.push({"names":rdict[i],"id":i,"x":2*(0.5-Math.random()),
-                  "y":2*(0.5-Math.random()),"z":0.5-Math.random()}) };
-
-                const formatTime = d3.timeFormat("%b %d, %H:%M");
-                  //time => datetime
-                const datetime=time.map(function(e){
-                      var utcSeconds = e;var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
-                      d.setUTCSeconds(utcSeconds);
-                      return d });
-
-
-                window.ncdata ={concentration,flux,dict,rdict,combine,tar,src,formatTime,datetime,dims};
-
-
-                var select = document.getElementById('end');
-                var select1 = document.getElementById('start');
-
-                datetime.forEach((d,i)=> {
-
-                var opt = document.createElement('option');
-                opt.value = i;
-                opt.innerHTML = formatTime(d);
-                select.appendChild(opt);
-
-                var opt1 = document.createElement('option');
-                opt1.value = i;
-                opt1.innerHTML = formatTime(d);
-                select1.appendChild(opt1);
-
-
-
-                });
-
-                /*
-                  .data(time).enter()
-                  .append('option')
-                    .text(function (d) { return formatTime(datetime[d]); });
-*/
-
-
-}
-
-function populatetable (){
-
-  var x = d3.scaleLinear().domain([0,ncdata.dims.time]).range([0, 200]);
-  var y = d3.scaleLinear().domain([0,1]).range([20, 0]);
-  var valueline = d3.line()
-      .x(function(d,i) {  return x(i) })
-      .y(function(d) { return y(d) });
-
-
-Object.keys(ncdata.dict).sort().forEach(d => {
-  var name = d;
-  var spec = ncdata.dict[name];
-  var conc = [];
-  for (var j = 0; j < ncdata.dims.time; j++) {
-    var dummy = ncdata.concentration.row(j).map((d)=> d>0?Math.log10(d):0);
-    conc.push(dummy[spec])
-  }
-
-  var min =  d3.min(conc);
-  var max =  d3.max(conc)-min;
-  var conc = conc.map((d)=>(d-min+1e-6)/max);
-
-  var table = document.getElementById('tablebody')
-  var opt = document.createElement('tr');
-  opt.id = 'tab_el'+name
-
-  var dummy = document.createElement('td');
-        dummy.innerHTML = name
-        opt.appendChild(dummy);
-
-  var dummy = document.createElement('td');
-              dummy.innerHTML = 'somestats'
-              opt.appendChild(dummy);
-
-  var dummy = document.createElement('td');
-                    dummy.id = 'svg_'+name
-                    opt.appendChild(dummy);
-
-
-
-        table.appendChild(opt);
-
-
-        //document.getElementById('svg_O3')
-          var svg = d3.select('#svg_'+name).append("svg")
-                                .attr("width", 200)
-                                .attr("height", 20)
-                                .style('fill','green')
-
-
-          svg.append("path")
-                                        .data([conc])
-                                        .attr("class", "line")
-                                        .style('stroke','green')
-                                        .style('stroke-width','2px')
-                                        .style('fill','none')
-                                        .attr("d", valueline);
-
-
-
-})
-
-}
-
-populatetable()
-
-//get smiles strings and species data
-window.csvdata=[];
-window.N=[] ;
-window.C=[];
-d3.csv("./fullmcmspecs.csv", function(error, csv) {window.csvdata=csv;
-  for (var i = 0; i < csv.length; i++){
-
-    print('add inorganics here see ropacode ')
-     var j = csv[i];
-     if (Object.keys(ncdata.dict).indexOf(j.item) >= 0 ) {
-         if (/^(.*[N].*)$/.test(j.smiles)) window.N.push(j.item);
-         if (/^(.*[Cc].*)$/.test(j.smiles)) window.C.push(j.item);
-    }
-  };
-});
 
 
 
@@ -557,15 +330,17 @@ window.inv = false
 window.cs = visual_cinnamon;
 window.colour  = ColourScheme(visual_cinnamon,window.inv); //colourScale
 //var colour  = ColourScheme(viridis,true); //colourScale
-window.filterby = N
+window.filterby = Object.keys(ncdata.dict);
+
 window.orderBylast=true;
 var start,end,steps
 
 
 
-var sti = 0 ,
+var degree,
+    sti = 0 ,
     eni = dims.time-1,
-    by = 14;//4.;
+    by = 1;//4.;
 
 document.getElementById('end').value = eni;
 document.getElementById('by').value = by;
@@ -584,6 +359,20 @@ function draw (){
   svg.style('height', height);
   svg.style("transform", "translate("+window.innerWidth/2.+","+window.innerHeight/2.+")")
 
+  d3.select('svg').append("path")
+        //.attr("d", '')
+        .attr('id','arc')
+        .attr('fill','transparent')
+        //.attr('fill-opacity',0.1)
+        .attr('stroke-width',2.3)
+        .attr('stroke','black')
+        .attr('opacity',1)
+        .attr("transform", "translate("+width/2+","+height/2+")")
+
+
+
+
+
 
   //for in labels , draw arc, rotate
   var can = document.getElementById('canvas');
@@ -593,20 +382,60 @@ function draw (){
 
 
   ctx.clearRect(0, 0, width, height);
-  legend(colour,svg)//add a legend
+  //legend(colour,svg)//add a legend
 
   var row = ncdata.concentration.row(dims['time']-1); //select last row for ordering
 
 
-  var max_radius= 300
+  var max_radius= (Math.min(width,height)/2 -20)*.9
   var px = 6
 
 
-  //sort by names
-  ///below lines are oberwritten anyway
-  //var names = Object.keys(ncdata.dict).sort();
-  //var names = window.N;
-  //var theta = 2.*Math.PI/row.length;
+
+
+/// load arc
+
+
+        var arc1 = d3.arc()
+            .innerRadius(0)
+            .outerRadius(max_radius*1.1)
+
+            var foreground = svg.append("path")
+                   .datum({
+                   endAngle: -2 * Math.PI,
+                   startAngle: 0
+               })
+                   .style("fill", "white")
+                   .attr("d", arc1)
+                   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+                   foreground.transition()
+                       .duration(5050)
+                       .ease(d3.easeCubic)
+                       .call(arcTween, 0,0);
+
+               function arcTween(transition, newStartAngle, newFinishAngle) {
+                   transition.attrTween("d", function (d) {
+                       var interpolateStart = d3.interpolate(d.startAngle, newStartAngle);
+                       var interpolateEnd = d3.interpolate(d.endAngle, newFinishAngle);
+                       return function (t) {
+                           d.startAngle = interpolateStart(t);
+                           d.endAngle = interpolateEnd(t);
+                           return arc1(d);
+                       };
+                   });
+               }
+
+
+
+
+
+
+
+
+
+
+
 
   var names = [];
   if (orderBylast){  // sort by final flux
@@ -628,12 +457,12 @@ function draw (){
 //filter by C,N or All
     if (window.filterby.indexOf(d) > -1 ) {
 
-      console.log(d,ncdata.dict[d],row[ncdata.dict[d]])
+      //console.log(d,ncdata.dict[d],row[ncdata.dict[d]])
 
       var i = ncdata.dict[d];
       if (row[i] > 0){
-        labels.push({'x': max_radius*Math.cos((counter+0.5)*theta), 'y':max_radius*Math.sin((counter+0.5)*theta),
-        'name':d,'angle':counter*theta, 'id':i})  };
+        labels.push({'x': 1.1*max_radius*Math.cos((counter+0.5)*theta), 'y':1.1*max_radius*Math.sin((counter+0.5)*theta),
+        'name':d,'angle':(counter*theta), 'id':i ,'path':[], 'col':j/window.filterby.length })  };
 
       counter += 1
 
@@ -655,71 +484,83 @@ print(labels.length);
                'rotate('+ (360-180+180*d.angle/Math.PI) +' 0 -'+px/2+')' : 'rotate('+ (180*d.angle/Math.PI) +' 0 -'+px/2+')'; })
         .style('text-anchor', function(d) { return (d.angle > (Math.PI/2)  & d.angle < (Math.PI/2.)*3. )?'end':'start'})
         .style("font-size",px+"px")
+        .style('fill',function(d,i){return colour(i/filterby.length)})
         .text(function(d) { return d.name; })
-        .on('mouseover', function(d){d3.select(this).style("fill", "steelblue").style("font-size",10+px+"px");
-            d3.select('path#arc').attr('transform',
-            "translate("+width/2+","+height/2+")rotate("+
-            (360*(d.angle/(2*Math.PI))+90)+")").attr('opacity',.3)
+        .on('mouseover', function(d){
+            d3.select(this).style("font-size",10+px+"px");
+            d3.select(canvas).style('opacity',0.2);
+            //console.log(d);
+            var angle=-Math.PI/2;
+            var path = ''
+            path += ' M ' + max_radius*d.path[0]*Math.cos(angle)+' '+max_radius*d.path[0]*Math.sin(angle)
+            for (var j = 0; j < d.path.length; j++) {
+              angle += degree;
+              path += ' L ' + max_radius*d.path[j]*Math.cos(angle)+' '+max_radius*d.path[j]*Math.sin(angle)
+
+            }
+            path += ' L ' + max_radius*d.path[0]*Math.cos(-Math.PI/2)+' '+max_radius*d.path[0]*Math.sin(-Math.PI/2)
+            d3.select('path#arc').style('opacity',1).attr('d',path+' Z').style('stroke',window.colour(d.col))
           })
-        .on('mouseout', function(d){d3.select(this).style("fill", "black").style("font-size",px+"px");
-             d3.select('path#arc').attr('opacity',0)
+        .on('mouseout', function(d){
+             d3.select(this).style("font-size",px+"px");
+             d3.select(canvas).style('opacity',1);
+             d3.select('path#arc').style('opacity',0)
            })
 
 
 
-  var range = 0.85*(max_radius/((eni-sti)/by));
+    var degree = (2*Math.PI)/((eni-sti)/by);
 
-  ctx.save();
-  ctx.translate(width/2, height/2);
-  var outer_arc_radius = 0;
-  for (var j = sti; j < eni; j=j+by) {
-    var dummy = ncdata.concentration.row(j).map((d)=> d>0?Math.log10(d):0);
-    var min =  d3.min(dummy);
-    var max =  d3.max(dummy)-min;
-    var row = dummy.map((d)=>(d-min+1e-6)/max);
+// times ten - to make a lotus.
 
-    var inner_arc_radius = outer_arc_radius+0.1*range;
-    var outer_arc_radius = inner_arc_radius+range;
+for (var j = sti+1; j < eni; j=j+by) {
 
-    labels.forEach(function(d){
+  var dummy = ncdata.concentration.row(j).map((d)=> d>0?Math.log10(d):0);
+  var min =  d3.min(dummy);
+  var max =  d3.max(dummy)-min;
+  var row = dummy.map((d)=>(d-min+1e-6)/max);
 
-        ctx.beginPath()
-        ctx.fillStyle = row[d.id]<0 ? 'grey' : colour(row[d.id]);
-        ctx.rotate(d.angle);
-        ctx.arc(0,0,outer_arc_radius,0,theta, false); // outer (filled)
-        ctx.arc(0,0,inner_arc_radius,theta,0, true); // outer (unfills it)
-        ctx.fill();
-        ctx.closePath();
-        ctx.rotate(-d.angle)// IMPORTANT - must undo rotation
-    });
+  labels = labels.filter(function(d){d.path.push(row[d.id]); return d})}
+  console.log(labels);
+
+
+//labels = labels.slice(0,2)
+console.log(degree,'dfd')
+
+labels.filter(function(d,i){
+     var angle = 0
+     var path = d.path;
+
+     ctx.save();
+     ctx.translate(width/2, height/2);
+console.log(path.length)
+     ctx.beginPath();
+     ctx.rotate(-(Math.PI/2));
+     ctx.moveTo(max_radius*path[j]*Math.cos(angle),max_radius*path[j]*Math.sin(angle));
+     for (var j = 0; j < path.length; j++) {
+       angle += degree;
+
+
+      // line 1
+      ctx.lineTo(max_radius*path[j]*Math.cos(angle),max_radius*path[j]*Math.sin(angle));
+      //console.log(max_radius*path[j]*Math.cos(angle),max_radius*path[j]*Math.sin(angle))
+}
+
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = window.colour(i/filterby.length);
+      ctx.stroke();
+      ctx.closePath();
+
+ctx.restore()
+})
+
+
+
+
+
+
+
 /*
-console.log('move these to svg')
-   //add dates and ti,e
-  ctx.font = "33px";//fontname after space
-  ctx.fillStyle = "white";
-  ctx.textAlign = "center";
-  ctx.fillText(formatTime(datetime[j]), 0, (inner_arc_radius + outer_arc_radius)/2);
-  */
-  };
-  ctx.restore();
-
-
-  var arc = d3.arc()
-      .innerRadius(0)
-      .outerRadius(max_radius*.97)
-      .startAngle(theta) //convert from degs to radians
-      .endAngle(2*Math.PI ) //just radians
-
-  var a = svg.append("path")
-      .attr("d", arc)
-      .attr('id','arc')
-      .attr('opacity',0)
-      .attr("transform", "translate("+width/2+","+height/2+")")
-
-
-  //d3.select('path#arc')//.attr
-
-
   var select = d3.select('#footer')
     .append('select')
     	.attr('class','select')
@@ -732,7 +573,10 @@ console.log('move these to svg')
   	.append('option')
   		.text(function (d) { return d.name; });
 
+*/
+
 }
 
 
+draw()
 </script>

@@ -93,7 +93,7 @@ body{font-family: 'Lato', sans-serif;}
   // read browser, adjust from there try except
   try{
     const fs = require('fs');
-    const data = fs.readFileSync(__dirname+'/volcano.nc');
+    const data = fs.readFileSync(__dirname+'/volcano8.nc');
     reader = new netcdfjs(data);
     ncparse(reader);
   }catch (err) {
