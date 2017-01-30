@@ -11,7 +11,7 @@ function fixdifferent(nodes){
   //fix mutual
   nwsum = d3.sum( nodes.map(d=>!both.has(d.id) * data.new.species.has(d.id)))
   odsum = d3.sum( nodes.map(d=>!both.has(d.id) * data.old.species.has(d.id)))
-  console.log(nwsum,odsum)
+  //console.log(nwsum,odsum)
   var nw =0 , od = 0;
   nodes= nodes.map(function(d){  if( !both.has(d.id)){
     if (data.new.species.has(d.id)) {nw+=1; d.fx =  .1*width + .8*width*(nw/nwsum); d.fy = height*0.1}
@@ -36,7 +36,7 @@ function pie(nodes){
     graphlinks.forEach((l)=> (l.source === d || l.target === d)? tally.push(l.new): null);
     d.tally = d3.sum(tally)/tally.length;
 
-    console.log(parseInt(100*d.tally), "l"+d.id)
+    //console.log(parseInt(100*d.tally), "l"+d.id)
 
     var areaGradient = d3.select('#svg0').append("defs")
     .append("linearGradient")
@@ -128,3 +128,31 @@ nc2D.prototype.row = function (index) {
 
 //print array
 var print = (d) => console.log(d);
+
+
+function displayreactions(d) {
+ var dummy =[];
+  d.old.forEach(e=> dummy.push({'text':e,"col":window.pink}));
+  d.new.forEach(e=> dummy.push({'text':e,"col":window.blue}));
+textMultipleRows(dummy, '#svgtop', 0.2*width, 0.1*height);
+d3.selectAll('svg').attr('opacity',0)
+d3.select('#svgtop').attr('opacity',1)
+
+}
+
+
+
+
+function textMultipleRows(textArray, area, xPos, yPos){
+    d3.select(area).selectAll('text').remove()
+
+    for(i=0;i<textArray.length;i++){
+        svg = d3.select(area) //-area you wish to append the text to
+        svg.append("text")
+        .attr('fill',textArray[i].col)
+        .classed("popUpTextLeft", true) //-CSS class for the text
+        .attr("x", xPos)
+        .attr("y", yPos+(i*20)) //-new line when going through the loop
+        .text(textArray[i].text); //-goes through each element in the text array
+    }
+}

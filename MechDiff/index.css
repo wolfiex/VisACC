@@ -1,5 +1,5 @@
 body { margin: 0; }
-#svg0,#svg1,svg,container,canvas,heatmapiframe{
+#svg0,#svg1,svg,#svgtop,container,canvas,heatmapiframe{
     position: absolute;
     width:100%;
     height:100%;

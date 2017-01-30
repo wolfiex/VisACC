@@ -20,10 +20,12 @@
     sp = [];
     species.forEach(d=> sp.push(d))
 
+
+function newset(group){
     var node_data ={}
 
     window.nodes.forEach(function(d){node_data[sp.indexOf(d.id)]={'x':d.x ,'y':d.y , 'col':1};console.log(node_data[d.names])});
-    graphlinks.forEach(function(d){link_data.push({'source':sp.indexOf(d.source.id) ,'target':sp.indexOf(d.target.id) , 'new':d.new})},link_data =[]);
+    graphlinks.forEach(function(d){if (d.new===group) {link_data.push({'source':sp.indexOf(d.source.id) ,'target':sp.indexOf(d.target.id) , 'new':d.new})}},link_data =[]);
 /*
     node_data={};
            for (var i = 0; i < nodes.length; i++) {
@@ -67,15 +69,22 @@
                .attr("opacity",0.6)
                //attr("stroke-dashoffset", function(d) { return (d.new) ? "0%":6  }) //for dashed line
                //.attr("stroke-dasharray", function(d) { return (d.new) ? "6,6" : '1,0'} )
-               .style('stroke', !graphlinks[i].new? color(1):'grey');
+               .style('stroke', !group? window.blue:window.pink);
 
           var p = new Path2D(d3line(results[i]));
           //ctx.stroke(p)
 
-      //console.log(results)
+
+
+
        //ctx.fill(p);
 
-
+}
        }
+
+
+
+newset(false)
+newset(true)
 
 }
