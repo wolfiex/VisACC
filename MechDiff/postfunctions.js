@@ -5,8 +5,8 @@
     print('open new -analysis- window, apply tranformations there')
     simulation.stop();
 
-    d3.selectAll('svg').select('g').remove()
-
+    //d3.selectAll('svg').select('g').selectAll('links').remove()
+    d3.selectAll('svg').selectAll('line').remove()
 
     var canvas = document.getElementById('canvas');
     canvas.width = width;

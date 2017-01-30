@@ -23,10 +23,15 @@ svg1,svg0,svgtop,svg,canvas{ position:absolute}
 <script src="./postfunctions.js"></script>
 <script src="./src/stats.js"></script>
 <link src='./src/fonts'  rel='stylesheet' type='text/css'>
+ <link rel="stylesheet" href="./src/photon.min.css">
 <!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
 -->
 
 <body>
+
+  
+
+
 <svg id='svgtop' style="background:black; width: 100%;height:100% ; opacity:0">  </svg>
 <canvas id='canvas'></canvas>
 <svg id='svg1'>  </svg>
@@ -88,7 +93,7 @@ difference = new Set([...data.old.species].filter(x => !data.new.species.has(x))
 
 species = new Set([...data.old.species,...data.new.species]);
 window.nodes=[]
-species.forEach(function(d){nodes.push({'id':d,'name':d,'x':1e4*Math.random(),'y':1e4*Math.random(),'old':data.old.filter(function(e){if(e.includes(d))return e}) , 'new':data.new.filter(function(e){if(e.includes(d))return e}),})});
+species.forEach(function(d){nodes.push({'id':d,'name':d,'x':1e1*Math.random()+width/2-50,'y':1e1*Math.random()+height/2-50,'old':data.old.filter(function(e){if(e.includes(d))return e}) , 'new':data.new.filter(function(e){if(e.includes(d))return e}),})});
 
 // create links object
 window.graphlinks1 =[]
@@ -118,13 +123,6 @@ svg.style('width', width);
 svg.style('height', height);
 svg.style("transform", "translate("+window.innerWidth/2.+","+window.innerHeight/2.+")")
 
-var text = svg.append("text")
-    .attr("x", 0.2*width)
-    .attr("y", 0.1*height)
-    .attr("dy", ".35em")
-    .attr('fill','red')
-    .text('fdsafdsa\n\n\n  <br> fdsafdsafsdaf\\nfdklsjafkljdsa');
-
 
 var colour = d3.scaleOrdinal(d3.schemeCategory20);
 
@@ -138,6 +136,9 @@ d3.select('body').style('background-color', '#222'); // bg colour
 
 window.color = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
 window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
+
+
+
 </script>
 
 

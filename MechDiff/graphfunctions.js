@@ -32,9 +32,8 @@ return nodes}
 
 function pie(nodes){
  nodes = nodes.map( function(d){
-    var tally = [];
-    graphlinks.forEach((l)=> (l.source === d || l.target === d)? tally.push(l.new): null);
-    d.tally = d3.sum(tally)/tally.length;
+
+    d.tally = (d.new.length + 1e-9)/(1e-9+d.old.length);
 
     //console.log(parseInt(100*d.tally), "l"+d.id)
 
@@ -49,7 +48,7 @@ function pie(nodes){
     .attr("stop-color", "#E30B5D")
     .attr("stop-opacity", 1);
     areaGradient.append("stop")
-    .attr("offset", parseInt(100*d.tally)+"%")
+      .attr("offset", parseInt(100*d.tally)+"%")
     .attr("stop-color", "#3864EB")
     .attr("stop-opacity", 1);
 
@@ -70,8 +69,72 @@ return nodes
 
 
 
+function setupvor(){
+
+  group = d3.select('#svg0').attr('width',width).attr('height',height).append("g")
 
 
+    window.voronoi = d3.voronoi()
+        .x(function(d) { return d.x; })
+        .y(function(d) { return d.y; })
+        .extent([[0.1*width, .1*height], [width *.9, height *.9]]);
+
+      var voronoi_path = group.selectAll("vornouli.cells")
+        .data(nodes)
+        .enter().append("g")
+        .classed("node", true)
+        .on('mouseover',function(d){console.log(d)})
+          .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+
+      window.cell = voronoi_path.append("path")
+        .data(voronoi.polygons(nodes))
+          .attr("d", renderCell)
+          .style('stroke','red')
+          .style('fill','transparent')
+          .attr('opacity',0.2)
+          .attr("id", function(d, i) { return "cell-" + i; });
+
+      voronoi_path.append("circle")
+              .attr("clip-path", function(d, i) { return "url(#clip-" + i + ")"; });
+
+
+}
+
+function central(){
+  voronoi.polygons(nodes).filter(function(d){v.push( [d3.polygonCentroid(d),d.data.name])},v=[]);
+  return v
+}
+
+function renderCell(d) {
+  return d == null ? null : "M" + d.join("L") + "Z";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function fitTextOnCanvas(text, fontface,t_width){ return measureTextBinaryMethod(text, fontface, 0, 600, t_width); }
+
+function measureTextBinaryMethod(text, fontface, min, max, desiredWidth) {
+	if (max-min < 1) { return min; }
+
+	var test = min+((max-min)/2); //Find half interval
+	context.font=test+"px "+fontface;
+	measureTest = context.measureText(text).width;
+	if ( measureTest > desiredWidth) {
+		var found = measureTextBinaryMethod(text, fontface, min, test, desiredWidth)
+	} else {
+		var found = measureTextBinaryMethod(text, fontface, test, max, desiredWidth)
+	}
+	return found;
+}
 
 
 
@@ -141,6 +204,53 @@ d3.select('#svgtop').attr('opacity',1)
 }
 
 
+
+
+function vnames(){
+simulation.stop()
+svg = d3.select('#svg0')
+svg.selectAll('text').remove()
+
+central().map(function(d){
+
+if (d3.sum(nodes.map(e=>e.name === d[1]? e.fx:null)) ===0){
+  svg.append("text")
+  .attr('fill','white')
+  .attr('text-align', 'center')
+  .attr('text-anchor', 'middle')
+  .attr("font-family", "sans-serif")
+  .attr("font-size", "12px")
+  //.classed("popUpTextLeft", true) //-CSS class for the text
+  .attr("x", d[0][0])
+  .attr("y", d[0][1]) //-new line when going through the loop
+  .text(d[1]); //-goes through each element in the text array
+
+}
+})
+}
+
+function names(){
+simulation.stop()
+svg = d3.select('#svg0')
+svg.selectAll('text').remove()
+
+nodes.map(function(d){
+
+if (d.fx==null){
+  svg.append("text")
+  .attr('fill','white')
+  .attr('text-align', 'center')
+  .attr('text-anchor', 'middle')
+  .attr("font-family", "sans-serif")
+  .attr("font-size", "12px")
+  //.classed("popUpTextLeft", true) //-CSS class for the text
+  .attr("x", d.x)
+  .attr("y", d.y+20) //-new line when going through the loop
+  .text(d.name); //-goes through each element in the text array
+
+}
+})
+}
 
 
 function textMultipleRows(textArray, area, xPos, yPos){
