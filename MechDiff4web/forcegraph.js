@@ -1,139 +1,123 @@
-//simulation!!
-window.simulation = d3.forceSimulation()
-    .force("charge", d3.forceManyBody().strength(function(d){  return (d.fx===null)? -300:-3}))
 
-     //return both.has(d.id)? .8:.1}))//- 18 -550 -32 -34
-    //.force("link", d3.forceLink().id(function(d) { return parseFloat(d.id); }))
+ln()
 
-    .force("link", d3.forceLink().id(function(d) { return d.id; }))
-    //.force("center", d3.forceCenter(width/2,height/2))
-
-    .force("x", d3.forceX(width/2.).strength(.06))
-		.force("y", d3.forceY(height/2).strength(1.6))
-
-    .alphaDecay(1-Math.pow(0.0001,1/300));//timesteps
-
-
-
-
-
-
-
-
-setupvor()
-
-
-
-run ()
-
-
-
-function run(){
-
-    simulation
-        .nodes(nodes)
-        .on("tick", ticked);
-
-simulation.force('collide', d3.forceCollide().radius(40))
-
-simulation.force("link")
-.links(window.graphlinks)
-//.distance( 0.4*height)//function(d){console.log(d);return 1})//*eval(window.linkleneq)}) // 1-dval 500*0.4+(dv*dv*dv)/0.6
-//.strength(0.1)//function(d){return(isFinite(edge_length[d.index])? 1 : 0 )});//edge_length.map((d)=>(d==Infinity)? 0:1 ));
-
-
- ///circle
- //tally attractin towards side
-
-var link = svg.append("g")
-    .attr("class", "links")
-  .selectAll("line")
-  .data(graphlinks)
-  .enter().append("line")
-    .attr("stroke-width",(d)=>2)//(d) =>{(isFinite(edge_length[d.index]))? 10*window.edge_length[d] : 0.001} )
-    //.attr("stroke-opacity",(d) =>{(isFinite(edge_length[d.index]))? 1: 0.001} )
-    .attr("opacity",0.6)
-    //attr("stroke-dashoffset", function(d) { return (d.new) ? "0%":6  }) //for dashed line
-    //.attr("stroke-dasharray", function(d) { return (d.new) ? "6,6" : '1,0'} )
-    .style('stroke',(d)=> !d.new? window.blue:window.pink);
-
-
-
-///// links
-
-    // colour gradient instead of pie charts
-    nodes=pie(nodes)
-
-    //nodes = fixmutual(nodes);
-    nodes = fixdifferent(nodes);
-    //nodes = sortmutual(nodes);
-
-    simulation
-      .force("new", d3.forceY(  0.4*height).strength( function(d){return 1.5*(d.tally)} ))
-      .force("old", d3.forceY(  0.7*height).strength( function(d){return 1.5*(1-d.tally)} ))
-      .force("charge2", d3.forceManyBody().strength(function(d){ return -20*d.s}))
-
-
-
-simulation.force('collide', d3.forceCollide().radius(37))
+pie(nodes)
 var dummy = d3.max(nodes.map(d=>d.s))
-
 var node = svg.append("g")
     .attr("class", "nodes")
     .selectAll("circle")
     .data(nodes)
     .enter().append("circle")
-      .attr("r", d=>12.*(d.s/dummy) +  (both.has(d.id)? 10:6) )// remove tertiary operator and just multiply
-      .attr("fill", (d)=> both.has(d.id)? 'url(#l'+d.id+')' : data.old.species.has(d.id)? window.blue:window.pink )
+      .attr("r", d=> 10*(d.s/dummy) +  (both.has(d.id)? 10:6) )// remove tertiary operator and just multiply
+      .attr("fill", (d)=> both.has(d.id)? 'url(#l'+d.id+')' : !(d.y<113)? window.blue:window.pink )
       .attr("id", (d)=> d.id)
-      .attr('stroke-opacity', (d)=> both.has(d.id)? 0.97 :1)
       .attr('opacity', (d)=> !both.has(d.id)? 0.9 :1)
-      .call(d3.drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended))
-
      .on('click', displayreactions)
-
-    .on('mouseover', d=> document.getElementById('mouseover').innerHTML=d.name);
+    .on('mouseover',print)
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; })  ;
 
 node.append("title")
 .text(function(d) { return d.id; });
+nodes.map(function(d){
+  if (d.fx==null){
+    svg.append("text")
+    .attr('fill','white')
+    .attr('text-align', 'center')
+    .attr('text-anchor', 'middle')
+    .attr("font-family", "sans-serif")
+    .attr("font-size", "12px")
+    .attr('text-shadow', '0 1px 0 #fff')
+    //.classed("popUpTextLeft", true) //-CSS class for the text
+    .attr("x", d.x)
+    .attr("y", d.y+24+10*(d.s/dummy)) //-new line when going through the loop
+    .text(d.name); //-goes through each element in the text array
+  }
+})
+
+  group = d3.select('#svg0').attr('opacity',0).attr('width',width).attr('height',height).append("g")
 
 
-/// CLEAR THE LINKS PER SIMULATION
-//http://stackoverflow.com/questions/40018270/d3js-v4-add-nodes-to-force-directed-graph
+    window.voronoi = d3.voronoi()
+        .x(function(d) { return d.x; })
+        .y(function(d) { return d.y; })
+        .extent([[0.1*width, .1*height], [width *.9, height *.9]]);
+
+      var voronoi_path = group.selectAll("vornouli.cells")
+        .data(nodes)
+        .enter().append("g")
+        .classed("node", true)
+        .on('click', displayreactions)
+        .on('mouseover', d=> document.getElementById('mouseover').innerHTML=d.name);
+
+
+      window.cell = voronoi_path.append("path")
+        .data(voronoi.polygons(nodes))
+          .attr("d", renderCell)
+          //.style('stroke','red')
+          .style('fill','transparent')
+          .attr('opacity',0.2)
+          .attr("id", function(d, i) { return "cell-" + i; });
+
+      voronoi_path.append("circle")
+              .attr("clip-path", function(d, i) { return "url(#clip-" + i + ")"; });
+
+
+
+function central(){
+  voronoi.polygons(nodes).filter(function(d){v.push( [d3.polygonCentroid(d),d.data.name])},v=[]);
+  return v
+}
+
+function renderCell(d) {
+  return d == null ? null : "M" + d.join("L") + "Z";
+}
+
+
+
+
+    d3.transition()
+    .duration(1500).tween("width", function() {
+        var i = d3.interpolate(0,1);
+        //var j = d3.interpolate(1,0);
+         return function(t) {
+            //d3.select('#svg0').style('opacity',i(t));
+            d3.select('#svg1').style('opacity',i(t));
+              };
+
+
+
+      })
+
+
+
+    d3.transition().delay(5000)
+  .duration(7000)
+  .tween("width", function() {
+      var i = d3.interpolate(0,1);
+      var j = d3.interpolate(1,0);
+       return function(t) {
+          d3.select('#svg0').style('opacity',i(t));
+          d3.select('#svg1').style('opacity',j(t));
+          if (j(t)<0.0001) eb()
+            };
+    })
+
+
+    d3.transition().delay(5000+6800).duration(7000)
+      .tween("width", function() {
+          var i = d3.interpolate(0,1);
+          //var j = d3.interpolate(1,0);
+           return function(t) {
+              //d3.select('#svg0').style('opacity',i(t));
+              d3.select('#svg1').style('opacity',i(t));
+                };
+        })
 
 
 
 
 
-  function ticked() {
 
-    window.cell = window.cell.data(voronoi.polygons(nodes)).attr("d", renderCell);
-    voronoi.polygons(nodes).filter(function(d){window.v.push( d3.polygonCentroid(d))},window.v=[]);
-
-
-    link
-        .attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
-
-    node
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
-
-          if (simulation.alpha() < 0.1) {
-          simulation.stop(); // 0.012
-          //function dragstarted(d) {};
-          //function dragended(d) {};
-          names();
-          simulation = console.log('ended');
-
-           };
-    }
-
-
-
-};
+//    window.cell = window.cell.data(voronoi.polygons(nodes)).attr("d", renderCell);
+//    voronoi.polygons(nodes).filter(function(d){window.v.push( d3.polygonCentroid(d))},window.v=[]);
