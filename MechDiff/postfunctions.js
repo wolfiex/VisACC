@@ -3,7 +3,7 @@
   function edgebundle(){
 
     print('open new -analysis- window, apply tranformations there')
-    simulation.stop();
+    //simulation.stop();
 
     //d3.selectAll('svg').select('g').selectAll('links').remove()
     d3.selectAll('svg').selectAll('line').remove()

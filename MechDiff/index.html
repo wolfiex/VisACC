@@ -22,14 +22,15 @@ svg1,svg0,svgtop,svg,canvas{ position:absolute}
 <script src="./graphfunctions.js"></script>
 <script src="./postfunctions.js"></script>
 <script src="./src/stats.js"></script>
-<link src='./src/fonts'  rel='stylesheet' type='text/css'>
+<link src='./src/fonts/fonts'  rel='stylesheet' type='text/css'>
  <link rel="stylesheet" href="./src/photon.min.css">
 <!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
 -->
 
+
+
 <body>
 
-  
 
 
 <svg id='svgtop' style="background:black; width: 100%;height:100% ; opacity:0">  </svg>
@@ -41,17 +42,48 @@ svg1,svg0,svgtop,svg,canvas{ position:absolute}
 
 
 
-  <div id="graphdiv">
-  </div>
+  <div id="graphdiv">  </div>
 
-  <div class="window">
-    <div class="window-content">
-      <div class="pane-group">
-        <div class="pane-mini sidebar">...</div>
-        <div class="pane">...</div>
-      </div>
-    </div>
-  </div>
+
+//sidebar
+
+
+
+<div class="pane-mini sidebar" id='sidebarR' style="float:right;overflow:scroll;position:relative; width:48%;height:100%;opacity:0.8;" >
+
+<p style='text-anchor:top;text-align:right;' onclick="document.getElementById('sidebar').style.display='none'"> Exit[x]</p>
+
+<h1 id='species' style='text-anchor:top;text-align:right;font-size:48px'>Not yet selected</h1>
+
+<h3  style='text-anchor:top;text-align:right;'> Old Scheme </h3>
+<h4 id='oldrxn'> </h4>
+
+<br>
+<h3  style='text-anchor:top;text-align:right;'> New Scheme </h3>
+<h4 id='newrxn'> </h4>
+
+</div>
+
+
+
+<div class="pane-mini sidebar" id='sidebar' style="overflow:scroll;position:absolute;width:48%;height:100%;opacity:0.8;" >
+
+<p style='text-anchor:top;text-align:right;' onclick="document.getElementById('sidebar').style.display='none'"> Exit[x]</p>
+
+<h1 id='species' style='text-anchor:top;text-align:right;font-size:48px'>Not yet selected</h1>
+
+<h3  style='text-anchor:top;text-align:right;'> Old Scheme </h3>
+<h4 id='oldrxn'> </h4>
+
+<br>
+<h3  style='text-anchor:top;text-align:right;'> New Scheme </h3>
+<h4 id='newrxn'> </h4>
+
+</div>
+
+
+
+
 
 
 </body>
@@ -88,12 +120,16 @@ data.old.species = new Set(flatten([flatten(data.old.rct),flatten(data.old.prd)]
 data.new.species = new Set(flatten([flatten(data.new.rct),flatten(data.new.prd)]));
 //size
 
-both = intersection = new Set([...data.old.species].filter(x => data.new.species.has(x)));
+both = new Set([...data.old.species].filter(x => data.new.species.has(x)));
+
 difference = new Set([...data.old.species].filter(x => !data.new.species.has(x)));
 
 species = new Set([...data.old.species,...data.new.species]);
 window.nodes=[]
-species.forEach(function(d){nodes.push({'id':d,'name':d,'x':1e1*Math.random()+width/2-50,'y':1e1*Math.random()+height/2-50,'old':data.old.filter(function(e){if(e.includes(d))return e}) , 'new':data.new.filter(function(e){if(e.includes(d))return e}),})});
+species.forEach(function(d){nodes.push({'id':d,'name':d,'x':1e1*Math.random()+width/2-50,'y':1e1*Math.random()+height/2-50,
+                'old': getreact(data.old,d) ,
+                'new':getreact(data.new,d),})});
+nodes=nodes.map(function(d){d.s=d.old.length+d.new.length; return d })
 
 // create links object
 window.graphlinks1 =[]
@@ -137,7 +173,9 @@ d3.select('body').style('background-color', '#222'); // bg colour
 window.color = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
 window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
 
+d3.select('#oldrxn').style('color',window.pink); d3.select('#newrxn').style('color',window.blue);
 
+document.getElementById('sidebar').style.display='none'
 
 </script>
 

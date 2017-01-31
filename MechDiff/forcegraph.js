@@ -72,13 +72,15 @@ var link = svg.append("g")
 
 
 
+simulation.force('collide', d3.forceCollide().radius(37))
+var dummy = d3.max(nodes).s
 
 var node = svg.append("g")
     .attr("class", "nodes")
     .selectAll("circle")
     .data(nodes)
     .enter().append("circle")
-      .attr("r", d=>both.has(d.id)? 10:7 )// remove tertiary operator and just multiply
+      .attr("r", d=> 10*(d.s/dummy) +  (both.has(d.id)? 10:6) )// remove tertiary operator and just multiply
       .attr("fill", (d)=> both.has(d.id)? 'url(#l'+d.id+')' : data.old.species.has(d.id)? window.blue:window.pink )
       .attr("id", (d)=> d.id)
       .attr('opacity', (d)=> !both.has(d.id)? 0.9 :1)

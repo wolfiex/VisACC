@@ -56,10 +56,6 @@ function pie(nodes){
 
        return d
 
-
-
-
-
  })
 return nodes
 
@@ -83,6 +79,7 @@ function setupvor(){
         .data(nodes)
         .enter().append("g")
         .classed("node", true)
+        .on('click', displayreactions)
         .on('mouseover',function(d){console.log(d)})
           .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
 
@@ -138,7 +135,13 @@ function measureTextBinaryMethod(text, fontface, min, max, desiredWidth) {
 
 
 
-
+function getreact (mech,d){
+dummy = [];
+for (i = 0; i < mech.rct.length; i++) {
+  if ((mech.rct[i].indexOf(d)>-1)|(mech.prd[i].indexOf(d)>-1)) dummy.push(mech[i]);
+}
+return dummy
+}
 
 
 
@@ -194,45 +197,26 @@ var print = (d) => console.log(d);
 
 
 function displayreactions(d) {
- var dummy =[];
-  d.old.forEach(e=> dummy.push({'text':e,"col":window.pink}));
-  d.new.forEach(e=> dummy.push({'text':e,"col":window.blue}));
-textMultipleRows(dummy, '#svgtop', 0.2*width, 0.1*height);
-d3.selectAll('svg').attr('opacity',0)
-d3.select('#svgtop').attr('opacity',1)
+document.getElementById('sidebar').style.display='block'
+document.getElementById('species').innerHTML = d.name;
+dummy = ''
+d.new.forEach(d=>dummy+=d +'<br>')
+document.getElementById('oldrxn').innerHTML = dummy;
+dummy = ''
+d.old.forEach(d=>dummy+=d +'<br>')
+document.getElementById('newrxn').innerHTML = dummy;
+
 
 }
 
 
 
-
-function vnames(){
-simulation.stop()
-svg = d3.select('#svg0')
-svg.selectAll('text').remove()
-
-central().map(function(d){
-
-if (d3.sum(nodes.map(e=>e.name === d[1]? e.fx:null)) ===0){
-  svg.append("text")
-  .attr('fill','white')
-  .attr('text-align', 'center')
-  .attr('text-anchor', 'middle')
-  .attr("font-family", "sans-serif")
-  .attr("font-size", "12px")
-  //.classed("popUpTextLeft", true) //-CSS class for the text
-  .attr("x", d[0][0])
-  .attr("y", d[0][1]) //-new line when going through the loop
-  .text(d[1]); //-goes through each element in the text array
-
-}
-})
-}
 
 function names(){
 simulation.stop()
 svg = d3.select('#svg0')
 svg.selectAll('text').remove()
+dummy=d3.max(nodes).s
 
 nodes.map(function(d){
 
@@ -245,7 +229,7 @@ if (d.fx==null){
   .attr("font-size", "12px")
   //.classed("popUpTextLeft", true) //-CSS class for the text
   .attr("x", d.x)
-  .attr("y", d.y+20) //-new line when going through the loop
+  .attr("y", d.y+20+10*(d.s/dummy)) //-new line when going through the loop
   .text(d.name); //-goes through each element in the text array
 
 }
