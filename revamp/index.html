@@ -24,15 +24,38 @@ canvas{ position:'absolute'; }
 <script src="./postfunctions.js"></script>
 <script src="./src/stats.js"></script>
 <link src='./src/fonts'  rel='stylesheet' type='text/css'>
+<script src="./src/netcdfjs.min.js"></script>
 <!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
 -->
 
 <body>
 
+  <div id="myModal" class="modal" >
+
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">Select Data File</span>
+
+      <select class="form-control" onchange='console.log(value);window.location.hash=value,window.location.reload()'>
+
+        <option selected hidden>-No file selected-</option>
+        <option>volcano</option>
+        <option>volcano8</option>
+        <option>volcano12</option>
+        <option>Option four</option>
+        <option>Option five</option>
+        <option>Option six</option>
+        <option>Option seven</option>
+        <option>Option eight</option>
+      </select>
+    </div>
+
+  </div>
+
 
   <svg>  </svg>
 
-    <canvas id='canvas'></canvas>
+  <canvas id='canvas'></canvas>
 
 
   <div id="graphdiv">
@@ -50,8 +73,11 @@ canvas{ position:'absolute'; }
 
 </body>
 
+<script src="./src/stats.js"></script>
 
 <script>
+
+
 
 /// main action script
 const electron = require('electron');
@@ -62,55 +88,52 @@ ipc.on('toggle-prefs', (event,arg)=> {console.log(event,arg)});
 
 
 //parameters - netcdf
-var data = fs.readFileSync('volcano12.nc');
-var reader = new NetCDFReader(data); // read the header
-// get data dimentions
-reader.dimensions.forEach(function(d){dims[d.name] = d.size},dims={});
-
-const width = window.innerWidth;
-const height = window.innerHeight;
+window.location.hash = 'volcano12';
 
 
-const concentration = new nc2D('concentration','specs',Float32Array);
-const flux = new nc2D('edge-length','fluxes',Float32Array);
-const dict = JSON.parse(reader.getDataVariable('nodes').join(''));
-const combine = JSON.parse(reader.getDataVariable('combinations').join(''));
-const tar = reader.getDataVariable('target');
-const src = reader.getDataVariable('source');
+</script>
+<script src='readnc.js'> </script>
 
-d3.csv("./src/fullmcmspecs.csv", function(error, csv) {this.csvdata=csv});     //get list of all species etc
 
-//time array
-//location array
-//primary spec list
-
-// creates reverse dictionary rdict below
-Object.keys(dict).forEach(function(d){var i = dict[d];rdict[i]=d;}, rdict={}, nodes=[]);
-
-window.nodes =[];for (i = 0; i < combine.length; i++) { window.nodes.push({"names":rdict[i],"id":i,"x":2*(0.5-Math.random()),
-"y":2*(0.5-Math.random()),"z":0.5-Math.random()}) };
+<script>
 
 
 
-
-
-
-timestep=21;
-
-const edge_len = flux.row(timestep)
 
 var svg = d3.select("svg");
 svg.style('width', width);
 svg.style('height', height);
 svg.style("transform", "translate("+window.innerWidth/2.+","+window.innerHeight/2.+")")
 
-var color = d3.scaleOrdinal(d3.schemeCategory20);
+window.onresize = function(event) {location.reload()};
+window.scrollTo(window.innerWidth/2, window.innerHeight/2);
+
+//d3.select('body').style('background-color', '#222'); // bg colour
+//var color = d3.scaleOrdinal(d3.schemeCategory20);
+window.color = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
+window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
 
 
-var concs = concentration.row(timestep)
 
 
-combine.forEach(function(f){
+
+
+
+
+print(window.nodes)
+timestep=21;
+
+
+
+
+const edge_len = window.ncdata.flux.row(timestep)
+var concs = window.ncdata.concentration.row(timestep)
+
+
+
+
+
+window.ncdata.combine.forEach(function(f){
 
   var prod = f[0];
   var loss = f[1];
@@ -134,48 +157,36 @@ var max =  d3.max(dummy)-min
 mylink = mylink.map((d)=>(d-min+1e-6)/max)
 
 
+
+
+
+
+
+
 // create links object
 window.graphlinks =[]
-for (i = 0; i < combine.length; i++) {
+for (i = 0; i < window.ncdata.combine.length; i++) {
 
-if (sign[i] !== 0) {
-  graphlinks.push({"source":src[i],"target":tar[i], "v":Number(mylink[i].toFixed(3)), "d":sign[i]}) };
-}
+  if (sign[i] !== 0) {
+    graphlinks.push({"source":window.ncdata.src[i],"target":window.ncdata.tar[i], "v":Number(mylink[i].toFixed(3)), "d":sign[i]}) };
+  }
 
-var concs = concentration.row(timestep)
-
-
-var node_size=[]; dummy = [];
-
-
-
-for (i = 0; i < concs.length; i++){
-      var f = concs[i];
-      if (f>0) {f = Math.log10(f); dummy.push(f)};
-      node_size.push(f);
-}
-
-//normalize
-var min =  d3.min(dummy);
-var max =  d3.max(dummy)-min;
-node_size = node_size.map((d)=>(d-min+1e-6)/max);
+  var concs = window.ncdata.concentration.row(timestep)
+  var node_size=[]; dummy = [];
+  for (i = 0; i < concs.length; i++){
+    var f = concs[i];
+    if (f>0) {f = Math.log10(f); dummy.push(f)};
+    node_size.push(f);
+  }
+  //normalize
+  var min =  d3.min(dummy);
+  var max =  d3.max(dummy)-min;
+  node_size = node_size.map((d)=>(d-min+1e-6)/max);
 
 
 
 
-
-
-
-window.onresize = function(event) {location.reload()};
-window.scrollTo(window.innerWidth/2, window.innerHeight/2);
-
-//d3.select('body').style('background-color', '#222'); // bg colour
-
-window.color = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
-window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
-
-
-</script>
+  </script>
 
 
 

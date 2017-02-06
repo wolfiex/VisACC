@@ -36,7 +36,7 @@ var node = svg.append("g")
     .data(nodes)
     .enter().append("circle")
       .attr("r", function(d){return (node_size[d.id] > 0 )?   node_size[d.id] * 7 : 02  }  )// remove tertiary operator and just multiply
-      .attr("fill", (d)=> (concentration.row(0)[d.id]>0)?  ((d.names == 'OH')? 'green':'steelblue'):'red' )// function(d) { return color(concs[d.id]); })
+      .attr("fill", (d)=> (window.ncdata.concentration.row(0)[d.id]>0)?  ((d.names == 'OH')? 'green':'steelblue'):'red' )// function(d) { return color(concs[d.id]); })
 .attr("id", (d)=> 'node'+d.id)
       .call(d3.drag()
     .on("start", dragstarted)
