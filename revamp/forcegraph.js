@@ -5,17 +5,14 @@ window.simulation = d3.forceSimulation()
     .force("center", d3.forceCenter(width/2,height/2))
     .force("x", d3.forceX(width/2).strength(center))
 		.force("y", d3.forceY(height/2).strength(center))
-    .alphaDecay(1-Math.pow(0.0001,1/3000));//timesteps
+    .alphaDecay(1-Math.pow(0.0001,1/3000))//timesteps
+    .force('collide', d3.forceCollide().radius(function(d){return (concs[d.id] > 0 )? 7   : 0  } ))
 
 
-//d3.json("./ics/Nhe_144.json", function(error, graph) { if (error) throw error; console.log('aaa',graph);window.graph=graph;run()});
-function center (d) {return (concs[d.id] > 0 )? 0.1   : 0  }
 
-run()
 
 function run(){
 
-  simulation.force('collide', d3.forceCollide().radius(function(d){return (concs[d.id] > 0 )? 7   : 0  } ))
 
 
 var link = svg.append("g")
@@ -46,8 +43,6 @@ var node = svg.append("g")
 
 node.append("title")
 .text(function(d) { return d.id; });
-
-
 
 
 

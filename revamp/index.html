@@ -98,9 +98,22 @@ window.location.hash = 'volcano12';
 <script>
 
 
+var reader,reader_url,dims, file,svg, node_size,concs;
+window.color = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
+window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
 
 
-var svg = d3.select("svg");
+
+newfile();
+
+
+
+
+
+
+function load1(){
+
+svg = d3.select("svg");
 svg.style('width', width);
 svg.style('height', height);
 svg.style("transform", "translate("+window.innerWidth/2.+","+window.innerHeight/2.+")")
@@ -110,24 +123,18 @@ window.scrollTo(window.innerWidth/2, window.innerHeight/2);
 
 //d3.select('body').style('background-color', '#222'); // bg colour
 //var color = d3.scaleOrdinal(d3.schemeCategory20);
-window.color = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
-window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
 
 
 
+//window.nodes = window.C.map( function(i){ return {"names":i, "id":window.ncdata.dict[i],"x":2*(0.5-Math.random()),"y":2*(0.5-Math.random()),"z":0.5-Math.random()}  } );
 
 
+print([window.nodes,'fdsf',window.C])
 
-
-
-print(window.nodes)
 timestep=21;
 
-
-
-
 const edge_len = window.ncdata.flux.row(timestep)
-var concs = window.ncdata.concentration.row(timestep)
+concs = window.ncdata.concentration.row(timestep)
 
 
 
@@ -135,13 +142,15 @@ var concs = window.ncdata.concentration.row(timestep)
 
 window.ncdata.combine.forEach(function(f){
 
-  var prod = f[0];
-  var loss = f[1];
+  var prod = new Set(f[0]);
+  var loss = new Set(f[1]);
+
+
 
   var flx = 0;
 
-  for (i = 0; i < prod.length; i++) {var j = edge_len[prod[i]]; if (isFinite(j)){ flx -= j}};
-  for (i = 0; i < loss.length; i++) {var j = edge_len[loss[i]]; if (isFinite(j)){ flx -= j}};
+  prod.forEach(function(i){var j = edge_len[i]; if (isFinite(j)){ flx -= j}});
+  loss.forEach(function(i){var j = edge_len[i]; if (isFinite(j)){ flx -= j}});
 
 
   sign.push(Math.sign(flx));
@@ -160,9 +169,6 @@ mylink = mylink.map((d)=>(d-min+1e-6)/max)
 
 
 
-
-
-
 // create links object
 window.graphlinks =[]
 for (i = 0; i < window.ncdata.combine.length; i++) {
@@ -171,14 +177,15 @@ for (i = 0; i < window.ncdata.combine.length; i++) {
     graphlinks.push({"source":window.ncdata.src[i],"target":window.ncdata.tar[i], "v":Number(mylink[i].toFixed(3)), "d":sign[i]}) };
   }
 
-  var concs = window.ncdata.concentration.row(timestep)
-  var node_size=[]; dummy = [];
+  node_size=[]; dummy = [];
   for (i = 0; i < concs.length; i++){
     var f = concs[i];
     if (f>0) {f = Math.log10(f); dummy.push(f)};
     node_size.push(f);
   }
-  //normalize
+
+
+
   var min =  d3.min(dummy);
   var max =  d3.max(dummy)-min;
   node_size = node_size.map((d)=>(d-min+1e-6)/max);
@@ -186,10 +193,11 @@ for (i = 0; i < window.ncdata.combine.length; i++) {
 
 
 
-  </script>
+}
 
 
+
+</script>
 
   <script src ="./forcegraph.js"></script>
-
   <script type="text/javascript" src="./src/d3-ForceEdgeBundling.js"></script>

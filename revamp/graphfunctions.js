@@ -30,5 +30,9 @@ function dragended(d) {
 };
 
 //stats window
+
 (function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='./src/stats.js';document.head.appendChild(script);})()
 const cp = require('child_process');
+
+
+function center (d) {return (concs[d.id] > 0 )? 0.1   : 0  }
