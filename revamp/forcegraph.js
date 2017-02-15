@@ -2,7 +2,7 @@
 window.simulation = d3.forceSimulation()
     //.force("charge", d3.forceManyBody().strength(-30))//- 18 -550 -32 -34
     .force("link", d3.forceLink().id(function(d) { return parseFloat(d.id); }))
-    .force("center", d3.forceCenter(width/2,height/2))
+    //.force("center", d3.forceCenter(width/2,height/2))
     .force("x", d3.forceX(width/2).strength(center))
 		.force("y", d3.forceY(height/2).strength(center))
     .alphaDecay(1-Math.pow(0.0001,1/3000))//timesteps
@@ -13,12 +13,13 @@ window.simulation = d3.forceSimulation()
 
 function run(){
 
-
+var species_left = new Set(nodes.map(i=>i.id));
+var links = graphlinks.filter(function (d) { if (species_left.has(d.source) && species_left.has(d.target)) return d })
 
 var link = svg.append("g")
     .attr("class", "links")
   .selectAll("line")
-  .data(graphlinks)
+  .data(links)
   .enter().append("line")
     .attr("stroke-width",(d)=>d.v)//(d) =>{(isFinite(edge_length[d.index]))? 10*window.edge_length[d] : 0.001} )
     //.attr("stroke-opacity",(d) =>{(isFinite(edge_length[d.index]))? 1: 0.001} )
@@ -45,15 +46,13 @@ node.append("title")
 .text(function(d) { return d.id; });
 
 
-
+setupvor();
 /// d.index for edge length
+
+
 
   simulation
       .nodes(nodes)
-
-
-
-
       .on("tick", ticked);
 
 //send ipc links to other
@@ -64,10 +63,9 @@ node.append("title")
 
 
   simulation.force("link")
-        .links(graphlinks)
-        .distance( (d) => 1 + 300.*d.v)//*eval(window.linkleneq)}) // 1-dval 500*0.4+(dv*dv*dv)/0.6
+        .links(links)
+        .distance( (d) => 1 + 50.*d.v)//*eval(window.linkleneq)}) // 1-dval 500*0.4+(dv*dv*dv)/0.6
         .strength(1)//function(d){return(isFinite(edge_length[d.index])? 1 : 0 )});//edge_length.map((d)=>(d==Infinity)? 0:1 ));
-
 
 simulation.force("charge", d3.forceManyBody().strength(function(d){return (concs[d.id] > 0 )? charge   : 0  }));//function(d) {return(isFinite(concs[d.id]))? charge : 0}))
 
@@ -80,9 +78,13 @@ console.log('here');
 
   function ticked() {
 
+
+        window.cell = window.cell.data(voronoi.polygons(nodes)).attr("d", renderCell);
+        voronoi.polygons(nodes).filter(function(d){window.v.push( d3.polygonCentroid(d))},window.v=[]);
+
     node
-.attr("cx", function(d) { return nodes[d.id].x })
-.attr("cy", function(d) { return nodes[d.id].y });
+        .attr("cx", function(d) { return d.x })
+        .attr("cy", function(d) { return d.y });
 
     link
         .attr("x1", function(d) { return d.source.x; })
@@ -103,14 +105,6 @@ console.log('here');
 
     }
 
-
-
-
-
-
-ipc.on('command', (event,arg)=> {
-  console.log(event,arg);
-  eval(arg); })
 
 
 

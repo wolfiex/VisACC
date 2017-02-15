@@ -1,6 +1,50 @@
 
 
 
+function setupvor(){
+
+  group = d3.select('svg').attr('width',width).attr('height',height).append("g")
+
+
+    window.voronoi = d3.voronoi()
+        .x(function(d) { return d.x; })
+        .y(function(d) { return d.y; })
+        .extent([[0.1*width, .1*height], [width *.9, height *.9]]);
+
+      var voronoi_path = group.selectAll("vornouli.cells")
+        .data(nodes)
+        .enter().append("g")
+        .classed("node", true)
+        //.on('click', displayreactions)
+        .on('mouseover',function(d){console.log(d)})
+          .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+
+      window.cell = voronoi_path.append("path")
+        .data(voronoi.polygons(nodes))
+          .attr("d", renderCell)
+          .style('stroke','red')
+          .style('fill','transparent')
+          .attr('opacity',0.2)
+          .attr("id", function(d, i) { return "cell-" + i; });
+
+      voronoi_path.append("circle")
+              .attr("clip-path", function(d, i) { return "url(#clip-" + i + ")"; });
+
+
+}
+
+function central(){
+  voronoi.polygons(nodes).filter(function(d){v.push( [d3.polygonCentroid(d),d.data.name])},v=[]);
+  return v
+}
+
+function renderCell(d) {
+  return d == null ? null : "M" + d.join("L") + "Z";
+}
+
+
+
+
 
 
 
