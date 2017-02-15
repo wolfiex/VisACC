@@ -27,7 +27,6 @@ window.ncdata.combine.forEach(function(f){
   var loss = new Set(f[1]);
 
 
-
   var flx = 0;
 
   prod.forEach(function(i){var j = edge_len[i]; if (isFinite(j)){ flx -= j}});
@@ -64,6 +63,7 @@ for (i = 0; i < window.ncdata.combine.length; i++) {
 
   var min =  d3.min(dummy);
   var max =  d3.max(dummy)-min;
+  
   node_size = node_size.map((d)=>(d-min+1e-6)/max);
 
 

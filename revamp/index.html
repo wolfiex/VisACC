@@ -2,20 +2,13 @@
 <meta charset="utf-8">
 <style>
 @import url(./src/style.css);
-#graphdiv {
-  position: absolute;
-  left: 0px;
-}
+@import url(./index.css);
 
-.links line {
-  stroke: #999;
-  stroke-opacity: 0.6;
-}
-.nodes circle {
-  stroke: #fff;
-  stroke-width: 1.5px;
-}
-canvas{ position:'absolute'; }
+canvas {
+  position:absolute;
+  font-family: 'Open Sans', sans-serif,'Semibold';
+ }
+
 </style>
 
 
@@ -27,6 +20,7 @@ canvas{ position:'absolute'; }
 <script src="./src/netcdfjs.min.js"></script>
 <!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
 -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 
 <body>
 
@@ -52,10 +46,10 @@ canvas{ position:'absolute'; }
 
   </div>
 
+  <canvas id='canvas'></canvas>
+<canvas id='canvas2'></canvas>
 
   <svg>  </svg>
-
-  <canvas id='canvas'></canvas>
 
 
   <div id="graphdiv">
@@ -88,14 +82,19 @@ const NetCDFReader = require('netcdfjs');
 var ipc = electron.ipcRenderer;
 ipc.on('toggle-prefs', (event,arg)=> {console.log(event,arg)});
 
-
+const canvas = document.getElementById('canvas')//document.querySelector("canvas"),
+const context = canvas.getContext("2d");
+d3.select(canvas).attr('width', width ).attr('height',height)//.style('opacity',.65);  //0.5 opacity
+d3.select('selector').call(d3.zoom().scaleExtent([-0, 8]).on("zoom", zoomed));
 //parameters - netcdf
 //window.location.hash = 'volcano12';
 
+//d3.select('body').style('background-color', '#222'); // bg colour
 
+var reader,reader_url,dims, file,svg, node_size, concs;
+window.color =  d3.interpolateCubehelixLong.gamma(4.1)("#F6089E", "#3864EB");
 
-var reader,reader_url,dims, file,svg, node_size,concs;
-window.color = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
+window.bluepink = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
 window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
 
 
@@ -108,8 +107,7 @@ newfile();
 
 
 
-
 </script>
 
 
-  <script type="text/javascript" src="./src/d3-ForceEdgeBundling.js"></script>
+<script type="text/javascript" src="./src/d3-ForceEdgeBundling.js"></script>
