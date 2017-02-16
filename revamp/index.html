@@ -16,6 +16,7 @@ canvas {
 <script src="./graphfunctions.js"></script>
 <script src="./postfunctions.js"></script>
 <script src="./src/stats.js"></script>
+<script src="./save.js"></script>
 <link src='./src/fonts'  rel='stylesheet' type='text/css'>
 <script src="./src/netcdfjs.min.js"></script>
 <!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
@@ -33,14 +34,14 @@ canvas {
       <select class="form-control" onchange='console.log(value);window.location.hash=value,window.location.reload()'>
 
         <option selected hidden>-No file selected-</option>
-        <option>volcano</option>
-        <option>volcano8</option>
-        <option>volcano12</option>
-        <option>Option four</option>
-        <option>Option five</option>
-        <option>Option six</option>
-        <option>Option seven</option>
-        <option>Option eight</option>
+                 <option>ropa_isop8_32data</option>
+                 <option>ropa_isop8_33data</option>
+                 <option>ropa_isop8_cr5data</option>
+                 <option>Option four</option>
+                 <option>Option five</option>
+                 <option>Option six</option>
+                 <option>Option seven</option>
+                 <option>Option eight</option>
       </select>
     </div>
 
@@ -72,41 +73,34 @@ canvas {
 <script src ="./preload.js"></script>
 <script src ="./forcegraph.js"></script>
 <script>
-
-
-
 /// main action script
-const electron = require('electron');
-const fs = require('fs');
-const NetCDFReader = require('netcdfjs');
+const electron = require("electron");
+const fs = require("fs");
+const NetCDFReader = require("netcdfjs");
 var ipc = electron.ipcRenderer;
-ipc.on('toggle-prefs', (event,arg)=> {console.log(event,arg)});
+ipc.on("toggle-prefs", (event, arg) => {
+  console.log(event, arg);
+});
 
-const canvas = document.getElementById('canvas')//document.querySelector("canvas"),
+const canvas = document.getElementById("canvas"); //document.querySelector("canvas"),
 const context = canvas.getContext("2d");
-d3.select(canvas).attr('width', width ).attr('height',height)//.style('opacity',.65);  //0.5 opacity
-d3.select('selector').call(d3.zoom().scaleExtent([-0, 8]).on("zoom", zoomed));
+d3.select(canvas).attr("width", width).attr("height", height); //.style('opacity',.65);  //0.5 opacity
+d3.select("selector").call(d3.zoom().scaleExtent([-0, 8]).on("zoom", zoomed));
 //parameters - netcdf
 //window.location.hash = 'volcano12';
 
 //d3.select('body').style('background-color', '#222'); // bg colour
 
-var reader,reader_url,dims, file,svg, node_size, concs;
-window.color =  d3.interpolateCubehelixLong.gamma(4.1)("#F6089E", "#3864EB");
+var reader, reader_url, dims, file, svg, node_size, concs;
+window.color = d3.interpolateCubehelixLong.gamma(4.1)("#F6089E", "#3864EB");
 
-window.bluepink = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
-window.color1 = d3.interpolate('#222','blue') ///'blue',"#F6089E");
-
-
+window.bluepink = d3.interpolate("#F6089E", "#3864EB"); //https://github.com/d3/d3-scale
+window.color1 = d3.interpolate("#222", "blue"); ///'blue',"#F6089E");
 
 newfile();
 
-
-
-
-
-
-
+///se;lection box
+//http://bl.ocks.org/lgersman/5311083
 </script>
 
 
