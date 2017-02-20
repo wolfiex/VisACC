@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style scr='index.css'>
+@import url(../revamp/src/style.css);
+
+</style>
+
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="./src/colours.js"></script>
+
+<script src="../revamp/src/stats.js"></script>
+<script src="./src/netcdfjs.min.js"></script>
+<link src='../revamp/src/fonts'  rel='stylesheet' type='text/css'>
+ <link rel="stylesheet" href="./photon.min.css">
+<!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
+-->
+
+<body>
+
+  <canvas id='canvas' style="position:absolute;"></canvas>
+  <svg style="position:absolute;">
+  </svg>
+  </div>
+
+<div></div>
+
+
+  <div id="controls" class="sidenav nav-group pane pane-sm">
+
+  <ul class="list-group">
+    <li class="list-group-header">
+      <input class="form-control" type="text" placeholder="Specification Page   (Close)" onclick='closeNav()'>
+
+    </li>
+
+
+    <li class="list-group-item">
+      <span class="icon icon-chart-line media-object pull-left"></span>
+      <div class="media-body">
+        <strong>Filter by Grouping</strong>
+
+
+
+        <div class="radio">
+        <label>
+        <input type="radio" name="order" checked onclick='window.filterby = Object.keys(ncdata.dict)'>
+        <p>All Species</p>
+        </label>
+        </div>
+
+
+        <div class="radio">
+        <label>
+        <input type="radio" name="order" unchecked onclick='window.filterby = N'>
+        <p>Nitrogen Only</p>
+        </label>
+        </div>
+
+        <div class="radio">
+        <label>
+        <input type="radio" name="order" unchecked onclick='window.filterby = C'>
+        <p>Carbon Only</p>
+        </label>
+        </div>
+
+
+
+
+        </div>
+</li>
+
+
+
+
+<li class="list-group-item">
+  <span class="icon icon-water media-object pull-left"></span>
+  <div class="media-body">
+    <strong>Colour Scheme</strong>
+
+    <div id='colrad' class="radio">
+    <label>
+    <input type="radio" name="colour" unchecked onclick='window.cs = viridis ; window.colour  = ColourScheme(viridis,inv);'>
+    <p>Viridis</p>
+    </label>
+
+    <div class="radio">
+    <label>
+    <input type="radio" name="colour" checked onclick='window.cs = visual_cinnamon; window.colour  = ColourScheme(visual_cinnamon,inv);'>
+    <p>Visual Cinammon</p>
+    </label>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" onclick='window.inv=!window.inv;window.colour  = ColourScheme(window.cs,inv) '> Inverse colours
+      </label>
+    </div>
+</div>
+</li>
+
+
+
+<li class="list-group-item">
+  <span class="icon icon-hourglass media-object pull-left"></span>
+  <div class="media-body">
+    <strong>Plot Type</strong> <br>
+    <p> What type of plot would you like? (How do we filter the data) </p>
+
+    <select class="form-control" onchange= "window.selected = this.value;
+                          document.getElementById('start').disabled=false;
+                          document.getElementById('end').disabled=false;
+                          document.getElementById('by').disabled=false;
+
+                          switch (selected){
+                            case '24 Hour Slice':
+                              document.getElementById('end').disabled=true;
+                              document.getElementById('end').value = '--Disabled--'
+                              window.eni = window.sti+144;
+                              document.getElementById('by').value = 1
+                              break;
+                            case 'Diurnal Timestep':
+                              document.getElementById('by').disabled=true;
+                              document.getElementById('by').value = '--Disabled--'
+                              window.by = 14;
+                              break;
+                            case 'User Select':
+                              document.getElementById('by').disabled=true;
+                              document.getElementById('by').value = '--Disabled--'
+                              window.by = 144;
+                              break;
+
+                          }    ">
+        <option>User Select</option>
+        <option>24 Hour Slice</option>
+        <option>Diurnal Timestep</option>
+
+      </select>
+</div>
+</li>
+
+
+
+
+<li class="list-group-item">
+  <span class="icon icon-network media-object pull-left"></span>
+  <div class="media-body">
+    <strong>Plot Specifics</strong> <br>
+<div>
+
+
+Start Time
+  <div>
+        <select class="form-control" id='start' onchange='sti= parseInt(this.value);if (selected=="24 Hour Slice") window.eni=window.sti+144'> </select>
+  </div>
+End Time
+  <div>
+        <select class="form-control" id='end' onchange='eni= parseInt(this.value)'> </select>
+  </div>
+Step Size ( 1 Day = 144 )
+        <div class="form-group">
+          <input id='by'; type="text"  width=4 placeholder="step" onchange='window.by=parseInt(this.value)'>
+        </div>
+</div>
+</div>
+
+
+<div id="footer">
+ Temporal Hierarchy 0.1 <br>
+</div>
+
+
+
+
+
+
+
+<li class="list-group-item">
+<button class="btn btn-large btn-positive" onclick=";draw()">Select</button>
+
+<--! document.getElementById('controls').remove() -->
+
+</li>
+</div>
+
+
+
+<div id="body">
+
+
+
+
+
+
+</body>
+
+
+<span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776;
+</span>
+
+<script>
+function openNav() {
+  document.getElementById("controls").style.display = "block";
+}
+
+function closeNav() {
+  document.getElementById("controls").style.display = "none";
+}
+
+openNav();
+</script>
+
+<script src='readnc.js'> </script>
+<script src='index.js'>
+newfile();
+</script>
