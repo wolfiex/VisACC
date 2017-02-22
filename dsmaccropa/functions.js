@@ -109,9 +109,10 @@ function topfew(data, production, selectedflux) {
 }
 
 function overall(per) {
-  g = d3.select("svg").selectAll("g");
+  var g = d3.select("svg").selectAll("g");
+  g.selectAll("defs").remove();
 
-  areaGradient = g
+  var areaGradient = g
     .append("defs")
     .append("linearGradient")
     .attr("id", "colorgradient")
@@ -130,14 +131,13 @@ function overall(per) {
     .attr("offset", parseInt(100 * per) + "%")
     .attr("stop-color", "#3864EB")
     .attr("stop-opacity", 1);
-}
 
-g
-  .append("rect")
-  .attr("class", "bar")
-  .attr("width", width)
-  .attr("x", height / 2)
-  .attr("y", 0)
-  .attr("mask", d => /Other/.test(d.reaction) ? "url(#mask)" : "")
-  .attr("height", 10)
-  .attr("fill", "url(#colorgradient)");
+  g
+    .append("rect")
+    .attr("class", "bar")
+    .attr("width", width)
+    .attr("x", 0)
+    .attr("y", height / 2)
+    .attr("height", 10)
+    .attr("fill", "url(#colorgradient)");
+}
