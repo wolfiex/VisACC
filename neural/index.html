@@ -1,0 +1,149 @@
+<body>
+<button onclick='rn1()'></button>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+
+  <script>
+
+
+      window.dict = {};
+      window.rdict= {};
+
+      var an = ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789()[]='.split('')
+
+      an.forEach(function(d,i){window.dict[d]=parseInt(100*(i/an.length)); window.rdict[parseInt(100*(i/an.length))]=d });
+
+
+
+
+
+  d3.csv("./fullmcmspecs.csv", function(error, csv) {
+
+    window.csvdata = _.shuffle(csv)
+
+    window.slen = d3.max(csvdata.map(d=>d.item.length))
+
+    window.csvdata = csvdata.map(function (d) {d.c = (d.item.match(/[cC]/g)==null)?0:d.item.match(/[cC]/g).length/100  ;return d})
+
+
+    run()
+  })
+
+
+  </script>
+
+  <script>
+  //very simple neural net example http://progur.com/2016/09/how-to-create-and-use-neural-networks-in-javascript.html
+
+
+  var Synaptic = require('synaptic'); // this line is not needed in the browser
+  var Neuron = synaptic.Neuron,
+  Layer = synaptic.Layer,
+  Network = synaptic.Network,
+  Trainer = synaptic.Trainer,
+  Architect = synaptic.Architect;
+
+
+var myNetwork;
+var INPUT_LENGTH;
+  var trainingData = [];
+var trainer
+
+
+/*
+function convertNameToInput(name) {
+  name = name.toLowerCase();
+  if(name.length > INPUT_LENGTH)
+  name = name.substring(INPUT_LENGTH);
+  while(name.length < INPUT_LENGTH)
+  name = " " + name;
+  var characters = name.split("");
+  return characters.map(
+    (c) => c == " " ? 0 : c.charCodeAt(0)/1000
+  );
+}
+*/
+function convertNameToInput(name) {
+  if(name.length > INPUT_LENGTH) name = name.substring(INPUT_LENGTH);//trunkate
+  while(name.length < INPUT_LENGTH)name += ' ';//expand
+  var characters = name.split("");
+  return characters.map( c => dict[c]/100);
+}
+
+  function run(){
+
+    console.log('starting')
+
+    INPUT_LENGTH = window.slen;
+    myNetwork =  new Synaptic.Architect.Perceptron(INPUT_LENGTH,parseInt(window.slen),1);
+
+
+    trainer = new synaptic.Trainer(myNetwork);
+    for(var i=0; i<csvdata.length ;i++){
+      var d = window.csvdata[i]
+      //console.log(d.smiles,i)
+      try {
+        trainingData.push({
+          input: convertNameToInput(d.item),
+          output: [d.c]//[1, 0] // Male = true, Female = false
+        });
+      }catch(e){console.log(e)
+      }
+    }
+
+      console.log('shuffle');
+      for(var i=0;i<10;i++) trainingData = _.shuffle(trainingData);
+
+  console.log(trainingData)
+
+
+  }
+
+
+
+
+  function rn1(){
+
+
+    var nits=20000;
+    console.log('training')
+    trainer.trainAsync(trainingData, {
+      rate: 0.00001,//0.01,
+      iterations: nits*1,
+      shuffle: true,
+      cost: synaptic.Trainer.cost.MLE
+    }).then(results => console.log('done!', results));
+
+    /*
+    for(var i = 0 ; i < 25 ; i++) {
+      trainer.train(trainingData, {
+        rate: 0.001,//0.01,
+        iterations: nits,
+        shuffle: true,
+        cost: synaptic.Trainer.cost.MLE
+      }).then(results => console.log('done!', results));
+      var error = trainer.test(trainingData)["error"];
+      console.log( "Iteration " + ((i+1) * nits) + " --> Error: " + error
+      );
+    }
+
+    */
+  }
+
+    /*
+    function getGender(name) {
+    var result = myNetwork.activate(convertNameToInput(name));
+    if(result[0] > result[1])
+    return "Male (" + (result[0]*100).toFixed() + "% sure)";
+    return "Female (" + (result[1]*100).toFixed() + "% sure)";
+  }
+  */
+
+  function check(i) {
+    var result = myNetwork.activate(convertNameToInput(i));
+    return console.log(result*window.slen,i)
+    // window.csvdata[i].c,window.csvdata[i].smiles)
+  }
+
+  </script>

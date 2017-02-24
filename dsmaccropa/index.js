@@ -38,15 +38,26 @@ function draw(spec, timestep) {
 
   var ttotal = tprod + tloss;
 
+if (ttotal <= 0){
+d3
+.selectAll("g")
+.append("text")
+.text(d => 'No Flux - concentration depleted')
+.attr("x", width / 2 )
+.attr("y", height/2)
+.style("font-size", "30px")
+.style("text-anchor", "middle")
+return}
+
   tprod /= ttotal;
   tloss /= ttotal;
 
   var tmax = d3.max([tprod, tloss]);
 
-  console.log(tprod, tloss);
 
   plot(prod, true, ttotal, tmax, tprod);
   plot(loss, false, ttotal, tmax, tloss);
+    overall(tloss);
   //
 }
 
@@ -64,13 +75,23 @@ function draw(spec, timestep) {
 */
 
 function plot(data, production, ttotal, tmax, datamax) {
-  //
-  //console.log(datamax, tmax, ttotal, data);
+
+  while (data.length< topn+1){
+    data.unshift({
+      reaction: ' '.repeat(data.length),
+      value: 0,
+      prod: production
+
+    });
+
+}
 
   data = data.map(d => {
+    d.flux=d.value;
     d.value /= ttotal;
     return d;
   });
+
 
   var x = d3.scaleLinear().range([0, width / 2]);
   var y = d3.scaleBand().range([height, 0]);
@@ -89,13 +110,13 @@ function plot(data, production, ttotal, tmax, datamax) {
       "transform",
       "translate(" + (production ? width / 2 : 0) + "," + 0 + ")"
     )
-    .attr("id", production);
+    //.attr("id", production);
   //.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   g
     .append("g")
     .attr("class", "x axis")
-    .attr("transform", "translate(" + 0 + "," + (40 + height) + ")")
+    .attr("transform", "translate(" + 0 + "," + (30 + height) + ")")
     .call(
       d3.axisBottom(
         d3.scaleLinear().range(production ? [0, width / 2] : [width / 2, 0])
@@ -113,7 +134,7 @@ function plot(data, production, ttotal, tmax, datamax) {
       production
         ? d3.axisRight(y).tickFormat("")
         : d3.axisLeft(y).tickFormat("")
-    );
+    ) ;
 
   var bar = g
     .selectAll(".bar")
@@ -124,17 +145,17 @@ function plot(data, production, ttotal, tmax, datamax) {
     .append("rect")
     .attr("class", "bar")
     .attr("width", d => x(d.value))
-    .attr("x", d => production ? 0 : -x(d.value))
+    .attr("x", d => production ? 0: -x(d.value))
     .attr("y", d => y(d.reaction))
     .style("fill", function(d) {
       return d.prod ? "#0277bd" : "#fc1333";
     })
-    .attr("mask", d => /Other/.test(d.reaction) ? "url(#mask)" : "")
+    .style("mask", d => /Other/.test(d.reaction) ? "url(#mask)" : "")
     .attr(
       "transform",
       "translate(" + (production ? 0 : width / 2) + "," + 0 + ")"
     )
-    .attr("height", y.bandwidth())
+    .attr("height", 40)//y.bandwidth())
     .on("mousemove", function(d) {
       tooltip
         .style("left", d3.event.pageX - 50 + "px")
@@ -143,9 +164,9 @@ function plot(data, production, ttotal, tmax, datamax) {
         .html(
           d.reaction +
             "<br>" +
-            d.value / ttotal +
+            format(d.value / ttotal) +
             "% of total <br>" +
-            d.value / datamax +
+            format(d.value / datamax) +
             "% of" +
             (production ? "Production" : "Loss")
         );
@@ -154,9 +175,8 @@ function plot(data, production, ttotal, tmax, datamax) {
       tooltip.style("display", "none");
     });
 
-  var boxheight = y(data[data.length - 1].reaction);
+  var boxheight = 40//y(data[data.length - 1].reaction);
 
-  console.log(boxheight);
   g
     .selectAll(".rxn")
     .data(data)
@@ -164,13 +184,32 @@ function plot(data, production, ttotal, tmax, datamax) {
     .append("text")
     .text(d => d.reaction)
     .attr("x", d => production ? 10 + x(d.value) : width / 2 - x(d.value) - 10)
-    .attr("y", d => y(d.reaction) + 5 * boxheight)
+    .attr("y", d => y(d.reaction) + boxheight/2)
     .style("fill", "black")
     .style("font-size", "10px")
-    .attr("text-anchor", production ? "start" : "end");
-  //.attr("alignment-baseline", "hanging");
-  overall(datamax);
+    .attr("text-anchor", production ? "start" : "end")
+  .attr("alignment-baseline", "hanging");
+
   //
+console.log(data)
+
+    var text = g
+        .selectAll(".textval")
+        .attr("id", "texts")
+        .data(data)
+        .enter()
+        .append("text")
+        .attr("class", "textval")
+        .text(function(d) { return (d.value > .08) ? format(d.flux) : "";
+        }) // only display if greater than 0.1%
+        .attr("x", d => production ? 0+x(d.value)-30:  width/2-x(d.value)+30 )
+        .attr("y", d => y(d.reaction))
+        .style("font-size", "10px")
+        .attr("text-anchor", production ? "start" : "end")
+        .attr("alignment-baseline", "hanging");
+
+
+
 }
 
 /*
@@ -189,101 +228,3 @@ function plot(data, production, ttotal, tmax, datamax) {
 
 
 */
-
-function oldplot(side, production) {
-  var data = [];
-
-  data = sortedData(data);
-
-  // set the ranges
-  var y = d3.scaleBand().range([height, 0]).padding(0.1);
-  var x = d3.scaleLinear().range([0, width / 2]);
-
-  // Scale the range of the data in the domains
-  x.domain([
-    0,
-    d3.max(data, function(d) {
-      return d.value;
-    })
-  ]);
-  y.domain(
-    data.map(function(d) {
-      return d.reaction;
-    })
-  );
-
-  var bar = svg
-    .selectAll(".bar")
-    .exit()
-    .remove()
-    .data(data)
-    .enter()
-    .append("rect")
-    .attr("class", "bar")
-    //.attr("x", function(d) { return x(d.sales); })
-    .attr("width", function(d) {
-      return x(d.value);
-    })
-    .attr("y", function(d) {
-      return y(d.reaction);
-    })
-    .style("fill", function(d) {
-      return d.prod ? "#0277bd" : "#fc1333";
-    })
-    .attr("mask", d => /Other/.test(d.reaction) ? "url(#mask)" : "")
-    .on("mouseover", function(d) {
-      console.log(d.value);
-    })
-    .attr(
-      "transform",
-      "translate(" + (production ? 0 : width / 2) + "," + 0 + ")"
-    )
-    .attr("height", y.bandwidth());
-
-  //
-  var text = svg
-    .selectAll(".textval")
-    .attr("id", "texts")
-    .data(data)
-    .enter()
-    .append("text")
-    .attr("class", "textval")
-    .text(function(d) {
-      return x(d.value) / width > 0.1 ? format(d.value) : "";
-    }) // only display if greater than 0.1%
-    .attr("x", function(d) {
-      return x(d.value);
-    })
-    .attr("y", function(d) {
-      return y(d.reaction);
-    })
-    .on("mouseover", function(d) {
-      console.log(d.value);
-    })
-    .style("font-size", "10px")
-    .attr("text-anchor", "end")
-    .attr("alignment-baseline", "hanging");
-
-  svg.selectAll("g").remove();
-
-  svg // add the x Axis
-    .append("g")
-    .attr(
-      "transform",
-      "translate(" +
-        (production ? -11 : width / 2 + 11) +
-        "," +
-        (50 + height) +
-        ")"
-    )
-    .call(
-      d3.axisBottom(
-        d3.scaleLinear().range(production ? [width / 2, 0] : [0, width / 2])
-      )
-    ); //percent axis rather than actual
-  // add the y Axis
-  svg
-    .append("g")
-    .call(production ? d3.axisRight(y) : d3.axisLeft(y))
-    .attr("transform", "translate(" + width / 2 + "," + 0 + ")");
-}

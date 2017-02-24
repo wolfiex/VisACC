@@ -32,7 +32,7 @@ try {
   const fs = require("fs");
   const data = fs.readFileSync(
     __dirname.match(/(.*\/)/)[1] + "netcdf_results/" + file + ".nc"
-  );
+  ); 
   reader = new netcdfjs(data);
   ncparse(reader);
 } catch (err) {

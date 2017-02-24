@@ -102,42 +102,65 @@ function topfew(data, production, selectedflux) {
   data.unshift({
     reaction: production ? "Total Other Prod" : "Total Other Loss",
     value: sum,
-    prod: production
+    prod: production,
   });
 
   return [data, tally];
 }
 
 function overall(per) {
-  var g = d3.select("svg").selectAll("g");
-  g.selectAll("defs").remove();
+  var g = d3.selectAll("svg")
+  d3.selectAll('#colorgradient').remove()
+d3.selectAll('#tot').remove()
 
   var areaGradient = g
     .append("defs")
     .append("linearGradient")
     .attr("id", "colorgradient")
-    .attr("x1", "0%")
+    .attr("x1", "0")
     .attr("y1", "0%")
-    .attr("x2", "0%")
-    .attr("y2", "100%");
+    .attr("x2", "100%")
+    .attr("y2", "00%");
 
   areaGradient
     .append("stop")
     .attr("offset", "0%")
-    .attr("stop-color", "#E30B5D")
-    .attr("stop-opacity", 1);
-  areaGradient
-    .append("stop")
-    .attr("offset", parseInt(100 * per) + "%")
-    .attr("stop-color", "#3864EB")
+    .attr("stop-color",  "#fc1333" )
     .attr("stop-opacity", 1);
 
+    areaGradient
+      .append("stop")
+      .attr("offset", parseInt(100* (per-.14)) + "%")
+      .attr("stop-color", "#fc1333" )
+      .attr("stop-opacity", 1);
+
+  areaGradient
+    .append("stop")
+    .attr("offset", parseInt(100 * (per+.14)) + "%")
+    .attr("stop-color", "#0277bd" )
+    .attr("stop-opacity", 1);
+
+    areaGradient
+      .append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#0277bd" )
+      .attr("stop-opacity", 1);
   g
+    //.remove()
     .append("rect")
-    .attr("class", "bar")
-    .attr("width", width)
-    .attr("x", 0)
-    .attr("y", height / 2)
+    .attr('id','tot')
+    .attr("width",width/2)
+    .attr("x", margin.left+(1-per)*width/2)
+    .attr("y", height +43)
     .attr("height", 10)
     .attr("fill", "url(#colorgradient)");
+
+    g    .append("rect")
+        .attr('id','tot')
+        .attr("width",width)
+        .attr("x",margin.left)
+        .attr("y", height +43)
+        .attr("height", 10)
+        .attr("opacity", .2);
+
 }
