@@ -4,32 +4,30 @@
 /////program code
 ////////////
 
-newfile();
+var glob = require("glob");
+var files = [];
+glob("../netcdf_results/*.nc", function(er, f) {
+  console.log("loading");
+  var x = f.map(d => {
+    var e = d.split("/")[2];
+    return { name: e, data: newfile(e) };
+  });
+  console.log(x);
+  window.x = x;
+  window.y = x[1].data.concentration.row(4);
+  //use scale linear , and math.log
+  ///get max from all 3 files
+});
 
+/*
+
+
+
+*/
 window.inv = false;
 window.cs = visual_cinnamon;
 window.colour = ColourScheme(visual_cinnamon, window.inv); //colourScale
 //var colour  = ColourScheme(viridis,true); //colourScale
-window.filterby = [
-  "HCHO",
-  "HNO3",
-  "NO",
-  "NO2",
-  "NO3",
-  "C5H8",
-  "OH",
-  "HO2",
-  "O3"
-]; //
-
-window.filterby = Object.keys(ncdata.dict);
-
-//Object.keys(ncdata.dict).forEach(function(d) {
-// if (d.match(/.*PAN.*/)) {
-//    console.log(d.match(/.*PAN.*/).length);
-//    window.filterby.push(d);
-//  }
-//});
 
 window.orderBylast = true;
 var start, end, steps;
@@ -41,7 +39,51 @@ print((eni - sti) / by);
 
 ///draw function
 
+function background() {
+  var svg = d3.select("svg");
+  svg.selectAll("*").remove();
+  svg.style("width", width);
+  svg.style("height", height);
+  svg.style(
+    "transform",
+    "translate(" + window.innerWidth / 2 + "," + window.innerHeight / 2 + ")"
+  );
+}
+
 function draw() {
+  var svg = d3.select("svg");
+  svg.selectAll("*").remove();
+  svg.style("width", width);
+  svg.style("height", height);
+  svg.style(
+    "transform",
+    "translate(" + window.innerWidth / 2 + "," + window.innerHeight / 2 + ")"
+  );
+
+  var x = d3.scaleLog();
+}
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+
+function olddraw() {
   var svg = d3.select("svg");
   svg.selectAll("*").remove();
   svg.style("width", width);

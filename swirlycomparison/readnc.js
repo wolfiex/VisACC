@@ -16,7 +16,13 @@ var print = d => console.log(d);
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-function ncparse(reader) {
+/* comment block
+
+
+
+*/
+
+function ncparse(reader, file) {
   //all parts we require from the netcdf file
   reader.dimensions.forEach(
     function(d) {
@@ -52,105 +58,43 @@ function ncparse(reader) {
     return d;
   });
 
-  window.ncdata = {
-    concentration,
-    flux,
-    dict,
-    rdict,
-    combine,
-    tar,
-    src,
-    formatTime,
-    datetime,
-    dims
-  };
+  console.log(file.replace(/\.nc/, ""), "Can display reactions on interaction");
 
-  //populate menus
-  var select = document.getElementById("end");
-  var select1 = document.getElementById("start");
-
-  datetime.forEach((d, i) => {
-    var opt = document.createElement("option");
-    opt.value = i;
-    opt.innerHTML = formatTime(d);
-    select.appendChild(opt);
-
-    var opt1 = document.createElement("option");
-    opt1.value = i;
-    opt1.innerHTML = formatTime(d);
-    select1.appendChild(opt1);
-  });
-
-  window.csvdata = [];
-  window.N = [];
-  window.C = [];
-
-  var inorganics = "O,O3,O1D,O2,OH,NO,NO2,NO2N2O5,H2O2,HO2,HO2NO2,HONO,HNO3,CO,SO2,SO3,NA".split(
-    ","
+  eval(
+    "window." +
+      file.replace(/\.nc/, "") +
+      "={concentration,dict,rdict,combine,tar,src,formatTime,datetime,dims};"
   );
-  inorganics.forEach(function(d) {
-    if (Object.keys(ncdata.dict).indexOf(d) >= 0) {
-      if (/^(.*[N].*)$/.test(d)) window.N.push(d);
-      if (/^(.*[Cc].*)$/.test(d)) window.C.push(d);
-    }
-  });
-
-  d3.csv("./src/fullmcmspecs.csv", function(error, csv) {
-    window.csvdata = csv;
-    for (var i = 0; i < csv.length; i++) {
-      var j = csv[i];
-      if (Object.keys(ncdata.dict).indexOf(j.item) >= 0) {
-        if (/^(.*[N].*)$/.test(j.smiles)) window.N.push(j.item);
-        if (/^(.*[Cc].*)$/.test(j.smiles)) window.C.push(j.item);
-      }
-    }
-
-    console.log("loaded");
-    draw();
-    //load1();
-  });
 }
 
-function newfile() {
-  var test = [];
-  ///file read
-  // read browser, adjust from there try except
-  if (window.location.hash === "") {
-    // Get the modal
-    var modal = document.getElementById("myModal");
-    modal.style.display = "block";
-  } else {
-    file = window.location.hash.replace("#", "");
-    try {
-      const fs = require("fs");
-      const data = fs.readFileSync(
-        __dirname.match(/(.*\/)/)[1] + "netcdf_results/" + file + ".nc"
-      );
-      reader = new netcdfjs(data);
-      ncparse(reader);
-    } catch (err) {
-      console.log("switching to browser mode", err);
-      var urlpath = document.URL.match(/(.*\/).*\//)[1] +
-        "netcdf_results/" +
-        file +
-        ".nc";
-      var oReq = new XMLHttpRequest();
-      oReq.open("GET", urlpath, true);
-      oReq.responseType = "blob";
+function newfile(file) {
+  var ncfile;
+  try {
+    const fs = require("fs");
+    const data = fs.readFileSync(
+      __dirname.match(/(.*\/)/)[1] + "netcdf_results/" + file
+    );
+    reader = new netcdfjs(data);
+    ncparse(reader, file);
+  } catch (err) {
+    console.log("switching to browser mode", err);
+    var urlpath = document.URL.match(/(.*\/).*\//)[1] +
+      "netcdf_results/" +
+      file;
+    var oReq = new XMLHttpRequest();
+    oReq.open("GET", urlpath, true);
+    oReq.responseType = "blob";
 
-      oReq.onload = function(oEvent) {
-        var blob = oReq.response;
-        reader_url = new FileReader();
-        reader_url.onload = function(e) {
-          reader = new netcdfjs(this.result);
-          ncparse(reader);
-          (function() {
-            draw();
-          })();
-        };
-        reader_url.readAsArrayBuffer(blob);
+    oReq.onload = function(oEvent) {
+      var blob = oReq.response;
+      reader_url = new FileReader();
+      return reader_url.onload = function(e) {
+        reader = new netcdfjs(this.result);
+        return ncparse(reader, file);
       };
-      oReq.send(); //start process
-    }
+      reader_url.readAsArrayBuffer(blob);
+    };
+    oReq.send(); //start process
   }
+  return eval("window." + file.replace(/\.nc/, ""));
 }
