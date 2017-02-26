@@ -31,12 +31,15 @@ function ncparse(reader, file) {
     dims = {}
   );
   const concentration = new nc2D("concentration", "specs", Float32Array);
-  const flux = new nc2D("edge-length", "fluxes", Float32Array);
+  //const flux = new nc2D("edge-length", "fluxes", Float32Array);
   const dict = JSON.parse(reader.getDataVariable("nodes").join(""));
+  /*
   const combine = JSON.parse(reader.getDataVariable("combinations").join(""));
   const tar = reader.getDataVariable("target");
   const src = reader.getDataVariable("source");
+  */
   const time = reader.getDataVariable("timeseconds");
+
 
   // creates reverse dictionary rdict below
   var rdict, nodes, i;
@@ -49,7 +52,7 @@ function ncparse(reader, file) {
     nodes = []
   );
 
-  const formatTime = d3.timeFormat("%b %d, %H:%M");
+  window.formatTime = d3.timeFormat("%b %d \n %H:%M");
   //time => datetime
   const datetime = time.map(function(e) {
     var utcSeconds = e;
@@ -63,7 +66,7 @@ function ncparse(reader, file) {
   eval(
     "window." +
       file.replace(/\.nc/, "") +
-      "={concentration,dict,rdict,combine,tar,src,formatTime,datetime,dims};"
+      "={concentration,dict,rdict,datetime,dims};"//combine,tar,src,
   );
 }
 
