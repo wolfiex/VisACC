@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<style scr='index.css'>
+<!--style scr='index.css'>
 @import url(../revamp/src/style.css);
 
-</style>
+</style-->
 
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -11,19 +11,13 @@
 
 <script src="../revamp/src/stats.js"></script>
 <script src="./src/netcdfjs.min.js"></script>
+<script src="./functions.js"></script>
 <link src='../revamp/src/fonts'  rel='stylesheet' type='text/css'>
  <link rel="stylesheet" href="./photon.min.css">
 <!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
 -->
 
 <body>
-
-  <canvas id='canvas' style="position:absolute;"></canvas>
-  <svg style="position:absolute;">
-  </svg>
-  </div>
-
-<div></div>
 
 
   <div id="controls" class="sidenav nav-group pane pane-sm">
@@ -107,35 +101,6 @@
     <strong>Plot Type</strong> <br>
     <p> What type of plot would you like? (How do we filter the data) </p>
 
-    <select class="form-control" onchange= "window.selected = this.value;
-                          document.getElementById('start').disabled=false;
-                          document.getElementById('end').disabled=false;
-                          document.getElementById('by').disabled=false;
-
-                          switch (selected){
-                            case '24 Hour Slice':
-                              document.getElementById('end').disabled=true;
-                              document.getElementById('end').value = '--Disabled--'
-                              window.eni = window.sti+144;
-                              document.getElementById('by').value = 1
-                              break;
-                            case 'Diurnal Timestep':
-                              document.getElementById('by').disabled=true;
-                              document.getElementById('by').value = '--Disabled--'
-                              window.by = 14;
-                              break;
-                            case 'User Select':
-                              document.getElementById('by').disabled=true;
-                              document.getElementById('by').value = '--Disabled--'
-                              window.by = 144;
-                              break;
-
-                          }    ">
-        <option>User Select</option>
-        <option>24 Hour Slice</option>
-        <option>Diurnal Timestep</option>
-
-      </select>
 </div>
 </li>
 
@@ -166,7 +131,7 @@ Step Size ( 1 Day = 144 )
 
 
 <div id="footer">
- Temporal Hierarchy 0.1 <br>
+ SwirlySwirly 0.1 <br>
 </div>
 
 
@@ -208,31 +173,27 @@ function closeNav() {
 }
 
 //openNav();
-closeNav()
+closeNav();
 </script>
 
 <style>
-.frame {
-  fill: none;
-  stroke: #000;
-}
+
 
 .axis text {
   font: 10px sans-serif;
 }
 
-.axis line,
-.axis circle {
-  fill: none;
-  stroke: #777;
-  stroke-dasharray: 1,4;
+text {
+  font:  sans-serif;
 }
+
+/*
 
 .axis :last-of-type circle {
   stroke: #333;
   stroke-dasharray: none;
 }
-
+*/
 .line {
   fill: none;
   stroke: red;
@@ -241,6 +202,5 @@ closeNav()
 </style>
 
 <script src='readnc.js'> </script>
-<script src='index.js'>
-
-</script>
+<script src='index.js'></script>
+<script src='save.js'></script>

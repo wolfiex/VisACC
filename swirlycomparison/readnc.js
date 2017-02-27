@@ -40,7 +40,6 @@ function ncparse(reader, file) {
   */
   const time = reader.getDataVariable("timeseconds");
 
-
   // creates reverse dictionary rdict below
   var rdict, nodes, i;
   Object.keys(dict).forEach(
@@ -52,7 +51,7 @@ function ncparse(reader, file) {
     nodes = []
   );
 
-  window.formatTime = d3.timeFormat("%b %d \n %H:%M");
+  formatTime = d3.timeFormat("%b %d \n %H:%M");
   //time => datetime
   const datetime = time.map(function(e) {
     var utcSeconds = e;
@@ -66,7 +65,7 @@ function ncparse(reader, file) {
   eval(
     "window." +
       file.replace(/\.nc/, "") +
-      "={concentration,dict,rdict,datetime,dims};"//combine,tar,src,
+      "={concentration,dict,rdict,datetime,dims};" //combine,tar,src,
   );
 }
 
@@ -77,6 +76,7 @@ function newfile(file) {
     const data = fs.readFileSync(
       __dirname.match(/(.*\/)/)[1] + "netcdf_results/" + file
     );
+
     reader = new netcdfjs(data);
     ncparse(reader, file);
   } catch (err) {
