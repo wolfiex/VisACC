@@ -6,9 +6,9 @@
 
 var glob = require("glob");
 var files = [];
-glob("../netcdf_results/*.nc", function(er, f) {
+glob("../netcdf_results/**.nc", function(er, f) {
   console.log("loading", f);
-  var x = f.map(d => {
+  var x = f.sort().reverse().map(d => {
     var e = d.split("/")[2];
     return { name: e, data: newfile(e) };
   });
@@ -16,22 +16,24 @@ glob("../netcdf_results/*.nc", function(er, f) {
   console.log(x);
   window.x = x;
 
-  window.species = "CO";
+  window.species = "OH";
 
   //window.colour = ColourScheme(visual_cinnamon, false); //colourScale
   // window.colour  = ColourScheme(viridis,true); //colourScale
   //window.colour = d3.interpolate("#F6089E", "#3864EB");    //https://github.com/d3/d3-scale
-  window.colour = ColourScheme(["#3864EB", "#eb3864", "#aceb38"], false); ///'blue',"#F6089E");
+  //window.colour = ColourScheme(    ["#3864EB", "#eb3864", "#aceb38"].reverse(),    true  ); ///'blue',"#F6089E");
+  window.colour = ColourScheme(
+    ["#3864EB", "#eb3864", "#aceb38"].reverse(),
+    false
+  );
 
   var start, end, steps;
 
   window.time = [];
-  window.sti = 0;
-  window.eni = 144;
-  document.getElementById("end").value = eni;
-  document.getElementById("by").value = by;
-  print((eni - sti) / by);
-
+  var startt = 0;
+  var endt = dims.time;
+  print(endt - startt);
+  var range = endt - startt;
   //floor: ~~4.9 === 4  //true
   //var variable2 = variable1  || '';
   //if([1,5,7,22].indexOf(myvar)!=-1) alert('yeah baby!')
@@ -75,12 +77,13 @@ glob("../netcdf_results/*.nc", function(er, f) {
   var plotdata = window.x.map(d => {
     var specnum = d.data.dict[window.species];
     var log = d.data.conc.map(n => {
-      var e = Math.log10(n[specnum]);
-      return isFinite(e) ? e : 0;
+      return Math.log10(n[specnum]);
+      //var e = Math.log10(n[specnum]);
+      //return isFinite(e) ? e : 0;
     });
     /// reduce accuracy
-    d.max = d3.max(log);
-    d.min = d3.min(log);
+    d.max = d3.max(log.map(e => isFinite(e) ? e : -99));
+    d.min = d3.min(log.map(e => isFinite(e) ? e : 99));
     if (d.max > max) max = d.max;
     if (d.min < min) min = d.min;
 
@@ -91,51 +94,29 @@ glob("../netcdf_results/*.nc", function(er, f) {
 
   window.time = [...new Set(window.time)];
 
-  window.sti = window.time[4];
-  window.eni = window.time[dims.time];
+  window.sti = window.time[startt];
+  window.eni = window.time[endt];
 
   console.log(plotdata, min, max);
 
   window.scale = d3.scaleLinear().domain([min, max]).range([10, radius]);
+  window.thickness = d3
+    .scaleLinear()
+    .domain([0, window.x.length])
+    .range([10, 2]);
 
-  plotdata.forEach((d, i) => {
-    //console.log(line(d.log),d.log.map(d=>scale(d)), d.log.map((d,i)=>angle(i)))
-
-    startindex = d3.min(
-      time.map((d, i) => {
-        if (window.sti === d) return i;
-      })
-    );
-    endindex = d3.min(
-      time.map((d, i) => {
-        if (window.eni === d) return i;
-      })
-    );
-    range = endindex - startindex;
-
-    var angle = d3.scaleLinear().domain([0, range]).range([0, 2 * Math.PI]);
-
-    var line = d3
-      .radialLine()
-      //.curve(d3.curveCardinalClosed.tension(0.75) )
-      .radius(q => 0.95 * q)
-      .angle((_, i) => angle(i));
-
-    window.path = svg
-      .append("path")
-      .attr("id", d.name)
-      .attr(
-        "d",
-        line(d3.range(startindex, endindex, 1).map(q => scale(d.log[q])))
-      )
-      .attr("fill", "#fff")
-      .attr("stroke", window.colour(i / x.length))
-      .attr("stroke-width", 7 - 2 * i)
-      .style("stroke-dasharray", "" + (2 * i + 6) + "," + (6 - 2 * i))
-      //attr('fill', window.colour(i/x.length))
-      .attr("fill-opacity", 0.2)
-      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-  });
+  window.startindex = d3.min(
+    time.map((d, i) => {
+      if (window.sti === d) return i;
+    })
+  );
+  window.endindex = d3.min(
+    time.map((d, i) => {
+      if (window.eni === d) return i;
+    })
+  );
+  //window.p = plotdata;
+  plotdata.forEach((d, n) => drawpath(d, n));
 
   ///AXIS
 
@@ -148,8 +129,7 @@ glob("../netcdf_results/*.nc", function(er, f) {
     .style("align", "middle")
     .style("font", "80px sans-serif")
     .text(window.species);
-
   stripesandtime(radius, startindex, range);
   annular(radius);
-  console.log(startindex, range);
+  //console.log(startindex, range);
 });

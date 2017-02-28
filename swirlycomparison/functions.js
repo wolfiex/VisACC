@@ -43,9 +43,11 @@ function stripesandtime(radius, startindex, range) {
     .attr("stroke", "#777")
     .attr("stroke-dasharray", "1,4");
 
+  var extralabels = 20;
+
   ga
     .append("text")
-    .attr("x", radius + 6)
+    .attr("x", radius + extralabels)
     .attr("y", ".4em")
     .attr("dy", ".35em")
     .style("text-anchor", function(d) {
@@ -53,18 +55,18 @@ function stripesandtime(radius, startindex, range) {
     })
     .attr("transform", function(d) {
       return d < 270 + 90 && d > 90 + 90
-        ? "rotate(180 " + (radius + 6) + ",0)"
+        ? "rotate(180 " + (radius + extralabels) + ",0)"
         : null;
     })
     .text(function(d) {
       return d3.timeFormat(
         ". %H:%M"
-      )(window.time[startindex + parseInt(d * range / 360)]);
+      )(window.time[window.startindex + parseInt(d * range / 360)]);
     });
 
   ga
     .append("text")
-    .attr("x", radius + 6)
+    .attr("x", radius + extralabels)
     .attr("y", "-.4em")
     .attr("dy", ".35em")
     .style("text-anchor", function(d) {
@@ -72,13 +74,13 @@ function stripesandtime(radius, startindex, range) {
     })
     .attr("transform", function(d) {
       return d < 270 + 90 && d > 90 + 90
-        ? "rotate(180 " + (radius + 6) + ",0)"
+        ? "rotate(180 " + (radius + extralabels) + ",0)"
         : null;
     })
     .text(function(d) {
       return d3.timeFormat(
         "%b %d"
-      )(window.time[startindex + parseInt(d * range / 360)]);
+      )(window.time[window.startindex + parseInt(d * range / 360)]);
     });
 }
 
@@ -118,4 +120,54 @@ function annular(radius) {
         return d3.format(".2e")(10 ** d);
       });
   });
+}
+
+/*
+
+
+
+
+*/
+
+function drawpath(d, n) {
+  //console.log(line(d.log),d.log.map(d=>scale(d)), d.log.map((d,i)=>angle(i)))
+
+  range = endindex - startindex;
+
+  var angle = d3.scaleLinear().domain([0, range]).range([0, 2 * Math.PI]);
+
+  var line = d3
+    .radialLine()
+    //.curve(d3.curveCardinalClosed.tension(0.75) )
+    .radius(q => q)
+    .angle((_, i) => angle(i));
+
+  window.path = d3
+    .select("svg")
+    .append("path")
+    .attr("id", d.name)
+    .attr(
+      "d",
+      line(
+        d3.range(startindex, endindex, 1).map(q => {
+          var e = 0.95 * scale(d.log[q]);
+          return isFinite(e) ? e : 0;
+        })
+      )
+    )
+    .attr("fill", "none")
+    .style("stroke", window.colour(n / x.length))
+    //.style("stroke-width", d => {        return "" + 2 * window.thickness(n) + "px";      })
+    .style("stroke-width", window.thickness(n))
+    .style("stroke-alignment", "inside")
+    //.style("stroke-linecap", "round")
+    /*
+    .attr(
+      "stroke-dasharray",
+      "" + window.thickness(n) + "," + (9 - window.thickness(n))
+    )
+    */
+    //.attr("fill", window.colour(i / x.length))
+    //.attr("fill-opacity", 0.2)
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 }

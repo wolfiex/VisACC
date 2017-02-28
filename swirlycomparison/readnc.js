@@ -60,7 +60,7 @@ function ncparse(reader, file) {
     return d;
   });
 
-  console.log(file.replace(/\.nc/, ""), "Can display reactions on interaction");
+  // console.log(file.replace(/\.nc/, ""), "Can display reactions on interaction");
 
   eval(
     "window." +
