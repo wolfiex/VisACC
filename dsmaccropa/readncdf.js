@@ -15,60 +15,7 @@ nc2D.prototype.row = function(index) {
 
 var print = d => console.log(d);
 
-/*
 
-
-get file
-
-
-
-*/
-
-var file = "ropa_isop8_33data";
-///file read
-var reader, reader_url, dims;
-// read browser, adjust from there try except
-try {
-  const fs = require("fs");
-  const data = fs.readFileSync(
-    __dirname.match(/(.*\/)/)[1] + "netcdf_results/" + file + ".nc"
-  ); 
-  reader = new netcdfjs(data);
-  ncparse(reader);
-} catch (err) {
-  console.log("switching to browser mode", err);
-  var urlpath = document.URL.match(/(.*\/).*\//)[1] +
-    "netcdf_results/" +
-    file +
-    ".nc";
-  var oReq = new XMLHttpRequest();
-  oReq.open("GET", urlpath, true);
-  oReq.responseType = "blob";
-
-  oReq.onload = function(oEvent) {
-    var blob = oReq.response;
-    reader_url = new FileReader();
-    reader_url.onload = function(e) {
-      reader = new netcdfjs(this.result);
-      ncparse(reader);
-      (function() {
-        draw();
-      })();
-    };
-    reader_url.readAsArrayBuffer(blob);
-  };
-  oReq.send(); //start process
-}
-
-/*
-
-
-read file contents
-
-
-
-
-*/
 
 function ncparse(reader) {
   //all parts we require from the netcdf file
@@ -145,4 +92,6 @@ function ncparse(reader) {
     opt.innerHTML = i;
     select.appendChild(opt);
   });
+
+  draw(spec, timestep);
 }
