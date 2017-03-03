@@ -36,15 +36,22 @@ function ncparse(reader) {
 
   // creates reverse dictionary rdict below
 
+var values = [];
+
   var rdict, nodes, i;
   Object.keys(dict).forEach(
     function(d) {
       var i = dict[d];
+
       rdict[i] = d;
+      values.push(i);
     },
     rdict = {},
     nodes = []
   );
+
+
+
 
   window.nodes = [];
   for (i = 0; i < combine.length; i++) {
@@ -65,6 +72,35 @@ function ncparse(reader) {
     d.setUTCSeconds(utcSeconds);
     return d;
   });
+
+
+
+  values = d3.max(values)
+  console.log(values)
+
+var indexes =[1,2]
+var dummy = Array.from({ length: concentration.width }, () => 0.); //zeroed array
+
+d3.range(concentration.width).map(i=>
+  {
+    //var new concentration.arr_type()
+    indexes.forEach(d=>{
+      //console.log(parseFloat(concentration.row(d)[i]))
+    dummy[i] += concentration.row(d)[i];
+    });
+
+  })
+
+
+concentration.data = new concentration.arr_type([...concentration.data].concat(dummy))
+
+
+dict['data']= values;
+values+=1 ;
+
+
+
+  console.log(values)
 
   window.ncdata = {
     concentration,
