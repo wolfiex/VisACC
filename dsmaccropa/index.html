@@ -1,152 +1,114 @@
+
+<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet"/>
+<link href="index.css" rel="stylesheet"/>
+<link href="photon.min.css" rel="stylesheet"/>
+
+
+<div id='input'>
+
+  <form action="upload.php"  method="POST">
+    <input id ='files' type="file" multiple>
+    <p>Drag your .nc files here or click in this area.</p>
+
+  </form>
+  <button class='inbtn btn btn-primary'>View Example</button>
+  <link rel="stylesheet" type="text/css" href='upload.css'/>
+  <div id='meterdiv' class="meter">
+    <span id ='loading' style="width: 50%"></span>
+  </div>
+</div>
+
+
+<div id='ropaelements' hidden=true class="tri-down">
+<form>
+  <div class="top">
+    <div style="float: left; width: 20%;">
+      <select class="form-control" id='dropdown'
+      onchange='window.location.hash=value;spec = value; draw(spec,document.getElementById("valueslider").value);'> </select>
+<br>
+      <button class ='btn btn-positive' id='animate' onclick='window.animate()' style='width: 85%;margin-top:8px;height:23px;' >Animate</button>
+    </div>
+</form>
+
+    <div style="float: left; width: 5%;"><br>
+    </div>
+    <div style="float: left; width: 50%;">
+      <form>
+        <input type="range" id="valueslider" value="0" step="1" min="0" max="500"   style='width: 100%;
+        display: block;  margin: 0 auto;'   oninput="document.getElementById('output').value=ncdata.datetime[value]"
+        onchange='draw(spec,value)'>
+        <svg id='miniplot' style='width: 90%; display: block; position:absolute; margin: 0 auto;'></svg>
+      </form>
+      <br>
+      <svg id='miniplots' style='width: 100%; display: block; position:absolute; margin: 0 auto;'>
+        <defs>
+          <pattern id="pattern-stripe"
+          width="4" height="4"
+          patternUnits="userSpaceOnUse"
+          patternTransform="rotate(45)">
+          <rect width="2" height="4" transform="translate(0,0)" fill="white"></rect>
+        </pattern>
+        <mask id="mask">
+          <rect x="0" y="0" width="800%" height="800%" fill="url(#pattern-stripe)" />
+        </mask>
+      </defs>
+
+    </svg>
+  </div>
+  <div style="float: left; width: 5%;"> <br>
+  </div>
+  <div style="float: left; width: 20%;">
+    <output form=value id="output">0</output>
+  </div>
+
+
+
+  <div style='padding-top:55px;'>
+    <button class='btn btn-primary' id='store' onclick="save('Ropa_'+spec+'_'+(document.getElementById('output').innerHTML.replace(/\s/g,'_').split('_GMT')[0]).replace(/\-/,'').replace(/1970/,''))" style='width: 100%;position:relative' >Save</button>
+  </div>
+
+</div>
+
+
+
+
+<script src="http://d3js.org/d3.v4.min.js"></script>
 <script src="./netcdfjs.min.js"></script>
-
-<input type="file" id="fs" style='width:1000px' />
-<div id="output"></div>
-
-
-<body><script>
+<script src="./readncdf.js"></script>
+<script src="./functions.js"></script>
+<script src="./index.js"></script>
+<script src="./save.js"></script>
 
 
-(function (document) {
-  var input = document.getElementById("fs"),
-      output = document.getElementById('output'),
-      fileData; // We need fileData to be visible to getBuffer.
+<script>
+"use strict";
 
-  // Eventhandler for file input.
-  function openfile(evt) {
-    var files = input.files;
-    // Pass the file to the blob, not the input[0].
-    fileData = new Blob([files[0]]);
-    // Pass getBuffer to promise.
-    var promise = new Promise(getBuffer);
-    // Wait for promise to be resolved, or log error.
-    promise.then(function(data) {
-      // Here you can pass the bytes to another function.
-      output.innerHTML = data.toString();
-      console.log(data);
-    }).catch(function(err) {
-      console.log('Error: ',err);
-    });
-  }
+document.getElementById('meterdiv').style.opacity= 0;
 
-  /*
-    Create a function which will be passed to the promise
-    and resolve it when FileReader has finished loading the file.
-  */
-  function getBuffer(resolve) {
-    var reader = new FileReader();
-    reader.readAsArrayBuffer(fileData);
-    reader.onload = function() {
-      var arrayBuffer = reader.result
-      var bytes = new Uint8Array(arrayBuffer);
-      resolve(bytes);
-      window.b = bytes
-      window.a = arrayBuffer
-    }
-  }
+var spec = (window.location.hash==='')?"NO":window.location.hash.replace('#','');
+var timestep = 99;
+var data = [];
+var topten = true
+var topn = 6;
 
-  // Eventlistener for file input.
-  input.addEventListener('change', openfile, false);
+// set the dimensions and margins of the graph
+var margin = { top: 20, right: 100, bottom: 70, left: 100 },
+  width = window.innerWidth - margin.left - margin.right,
+  height = window.innerHeight / 2; // - margin.top - margin.bottom - 35;
+
+var svg = d3
+  .select("body")
+  .append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var format = d3.format(".1");
+var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+//initial;
 
 
+</script>
 
-  }(document));
-
-
-
-
-
-
-
-
-
-
-
-
-var file = "ropa_isop8_33data";
-const fs = require("fs");
-var mydata = fs.readFileSync(
-  __dirname.match(/(.*\/)/)[1] + "netcdf_results/" + file + ".nc"
-); console.log(mydata)
-
-
-var reader;
-var progress = document.querySelector('.percent');
-function abortRead() {  reader.abort(); }
-
-function handleFileSelect(evt) {
-  // Reset progress indicator on new file selection.
-  progress.style.width = '0%';
-  progress.textContent = '0%';
-
-  reader = new FileReader();
-  reader.onerror = errorHandler;
-  reader.onprogress = updateProgress;
-  reader.onabort = function(e) {
-    alert('File read cancelled');
-  };
-  reader.onloadstart = function(e) {
-    document.getElementById('progress_bar').className = 'loading';
-  };
-  reader.onload = function(e) {
-
-    // Ensure that the progress bar displays 100% at the end.
-    progress.style.width = '100%';
-    progress.textContent = '100%';
-    setTimeout("document.getElementById('progress_bar').className='';", 2000);
-    //var reader = new NetCDFReader(reader.result);
-console.log(evt,'and',this.result)
-window.r = this.result
-    //replace reader with NetCDF reader
-    reader = new netcdfjs(new Buffer(this.result, 'hex'));
-    console.log(reader)
-    reader.getDataVariable('wmoId'); // go to offset and read it
-
-   //... your program here  ..//
-
-  }
-  reader.readAsArrayBuffer(evt.target.files[0]);
-}
-
-// Make input element <input type="file" id="files" name="file" />
-var input = document.createElement("input");
-input.id='files'
-input.type = "file";
-input.className = "file";
-document.body.appendChild(input); // put it into the DOM
-
-// Make a Progress bar <div id="progress_bar"><div class="percent">0%</div></div>
-var progress = document.createElement("div");
-progress.id='progress_bar';
-inner = document.createElement("div");
-inner.className = "percent";
-inner.id='innerdiv' // set the CSS class
-progress.appendChild(inner);
-document.body.appendChild(progress); // put it into the DOM
-
-//Start event listener to check if a file has been selected
-run = document.getElementById('files').addEventListener('change', handleFileSelect, false);
-
-///Progress bar and other functions
-function errorHandler(evt) {
-  switch(evt.target.error.code) {
-    case evt.target.error.NOT_FOUND_ERR:
-      alert('File Not Found!'); break;
-    case evt.target.error.NOT_READABLE_ERR:
-      alert('File is not readable');break;
-    case evt.target.error.ABORT_ERR: break;
-    default: alert('An error occurred reading this file.');
-  };
-}
-
-function updateProgress(evt) {
-  // evt is an ProgressEvent. Updates progress bar
-  if (evt.lengthComputable) {
-    var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
-    // Increase the progress bar length.
-    if (percentLoaded < 100) {
-      progress.style.width = percentLoaded + '%';
-      progress.textContent = percentLoaded + '%';
-    }
-  }
-}</script>
+<script src='upload.js'></script>

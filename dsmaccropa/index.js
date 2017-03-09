@@ -3,6 +3,25 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 function draw(spec, timestep) {
+
+  var x = d3
+    .scaleLinear()
+    .domain([0, ncdata.dims.time])
+    .range([0, window.innerWidth * 0.49]);
+
+  var y = d3.scaleLinear().domain([0, 1]).range([20, 0]);
+
+  var valueline = d3
+    .line()
+    .x(function(d, i) {
+      return x(i);
+    })
+    .y(function(d) {
+      return y(d);
+    });
+
+  miniplot(spec,valueline)
+
   document.getElementById("dropdown").value = spec;
   document.getElementById("valueslider").value = timestep;
   document.getElementById("output").value = ncdata.datetime[timestep];
@@ -191,7 +210,6 @@ function plot(data, production, ttotal, tmax, datamax) {
   .attr("alignment-baseline", "hanging");
 
   //
-console.log(data)
 
     var text = g
         .selectAll(".textval")

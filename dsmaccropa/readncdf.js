@@ -15,60 +15,7 @@ nc2D.prototype.row = function(index) {
 
 var print = d => console.log(d);
 
-/*
 
-
-get file
-
-
-
-*/
-
-var file = "ropa_isop8_33data";
-///file read
-var reader, reader_url, dims;
-// read browser, adjust from there try except
-try {
-  const fs = require("fs");
-  const data = fs.readFileSync(
-    __dirname.match(/(.*\/)/)[1] + "netcdf_results/" + file + ".nc"
-  ); 
-  reader = new netcdfjs(data);
-  ncparse(reader);
-} catch (err) {
-  console.log("switching to browser mode", err);
-  var urlpath = document.URL.match(/(.*\/).*\//)[1] +
-    "netcdf_results/" +
-    file +
-    ".nc";
-  var oReq = new XMLHttpRequest();
-  oReq.open("GET", urlpath, true);
-  oReq.responseType = "blob";
-
-  oReq.onload = function(oEvent) {
-    var blob = oReq.response;
-    reader_url = new FileReader();
-    reader_url.onload = function(e) {
-      reader = new netcdfjs(this.result);
-      ncparse(reader);
-      (function() {
-        draw();
-      })();
-    };
-    reader_url.readAsArrayBuffer(blob);
-  };
-  oReq.send(); //start process
-}
-
-/*
-
-
-read file contents
-
-
-
-
-*/
 
 function ncparse(reader) {
   //all parts we require from the netcdf file
@@ -89,15 +36,22 @@ function ncparse(reader) {
 
   // creates reverse dictionary rdict below
 
+var values = [];
+
   var rdict, nodes, i;
   Object.keys(dict).forEach(
     function(d) {
       var i = dict[d];
+
       rdict[i] = d;
+      values.push(i);
     },
     rdict = {},
     nodes = []
   );
+
+
+
 
   window.nodes = [];
   for (i = 0; i < combine.length; i++) {
@@ -118,6 +72,35 @@ function ncparse(reader) {
     d.setUTCSeconds(utcSeconds);
     return d;
   });
+
+
+
+  values = d3.max(values)
+  console.log(values)
+
+var indexes =[1,2]
+var dummy = Array.from({ length: concentration.width }, () => 0.); //zeroed array
+
+d3.range(concentration.width).map(i=>
+  {
+    //var new concentration.arr_type()
+    indexes.forEach(d=>{
+      //console.log(parseFloat(concentration.row(d)[i]))
+    dummy[i] += concentration.row(d)[i];
+    });
+
+  })
+
+
+concentration.data = new concentration.arr_type([...concentration.data].concat(dummy))
+
+
+dict['data']= values;
+values+=1 ;
+
+
+
+  console.log(values)
 
   window.ncdata = {
     concentration,
@@ -145,4 +128,6 @@ function ncparse(reader) {
     opt.innerHTML = i;
     select.appendChild(opt);
   });
+
+  draw(spec, timestep);
 }

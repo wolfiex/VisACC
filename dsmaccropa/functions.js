@@ -4,24 +4,11 @@ Universal Fucntions
 
 */
 
-var x = d3
-  .scaleLinear()
-  .domain([0, ncdata.dims.time])
-  .range([0, window.innerWidth * 0.49]);
 
-var y = d3.scaleLinear().domain([0, 1]).range([20, 0]);
 
-var valueline = d3
-  .line()
-  .x(function(d, i) {
-    return x(i);
-  })
-  .y(function(d) {
-    return y(d);
-  });
 
 //fn to create mini concentration plot
-function miniplot(spec) {
+function miniplot(spec,valueline) {
   var spec = ncdata.dict[spec], conc = [];
   for (var j = 0; j < ncdata.dims.time; j++) {
     conc.push(
@@ -151,16 +138,17 @@ d3.selectAll('#tot').remove()
     .attr('id','tot')
     .attr("width",width/2)
     .attr("x", margin.left+(1-per)*width/2)
-    .attr("y", height +43)
-    .attr("height", 10)
+    .attr("y", height +50)
+    .attr('rx','10')
+    .attr("height", 4)
     .attr("fill", "url(#colorgradient)");
 
     g    .append("rect")
         .attr('id','tot')
         .attr("width",width)
         .attr("x",margin.left)
-        .attr("y", height +43)
-        .attr("height", 10)
-        .attr("opacity", .2);
+        .attr("y", height +50)
+        .attr("height", 5)
+        .attr("opacity", .1);
 
 }
