@@ -30,7 +30,7 @@ glob("../netcdf_results/**.nc", function(er, f) {
   var start, end, steps;
 
   window.time = [];
-  var startt = 0;
+  var startt = 2 * 144;
   var endt = dims.time;
   print(endt - startt);
   var range = endt - startt;
