@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+@import url(./src/style.css);
+@import url(./index.css);
+
+canvas {
+  position:absolute;
+  font-family: 'Open Sans', sans-serif,'Semibold';
+ }
+
+</style>
+
+<script src="./src/jsnetworkx.js"></script>
+<script src="./src/d3.v4.min.js"></script>
+<script src="./graphfunctions.js"></script>
+<script src="./jLouvain.js"></script>
+<script src="./postfunctions.js"></script>
+<script src="./src/stats.js"></script>
+<script src="./save.js"></script>
+<link src='./src/fonts'  rel='stylesheet' type='text/css'>
+<script src="./src/netcdfjs.min.js"></script>
+<script src="./src/stats.js"></script>
+<script src='readnc.js'> </script>
+<script src ="./preload.js"></script>
+<script src ="./forcegraph.js"></script>
+<!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
+-->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
+<body>
+
+<canvas id='canvas'></canvas>
+<canvas id='canvas2'></canvas>
+
+  <svg>  </svg>
+
+
+  <div id="graphdiv">
+  </div>
+
+  <div class="window">
+    <div class="window-content">
+      <div class="pane-group">
+        <div class="pane-mini sidebar">...</div>
+        <div class="pane">...</div>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+
+
+<script>
+/// main action script
+
+
+const canvas = document.getElementById("canvas"); //document.querySelector("canvas"),
+const context = canvas.getContext("2d");
+d3.select(canvas).attr("width", width).attr("height", height); //.style('opacity',.65);  //0.5 opacity
+d3.select("selector").call(d3.zoom().scaleExtent([-0, 8]).on("zoom", zoomed));
+//parameters - netcdf
+window.location.hash = 'ropa_gecko_mcm31';
+
+//d3.select('body').style('background-color', '#222'); // bg colour
+
+var reader, reader_url, dims, file, svg, node_size, concs;
+window.color = d3.interpolateCubehelixLong.gamma(4.1)("#F6089E", "#3864EB");
+window.bluepink = d3.interpolate("#F6089E", "#3864EB"); //https://github.com/d3/d3-scale
+window.color1 = d3.interpolate("#222", "blue"); ///'blue',"#F6089E");
+
+newfile();
+///se;lection box
+//http://bl.ocks.org/lgersman/5311083
+</script>
+
+
+<script type="text/javascript" src="./src/d3-ForceEdgeBundling.js"></script>
