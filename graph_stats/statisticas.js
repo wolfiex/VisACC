@@ -1,11 +1,11 @@
 // https://en.wikipedia.org/wiki/Centrality
 
 var search = 128;
-var linkmatch = graphlinks.filter(d => {
+var linkmatch = data.links.filter(d => {
   if (d.source === search || d.target === search) return d;
 });
 
-var degree_centrality = linkmatch.lenght;
+var degree_centrality = linkmatch.length;
 
 var lengthvalues = linkmatch.map(d => d.v);
 
@@ -21,12 +21,12 @@ var degree_shortest = d3.sum(lengthvalues.map(d => d < 0.3 ? 1 : 0));
 //betweenness centrality
 //
 
-
+function run(what){
 var clr = d3.scaleLinear().range(['#116cff','#ff1111']);
-var val = nodes.map(e=>{
+var val = data.nodes.map(e=>{
 
     var search = e.id
-    var linkmatch = graphlinks.filter(d => {
+    var linkmatch = data.links.filter(d => {
       if (d.source === search || d.target === search) return d;
     });
 
@@ -34,11 +34,13 @@ var val = nodes.map(e=>{
     var lengthvalues = linkmatch.map(d => d.v);
 
 
-    return d3.mean(lengthvalues);
-
+    return eval(what)
 
 })
 var max = d3.max(val)
-nodes.forEach((e,i)=>{
+data.nodes.forEach((e,i)=>{
   document.getElementById('node'+e.id).style.stroke=clr(val[i]/max)
+  document.getElementById("node" + e.id).style["fill-opacity"] = 0.8
 })
+
+}
