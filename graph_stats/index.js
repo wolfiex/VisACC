@@ -1,21 +1,12 @@
-
-
 var width = window.innerWidth;
 var height = window.innerHeight;
 
-
-window.svg = d3.select('#svg').style('width',width).style('height',height);
-var scale = 0.7
-
-
-
-
-
-
-
-
-
-
+window.svg = d3.select("#svg").style("width", width).style("height", height);
+var scale = 0.6;
+window.dir = true;
+window.links = true;
+window.nodes = true;
+window.labels = true;
 /*
   var link = group
   .attr("class", "links")
@@ -27,9 +18,6 @@ var scale = 0.7
   //.attr("opacity",(d) =>{(isFinite(edge_length[d.index]))? 1: 0.0 })
   .attr('fill','red');
 */
-
-
-
 /*
   setupvor();
   /// d.index for edge length
@@ -50,3 +38,5 @@ var scale = 0.7
     .attr("x2", function(d) { return d.target.x; })
     .attr("y2", function(d) { return d.target.y; });
     */
+
+var map = new Map(data.nodes.map(d => [d.id, d]));

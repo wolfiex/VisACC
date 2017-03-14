@@ -1,98 +1,119 @@
-function load1() {
-  svg = d3.select("svg");
-  svg.style("width", width);
-  svg.style("height", height);
-  svg.style(
-    "transform",
-    "translate(" + window.innerWidth / 2 + "," + window.innerHeight / 2 + ")"
+/// main action script
+const width = window.innerWidth;
+const height = window.innerHeight;
+
+var canvas = document.querySelector("canvas");
+canvas.width = width;
+canvas.height = height;
+var context = canvas.getContext("2d"), searchRadius = 400;
+
+var color = d3.scaleOrdinal().range(d3.schemeCategory20);
+
+var simulation = d3
+  .forceSimulation()
+  .force("charge", d3.forceManyBody().strength(-110).theta([8]))
+  //.force("link", d3.forceLink().iterations(4).id(d => parseInt(d.id)))
+  .force("x", d3.forceX())
+  .force("y", d3.forceY());
+
+function load(graph) {
+  simulation.nodes(graph.nodes).on("tick", ticked);
+  simulation.force(
+    "link",
+    d3.forceLink().links(graph.links).id(d => parseInt(d.id))
+    //.strength(d => d.v)
+    //.distance()
   );
-
-  window.onresize = function(event) {
-    location.reload();
-  };
-  window.scrollTo(window.innerWidth / 2, window.innerHeight / 2);
-
-  //d3.select('body').style('background-color', '#222'); // bg colour
-  //var color = d3.scaleOrdinal(d3.schemeCategory20);
-
-  window.nodes = window.C.map(function(i) {
-    return {
-      names: i,
-      id: window.ncdata.dict[i],
-      x: 2 * (0.5 - Math.random()),
-      y: 2 * (0.5 - Math.random()),
-      z: 0.5 - Math.random()
-    };
-  });
-
-  timestep = ~~(0.5 * 144);
-
-  const edge_len = window.ncdata.flux.row(timestep);
-  concs = window.ncdata.concentration.row(timestep);
-
-  window.ncdata.combine.forEach(
-    function(f) {
-      var prod = new Set(f[0]);
-      var loss = new Set(f[1]);
-
-      var flx = 0;
-
-      prod.forEach(function(i) {
-        var j = edge_len[i];
-        if (isFinite(j)) {
-          flx -= j;
-        }
-      });
-      loss.forEach(function(i) {
-        var j = edge_len[i];
-        if (isFinite(j)) {
-          flx -= j;
-        }
-      });
-
-      sign.push(Math.sign(flx));
-      flx = Math.log10(Math.abs(flx));
-      mylink.push(flx);
-      if (isFinite(flx)) dummy.push(flx);
-    },
-    mylink = [],
-    dummy = [],
-    sign = []
-  );
-
-  //normalize
-  var min = d3.min(dummy);
-  var max = d3.max(dummy) - min;
-  mylink = mylink.map(d => (d - min + 1e-6) / max);
-
-  // create links object
-  window.graphlinks = [];
-  for (i = 0; i < window.ncdata.combine.length; i++) {
-    if (sign[i] !== 0) {
-      graphlinks.push({
-        source: window.ncdata.src[i],
-        target: window.ncdata.tar[i],
-        v: Number(mylink[i].toFixed(3)),
-        d: sign[i]
-      });
-    }
-  }
-
-  node_size = [];
-  dummy = [];
-  for (i = 0; i < concs.length; i++) {
-    var f = concs[i];
-    if (f > 0) {
-      f = Math.log10(f);
-      dummy.push(f);
-    }
-    node_size.push(f);
-  }
-
-  var min = d3.min(dummy);
-  var max = d3.max(dummy) - min;
-
-  node_size = node_size.map(d => (d - min + 1e-6) / max);
-
-  run();
 }
+
+d3
+  .select(canvas)
+  .on("mousemove", mousemoved)
+  .call(
+    d3
+      .drag()
+      .container(canvas)
+      .subject(dragsubject)
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended)
+  );
+
+function ticked() {
+  context.clearRect(0, 0, width, height);
+  context.save();
+  context.translate(width / 2, height / 2);
+
+  context.beginPath();
+  graph.links.forEach(drawLink);
+  context.strokeStyle = "#aaa";
+  context.stroke();
+
+  context.restore();
+}
+
+function dragsubject() {
+  return simulation.find(
+    d3.event.x - width / 2,
+    d3.event.y - height / 2,
+    searchRadius
+  );
+}
+
+function mousemoved() {
+  var a = this.parentNode,
+    m = d3.mouse(this),
+    d = simulation.find(m[0] - width / 2, m[1] - height / 2, searchRadius);
+  if (!d) return a.removeAttribute("href"), a.removeAttribute("title");
+  a.setAttribute(
+    "href",
+    "http://bl.ocks.org/" + (d.user ? d.user + "/" : "") + d.id
+  );
+  a.setAttribute(
+    "title",
+    d.id +
+      (d.user ? " by " + d.user : "") +
+      (d.description ? "\n" + d.description : "")
+  );
+}
+
+function dragstarted() {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d3.event.subject.fx = d3.event.subject.x;
+  d3.event.subject.fy = d3.event.subject.y;
+}
+
+function dragged() {
+  d3.event.subject.fx = d3.event.x;
+  d3.event.subject.fy = d3.event.y;
+}
+
+function dragended() {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d3.event.subject.fx = null;
+  d3.event.subject.fy = null;
+}
+
+function drawLink(d) {
+  context.moveTo(d.source.x, d.source.y);
+  context.lineTo(d.target.x, d.target.y);
+}
+
+function drawNode(d) {
+  context.moveTo(d.x + 3, d.y);
+  context.arc(d.x, d.y, 3, 0, 2 * Math.PI);
+}
+
+///classes and defns
+class nc2D {
+  constructor(name, width, arr_type) {
+    //Float32Array
+    this.width = dims[width];
+    this.arr_type = arr_type;
+    this.data = new arr_type(reader.getDataVariable(name));
+  }
+}
+nc2D.prototype.row = function(index) {
+  var start = index * this.width;
+  return new this.arr_type(this.data.slice(start, start + this.width));
+};

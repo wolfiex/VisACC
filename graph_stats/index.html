@@ -5,6 +5,10 @@
 @import url(./index.css);
 
 
+svg .text {
+font-family:"open-sans",'Open-Sans' ;
+}
+
 
 </style>
 
@@ -14,10 +18,10 @@
 <script src="./src/d3.v4.min.js"></script>
 <script src="./src/jsnetworkx.js"></script>
 
-<script src="./graphfunctions.js"></script>
+<!--script src="./graphfunctions.js"></script-->
 
 <script src ="./index.js"></script>
-
+<script src="./src/colours.js"></script>
 <script src="./jLouvain.js"></script>
 <script src="./postfunctions.js"></script>
 <script src="./src/stats.js"></script>
@@ -26,6 +30,7 @@
 <script src="./src/netcdfjs.min.js"></script>
 <script src="./src/stats.js"></script>
 <script src ="./index.js"></script>
+<script src ="./saveddata.js"></script>
 <!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
 -->
 <!--link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"-->
@@ -40,15 +45,13 @@
 
 
 <script>
+//d3.select("selector").call(d3.zoom().scaleExtent([-0, 80]).on("zoom", zoomed));
 
-d3.select("selector").call(d3.zoom().scaleExtent([-0, 80]).on("zoom", zoomed));
-
-
-//.style('background-color', '#222')d3.select('body').style('background-color', '#222'); // bg colour
+//.style('background-color', '#222')
+//d3.select("body").style("background-color", "#222"); // bg colour
 window.color = d3.interpolateCubehelixLong.gamma(4.1)("#F6089E", "#3864EB");
 window.bluepink = d3.interpolate("#F6089E", "#3864EB"); //https://github.com/d3/d3-scale
 window.color1 = d3.interpolate("#222", "blue"); ///'blue',"#F6089E");
-
 ///se;lection box
 //http://bl.ocks.org/lgersman/5311083
 </script>

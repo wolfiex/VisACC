@@ -1,56 +1,89 @@
+function draw() {
+  //background
 
-function draw(){
-//background
-d3.select('#svg').append('rect').style('width',width).style('height',height).style('fill','#222')
-
-
-//edges
-edgebundle()
-
-
-//nodes
-d3.select('#svg')
-.append('g')
-.attr("class", "nodes")
-.selectAll('circle')
-.data(data.nodes)
-.enter().append('circle')
-.attr('r',d=>(1+ data.nodesize[d.id]*7)*scale)
-.attr('cx',d=>d.x*scale)
-.attr('cy',d=>d.y*scale)
-.style("fill", "white")
-.style("stroke-width", "2")
-.style("fill-opacity", ".3")//0.3 norma
-.attr("id", d => "node" + d.id)
-.call(
   d3
-    .drag()
-    .on("start", dragstarted)
-    .on("drag", dragged)
-    .on("end", dragended)
-)
-.on("mouseover", d=>console.log(d))
-.append("title").text(function(d) {
-return d.name;
-});
+    .select("#svg")
+    .append("rect")
+    .style("width", width)
+    .style("height", height)
+    .style("fill", "#222");
 
+  //edges
+  if (window.links) {
+    window.dir ? gradedge() : edgebundle();
+  }
 
+  if (window.nodes) {
+    //nodes
+    d3
+      .select("#svg")
+      .append("g")
+      .attr("class", "nodes")
+      .selectAll("circle")
+      .data(data.nodes)
+      .enter()
+      .append("circle")
+      .attr("r", d => (1 + data.nodesize[d.id] * 7) * scale)
+      .attr("cx", d => d.x * scale)
+      .attr("cy", d => d.y * scale)
+      .style("fill", window.labels ? "none" : "grey")
+      .style("stroke-width", "2")
+      .style("fill-opacity", ".3") //0.3 norma
+      .style("stroke-opacity", window.labels ? 0.4 : 1)
+      /*.style(
+        "stroke",
+        d => window.labels ? window.color(data.nodesize[d.id]) : "white"
+    )*/
+      .attr("id", d => "node" + d.id)
+      .call(
+        d3.drag()
+        //.on("start", dragstarted)
+        //.on("drag", dragged)
+        // .on("end", dragended)
+      )
+      .on("mouseover", d => console.log(d))
+      .append("title")
+      .text(function(d) {
+        return d.name;
+      });
+  }
 
+  //labels
 
+  if (window.labels) {
+    d3
+      .select("#svg")
+      .append("g")
+      .selectAll("text")
+      .data(data.nodes)
+      .enter()
+      .append("text")
+      .attr("x", d => d.x * scale)
+      .attr("y", d => d.y * scale)
+      .attr("text-anchor", "middle")
+      .style("font-size", d => 1 + 3 * data.nodesize[d.id] + "px")
+      .style("fill", "white")
+      .style("dominant-baseline", "middle")
+      .style("text-shadow", "3px 3px 3px black;")
+      //.attr("stroke", "black")
+      //.attr("stroke-width", 0.3)
+      //.style("font-family", "sans-serif")
+      //.style("text-decoration", "underline")
+      .attr("id", d => "text" + d.id)
+      .text(d => d.names);
+  }
 }
-
-
 
 //use js to laod required libraries here
 function edgebundle() {
   var names = data.nodes.map(d => d.names);
   var node_data = data.nodes.map(function(d) {
-    return { x: d.x*scale, y: d.y*scale, col: 1 };
+    return { x: d.x * scale, y: d.y * scale, col: 1 };
   });
 
   data.links.forEach(
     function(d) {
-      if (d.source.id > 0)
+      if (d.source.id >= 0)
         link_data.push({
           source: names.indexOf(d.source.names),
           target: names.indexOf(d.target.names),
@@ -89,7 +122,7 @@ function edgebundle() {
     );
 
     svg
-    .append('g')
+      .append("g")
       .append("path")
       .attr("d", d3line(results[i]))
       .attr("id", "link" + i)
@@ -101,6 +134,142 @@ function edgebundle() {
       //.attr("stroke-dasharray", function(d) { return (d.new) ? "6,6" : '1,0'} )
       //.style('stroke', !group? window.blue:window.pink);
       .style("stroke", window.color(link_data[i].lcol));
+    var p = new Path2D(d3line(results[i]));
+    //ctx.stroke(p)
+    //ctx.fill(p);
+  }
+}
+
+/*
+Colour edges based on direction of colour
+
+
+
+
+*/
+
+function gradedge() {
+  console.log("start", data);
+  var names = data.nodes.map(d => d.names);
+  var node_data = data.nodes.map(function(d) {
+    return { x: d.x * scale, y: d.y * scale, col: 1 };
+  });
+  //Append a defs (for definition) element to your SVG
+
+  data.links.forEach(
+    function(d) {
+      if (d.source.id >= 0)
+        link_data.push({
+          source: names.indexOf(d.source.names),
+          target: names.indexOf(d.target.names),
+          lcol: d.v,
+          dir: d.d
+        });
+    },
+    link_data = []
+  );
+
+  if (link_data.length < 1) {
+    var names = new Set(
+      data.links.map(d => d.source) + data.links.map(d => d.target)
+    );
+    var node_data = [...names].map(d => data.nodes[d]);
+
+    var node_data = node_data.map(function(d) {
+      return { x: d.x * scale, y: d.y * scale, col: 1 };
+    });
+
+    data.links.forEach(
+      function(d) {
+        link_data.push({
+          source: names.indexOf(d.source),
+          target: names.indexOf(d.target),
+          lcol: d.v,
+          dir: d.d
+        });
+      },
+      link_data = []
+    );
+  }
+
+  var fbundling = ForceEdgeBundling()
+    .step_size(0.1)
+    .compatibility_threshold(0.45)
+    .nodes(node_data)
+    .edges(link_data);
+  var results = fbundling();
+
+  window.r = results;
+  window.ld = link_data;
+  window.nd = node_data;
+
+  var d3line = d3
+    .line()
+    .x(function(d) {
+      return d.x;
+    })
+    .y(function(d) {
+      return d.y;
+    })
+    .curve(d3.curveLinear);
+  //plot the data
+  for (var i = 0; i < results.length; i++) {
+    var svg = d3.select("#svg");
+    svg.style("width", width);
+    svg.style("height", height);
+    svg.style(
+      "transform",
+      "translate(" + window.innerWidth / 2 + "," + window.innerHeight / 2 + ")"
+    );
+    var defs = svg.append("defs");
+    //Append a linearGradient element to the defs and give it a unique id
+    var linearGradient = defs.append("linearGradient").attr("id", "lg" + i);
+
+    var r = results[i];
+    var end = r.length - 1;
+
+    if (link_data[i].d < 0) {
+      var start = end, end = 0;
+    } else {
+      var start = 0;
+    }
+
+    var x = r[start].x - r[end].x;
+    var y = r[start].y - r[end].y;
+    var max = d3.max([x, y]);
+
+    linearGradient
+      .attr("x1", "10%")
+      .attr("y1", "10%")
+      .attr("x2", x / max * 65 + "%")
+      .attr("y2", y / max * 65 + "%");
+
+    linearGradient
+      .append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "#ffa474"); //light blue
+
+    //Set the color for the end (100%)
+    linearGradient
+      .append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#8b0000"); //dark blue
+
+    svg
+      .append("g")
+      .append("path")
+      .attr("d", d3line(results[i]))
+      .attr("id", "link" + i)
+      .style("fill", "none")
+      .attr("stroke-width", d => 1.3) //(d) =>{(isFinite(edge_length[d.index]))? 10*window.edge_length[d] : 0.001} )
+      //.attr("stroke-opacity",(d) =>{(isFinite(edge_length[d.index]))? 1: 0.001} )
+      .attr("opacity", 0.95)
+      //attr("stroke-dashoffset", function(d) { return (d.new) ? "0%":6  }) //for dashed line
+      //.attr("stroke-dasharray", function(d) { return (d.new) ? "6,6" : '1,0'} )
+      //.style('stroke', !group? window.blue:window.pink);
+      //.style("stroke", window.color(link_data[i].lcol));
+      .style("stroke", "url(#lg" + i + ")");
+
     var p = new Path2D(d3line(results[i]));
     //ctx.stroke(p)
     //ctx.fill(p);

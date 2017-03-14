@@ -70,12 +70,7 @@ function labels() {
   });
 }
 
-
-
-
-function zoomed() {
-
-}
+function zoomed() {}
 
 function dragstarted(d) {
   d.fx = d.x;

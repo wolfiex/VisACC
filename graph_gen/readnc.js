@@ -148,7 +148,6 @@ function newfile() {
     }
   }
 }
-
 // graph functions nodes etc.
 //window.nodes =[];for (i = 0; i < window.ncdata.combine.length; i++) { window.nodes.push({"names":rdict[i],"id":i,"x":2*(0.5-Math.random()),"y":2*(0.5-Math.random()),"z":0.5-Math.random()}) };
 //window.nodes = window.C.filter( function(i){ return {"names":i, "id":window.ncdata.dict[i],"x":2*(0.5-Math.random()),"y":2*(0.5-Math.random()),"z":0.5-Math.random()}  } )
