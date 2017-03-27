@@ -1,0 +1,83 @@
+
+// create the plane mesh
+var material = new THREE.MeshBasicMaterial({ wireframe: true });
+var geometry = new THREE.PlaneGeometry();
+var planeMesh= new THREE.Mesh( geometry, material );
+
+scene.add(planeMesh);
+
+var element = document.createElement( 'img' );
+element.src = 'textures/sprites/ball.png';
+// create the object3d for this element
+
+
+
+
+function rotateObject(object,degreeX=0, degreeY=0, degreeZ=0){
+
+   degreeX = (degreeX * Math.PI)/180;
+   degreeY = (degreeY * Math.PI)/180;
+   degreeZ = (degreeZ * Math.PI)/180;
+
+   object.rotateX(degreeX);
+   object.rotateY(degreeY);
+   object.rotateZ(degreeZ);
+
+}
+
+
+textlabels();
+var size = window.innerWidth
+var newsize = size-size/2
+var geometry = new THREE.PlaneGeometry( size, size, 10,10 );
+var material = new THREE.MeshBasicMaterial( { transparent: true, opacity: 0.1, side: THREE.DoubleSide, wireframe:true} );
+var plane = new THREE.Mesh( geometry, material );
+plane.position= new THREE.Vector3(
+0,0,
+-size/2
+)
+scene.add( plane );
+var plane = new THREE.Mesh( geometry, material );
+plane.position= new THREE.Vector3(
+0,-size/2,0
+)
+plane.rotateX(90*Math.PI /180)
+scene.add( plane );
+
+var plane = new THREE.Mesh( geometry, material );
+plane.position= new THREE.Vector3(
+-size/2,0,0
+)
+plane.rotateY(90*Math.PI /180)
+scene.add( plane );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mesh = new THREE.Mesh(
+
+				new THREE.Geometry(),
+
+				new THREE.MeshPhongMaterial( {
+					color: 0x156289,
+					emissive: 0x072534,
+					side: THREE.DoubleSide,
+					shading: THREE.FlatShading
+				} )
+
+scene.add(mesh)

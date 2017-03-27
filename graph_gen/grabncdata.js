@@ -1,5 +1,5 @@
 (function newfile() {
-  file = "nhept";
+  file = "methane";
 
   let fs = require("fs");
   let data = fs.readFileSync(
@@ -77,8 +77,6 @@ function ncparse(reader) {
     }
   });
 
-  load(graph = { nodes, links });
-
   /*
   var nodes = window.C.map(function(i) {
     return {
@@ -92,7 +90,7 @@ function ncparse(reader) {
 */
   window.data = d3.range(dims["time"]).map(i => timestep(i));
   console.log("ahhh");
-
+  run(44);
   //load(timestep(3));
   /////////////////
   /////////////////
@@ -166,6 +164,6 @@ function ncparse(reader) {
 
     node_size = node_size.map(d => (d - min + 1e-6) / max);
 
-    return { links: graphlinks, node_size };
+    return { links: graphlinks, node_size }; //window.nodes
   }
 }
