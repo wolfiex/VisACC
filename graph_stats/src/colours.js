@@ -257,7 +257,8 @@ viridis = [
   "#fde725"
 ];
 visual_cinnamon = ["#2c7bb6", "#ffff8c", "#d7191c"];
-
+blues_fade = //['#08efeb', 
+['#08e0ef','#08ccef','#08b9ef','#08a6ef','#0893ef','#087fef']
 //function to make colours
 function ColourScheme(colours, inverse = false, test = false) {
   var domain = [];

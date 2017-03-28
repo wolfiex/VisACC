@@ -13,11 +13,11 @@ font-family:"open-sans",'Open-Sans' ;
 </style>
 
 
-<script src="./savedgraph.json"></script>
+<script src="../graph_gen/locations.json"></script>
 
 <script src="./src/d3.v4.min.js"></script>
 <script src="./src/jsnetworkx.js"></script>
-
+<script src="./src/colours.js"></script>
 <!--script src="./graphfunctions.js"></script-->
 
 <script src ="./index.js"></script>
@@ -30,10 +30,12 @@ font-family:"open-sans",'Open-Sans' ;
 <script src="./src/netcdfjs.min.js"></script>
 <script src="./src/stats.js"></script>
 <script src ="./index.js"></script>
-<script src ="./saveddata.js"></script>
+
 <!-- href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'
 -->
 <!--link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"-->
+
+<script type="text/javascript" src="./src/d3-ForceEdgeBundling.js"></script>
 
 <body>
 
@@ -50,11 +52,19 @@ font-family:"open-sans",'Open-Sans' ;
 //.style('background-color', '#222')
 //d3.select("body").style("background-color", "#222"); // bg colour
 window.color = d3.interpolateCubehelixLong.gamma(4.1)("#F6089E", "#3864EB");
+
+window.blues = ColourScheme(blues_fade,inverse=true)
 window.bluepink = d3.interpolate("#F6089E", "#3864EB"); //https://github.com/d3/d3-scale
 window.color1 = d3.interpolate("#222", "blue"); ///'blue',"#F6089E");
+
+window.tert= d3.scaleOrdinal(d3.schemeCategory10); //['#6aa506', '#066aa5','#a54106']
+
 ///se;lection box
 //http://bl.ocks.org/lgersman/5311083
+
+window.nodes = data.nodes
+window.links = data.links
+//gradedge()
+//edgebundle()
+draw();
 </script>
-
-
-<script type="text/javascript" src="./src/d3-ForceEdgeBundling.js"></script>

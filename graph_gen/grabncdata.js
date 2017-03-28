@@ -90,7 +90,7 @@ function ncparse(reader) {
 */
   window.data = d3.range(dims["time"]).map(i => timestep(i));
   console.log("ahhh");
-  run(44);
+  run(126);
   //load(timestep(3));
   /////////////////
   /////////////////

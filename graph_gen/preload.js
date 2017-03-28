@@ -1,6 +1,6 @@
 var canvas = document.querySelector("canvas");
-canvas.width = width;
-canvas.height = height;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 var context = canvas.getContext("2d"), searchRadius = 400;
 
 var color = d3.scaleOrdinal().range(d3.schemeCategory20);

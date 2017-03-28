@@ -3,9 +3,17 @@ var canvas = document.querySelector("canvas"),
   width = window.innerWidth,
   height = window.innerHeight;
 
+//window.mapped = new Map(saved.nodes.map(d=>{return [d.names,d] }))
+
+
 function run(t) {
   window.graph = window.data[t];
-
+  /*window.nodes = window.nodes.map(d=>{
+var sub = window.mapped.get(d.names)
+d.x = sub.x;
+d.y = sub.y;
+return d
+  })*/
   var simulation = d3
     .forceSimulation()
     .force("collide", d3.forceCollide())
@@ -17,7 +25,7 @@ function run(t) {
         .iterations(9)
         .id(d => parseInt(d.id))
         .strength(d => 0.3 + (1 - d.v) / 3)
-        .distance(d => d.v * 100)
+        .distance(d => d.v * 200)
     )
     .force(
       "charge",
@@ -25,7 +33,7 @@ function run(t) {
         .forceManyBody()
         .strength(function(d) {
           console.log(d);
-          return window.graph.node_size[d.id] > 0 ? -1010 : 0;
+          return window.graph.node_size[d.id] > 0 ? -400 : 0;
         })
         .theta([40])
     )
@@ -75,6 +83,7 @@ function run(t) {
 */
 
 function save() {
+  simulation.stop()
   mxy = d3
     .nest()
     .key(d => d)
@@ -107,6 +116,16 @@ function save() {
     d.z = window.graph.node_size[d.id];
     return d;
   });
+
+  var fs = require('fs');
+
+  fs.writeFile("locations.json",
+  ("data = "+JSON.stringify({nodes:window.nodes,links:window.graph.links})),
+   function(err) { if(err) { return console.log(err);}
+      console.log("The file was saved!");
+  });
+
+
 }
 
 /*

@@ -3,7 +3,7 @@ var height = window.innerHeight;
 
 window.svg = d3.select("#svg").style("width", width).style("height", height);
 var scale = 0.6;
-window.dir = true;
+window.dir = false;
 window.links = true;
 window.nodes = true;
 window.labels = true;
