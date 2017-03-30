@@ -67,6 +67,7 @@ function draw() {
       .style("font-size", d => 1 + 15 * d.z + "px")
       .style("fill", "black")
       .style("dominant-baseline", "middle")
+      .style("alignment-baseline", "central")
       .style("text-shadow", "3px 3px 3px black;")
       //.attr("stroke", "black")
       //.attr("stroke-width", 0.3)
@@ -100,7 +101,7 @@ function edgebundle() {
 
   var fbundling = ForceEdgeBundling()
     .step_size(0.1)
-    .compatibility_threshold(0.3)
+    .compatibility_threshold(1)//0.3)
     .nodes(node_data)
     .edges(link_data);
   var results = fbundling();
@@ -137,7 +138,7 @@ console.log(results)
       //attr("stroke-dashoffset", function(d) { return (d.new) ? "0%":6  }) //for dashed line
       //.attr("stroke-dasharray", function(d) { return (d.new) ? "6,6" : '1,0'} )
       //.style('stroke', !group? window.blue:window.pink);
-      .style("stroke", window.color(link_data[i].lcol));
+      .style("stroke",  window.color(link_data[i].lcol));
     var p = new Path2D(d3line(results[i]));
     //ctx.stroke(p)
     //ctx.fill(p);
