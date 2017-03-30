@@ -1,0 +1,160 @@
+df_full = read.csv('global.csv')
+
+library(MASS)
+library(ggplot2)
+library(mclust)  
+library("grid")
+
+library(RColorBrewer)
+palette(brewer.pal(n = 90, name = "Paired"))
+
+
+df = df_full[13:14]
+mixclust = Mclust(df) 
+
+num = names(sort(summary(as.factor(mixclust$classification)), decreasing=T))
+clusters = lapply(num, function(x) mixclust$parameters$mean[,strtoi(x)])
+clust = t(data.frame(clusters))
+
+
+colnames(df) = c("x","y")
+colnames(clust) = c("x","y")
+rownames(clust) = num
+
+
+df[dim(df[1])+1,1]= 0 
+df[dim(df[1]),2]= 0
+df[dim(df[1])+1,1]= 1 
+df[dim(df[1]),2]= 1
+
+
+  
+p= ggplot(data=df,aes(x,y)) + 
+geom_point(data= df,shape = 21, fill = 'transparent',col = 'transparent')+
+geom_density2d(alpha=1,size=.2,aes(colour=..level..))  +
+theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
+theme(legend.position="none")+
+theme(plot.margin=unit(c(0,0,0,0),"cm"))+
+theme(axis.title.x=element_blank(),
+axis.text.x=element_blank(),
+axis.ticks.x=element_blank(),
+axis.title.y=element_blank(),
+axis.text.y=element_blank(),
+axis.ticks.y=element_blank(),
+panel.grid = element_blank(),
+ panel.border = element_blank(),
+ line = element_blank(),
+text = element_blank(),
+line = element_blank(),
+title = element_blank()
+)
+ 
+gt <- ggplot_gtable(ggplot_build(p))
+ge <- subset(gt$layout, name == "panel")
+grid.draw(gt[ge$t:ge$b, ge$l:ge$r])
+
+## now save as svg
+
+ ggsave(file="test.svg", plot=p, width=10, height=10)
+
+degree vss classifications plot 
+liek group plots (areas overlap contours. )
+
+
+
+
+ggplot(data=df,aes(x,y)) + 
+geom_point(data= df,shape = 21, colour = mixclust$classification, stroke=1, size=2 ,fill = 'transparent')+
+geom_density2d(alpha=1,size=.2,aes(colour=..level..))  
+
+  
+  
+  + geom_text(check_overlap = TRUE)
+  + theme(legend.position=c(01),
+        legend.justification=c(0,1))
+  
+  ggplot(data=clust,aes(x,y))+geom_point()
+  
+  
+  ggsave(file="test.svg", plot=image, width=10, height=8)
+  http://stackoverflow.com/questions/12226822/how-to-save-a-plot-made-with-ggplot2-as-svg
+  
+  
+  
+  
+  num = strtoi(names(sort(summary(as.factor(mixclust$classification)), decreasing=T)))
+  mixclust$parameters$mean[,num]
+
+
+  
+  
+  num = names(sort(summary(as.factor(mixclust$classification)), decreasing=T))
+  clusters = lapply(num, function(x) mixclust$parameters$mean[,strtoi(x)])
+  
+  
+  
+  commonTheme = list(labs(color="Density",fill="Density",
+                          x="x",
+                          y="y"),
+                          ,xlim=range(0:1),  ylim=range(0:1)
+                     theme_bw(),
+                     theme(legend.position=c(0,1),
+                           legend.justification=c(0,1)))
+  
+  
+   + commonTheme
+  
+  
+  
+  
+  
+  ggplot(data=df,aes(x,y)) + 
+    geom_density2d(aes(colour=..level..))
+    
+
+    
+  
+  
+  
+  
+library(mclust)  
+
+mixclust = Mclust(df) 
+plot(mixclust)
+
+points(df, col='purple')
+
+mixclust = densityMclust(df) 
+plot(mixclust,what = "density", type = "persp")
+
+
+
+mixclust = MclustDR(df) 
+plot(mixclust, what = "boundaries", ngrid = 200)
+
+plot(mixclust,what = "uncertainty")
+
+plot(df,col = rgb(0.1,.4,.5,0.1))
+par(new=TRUE)
+plot(mixclust,what = "uncertainty", xlim =1,ylim=1)
+
+
+plot(mixclust,what = "density",type ="persp")
+
+
+num = strtoi(names(sort(summary(as.factor(mixclust$classification)), decreasing=T)[1]))
+mixclust$parameters$mean[,num]
+
+
+
+library(RColorBrewer)
+palette(brewer.pal(n = 90, name = "Paired"))
+
+
+plot(mixclust,what = "density")
+par(new=TRUE)
+plot(mixclust,what = "uncertainty", col=rgb(0,0,0,0),xlim=range(0:1),  ylim=range(0:1))
+
+points(df,col=mixclust$classification,pch=1,cex=.7,xlim=range(0:1),  ylim=range(0:1))
+
