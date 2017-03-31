@@ -1,0 +1,29 @@
+<svg id="svgEmbed"></svg>
+<script src="../src/d3.v4.min.js"></script>
+<script>
+mywidth = 800
+
+var svge = d3.select("#svgEmbed")
+.style("width", mywidth)
+.style("height", mywidth)
+
+
+svge.append("rect")
+       			.attr("x", 0)
+       			.attr("y", 0)
+       			.attr("height", mywidth)
+       			.attr("width", mywidth)
+       			.style("stroke", 'black')
+       			.style("fill", "none")
+       			.style("stroke-width", 1)
+
+svge.append("image")
+    .attr("xlink:href","./test.svg")
+    .attr("x", 1)
+    .attr("y", 1)
+    .attr("width", mywidth-2)
+    .attr("height", mywidth-2)
+
+
+
+</script>
