@@ -30,7 +30,8 @@ theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_bl
 panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))+
 theme(legend.position="none")+
 theme(plot.margin=unit(c(0,0,0,0),"cm"))+
-theme(axis.title.x=element_blank(),
+theme(
+axis.title.x=element_blank(),
 axis.text.x=element_blank(),
 axis.ticks.x=element_blank(),
 axis.title.y=element_blank(),
@@ -38,11 +39,25 @@ axis.text.y=element_blank(),
 axis.ticks.y=element_blank(),
 panel.grid = element_blank(),
  panel.border = element_blank(),
- line = element_blank(),
+ #line = element_blank(),
 text = element_blank(),
 line = element_blank(),
 title = element_blank()
 )
+
+
+filename = paste0("r",species,".svg")
+
+names={}
+names$order=num
+names$coords=clust
+names$file = filename
+
+#ggsave(file=filename, plot=p, width=10, height=10)
+
+
+
+
 
 .f = function() {
 unused
@@ -64,14 +79,3 @@ packages <- function(pkg){
 
 packages(c("foo", "bar", "baz"))
 }
-
-
-
-filename = paste0("r",species,".svg")
-ggsave(file=filename, plot=p, width=10, height=10)
-
-
-names={}
-names$order=num
-names$coords=clust
-names$file = filename

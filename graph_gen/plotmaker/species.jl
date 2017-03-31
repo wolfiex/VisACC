@@ -12,5 +12,10 @@ rfile = pwd()*"/gen.R"
 @rput rfile
 R"source(rfile)"
 
-w = Window
-loadurl(w, "index.html")
+w = Window()
+loadurl(w, "file://"*pwd()*"/index.html")
+
+@rget names
+
+@js w cl=$names
+@js w eval("window.coords=cl.coords[0].map((d,i)=>[d,cl.coords[1][i]])")

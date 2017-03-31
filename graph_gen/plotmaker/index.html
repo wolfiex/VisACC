@@ -18,12 +18,22 @@ svge.append("rect")
        			.style("stroke-width", 1)
 
 svge.append("image")
-    .attr("xlink:href","./test.svg")
+    .attr("xlink:href","./rCH4.svg")
     .attr("x", 1)
     .attr("y", 1)
     .attr("width", mywidth-2)
     .attr("height", mywidth-2)
 
 
+function points () {
+  window.coords.forEach(d=>{  svge.append('g')
+      .append("circle")
+       .attr("cx", d[0]*mywidth)
+       .attr("cy", d[1]*mywidth)
+      .attr("r", 10)
+      .style("fill", "purple");
+  })
 
+
+}
 </script>
