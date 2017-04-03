@@ -10,43 +10,44 @@ specs = ["CH4","CH3O2NO2","H2","N2O5","H2O2","CH3OH","HONO","CO","HO2NO2","CH3O"
 
 
 
-for i in 6:length(specs)
+for i in 1:length(specs)
 species = specs[i]
 @rput species
-rfile = pwd()*"/gen.R"
+rfile = pwd()*"/points.R"
 @rput rfile
 R"source(rfile)"
-sleep(4)
-@rget names
-@rget df
+sleep(2)
 
 
-function runfn() 
 
     loadurl(w, "file://"*pwd()*"/index.html")
     sleep(1)
 
+try
 
 
-    @js w cl=$names
-    @js w eval("window.coords=cl.coords[0].map((d,i)=>[d,cl.coords[1][i]])")
 
     @js w species=$species
-    @rget df
-    @js w df=$df
+    R"names = points($(species),maxno,minno)"
+    sleep(2)
+    @rget names
+    @js w cl=$(names)
+    @js w eval("window.coords=cl.coords[0].map((d,i)=>[d,cl.coords[1][i]])")
+    sleep(1)
+    @js w df=$(names[Symbol("df")])
     @js w sum =  $(normalize(names[Symbol("sum")]))
-    @js w order =  $(names[Symbol("order")])
     @js w cols =  $(names[Symbol("class")])
-    @js w ellipse = $(names[Symbol("ellipse")])
     @js w points()
-    
+
+    sleep(3)
+    @js w savesvg()
+
+  catch e
+            println("caught an error $e")
+
 end
 
 
-try runfn() end
-
-sleep(3)
-@js w savesvg()
 
 
 end

@@ -1,4 +1,4 @@
-<svg id="svgEmbed"></svg>
+<!--svg id="svgEmbed"></svg-->
 <script src="../src/d3.v4.min.js"></script>
 
 <href='https://fonts.googleapis.com/css?family=Open+Sans|Lato|Vidaloka|Fira+Sans|Fredericka+the+Great|Ubuntu'>
@@ -9,6 +9,12 @@ text-align:end;
 text-anchor:end;
 }
 </style>
+
+
+<svg id="svgEmbed">
+</svg>
+
+
 <script>
 mywidth = 800;
 
@@ -19,15 +25,18 @@ var svge = d3
 
 svge
   .append("rect")
-  .attr("x", 0)
-  .attr("y", 0)
-  .attr("height", mywidth)
-  .attr("width", mywidth)
-  .style("stroke", "black")
+  .attr("x", (-mywidth) * 0.0655)
+  .attr("y", (-mywidth) * 0.045)
+  .attr("width", mywidth) // * 1.211)
+  .attr("height", mywidth) // * 1.211);
+  .style("stroke", "white")
   .style("fill", "none")
-  .style("stroke-width", 1);
+  .style("stroke-width", 100);
+
+
 
 function points() {
+
   svge
     .append("image")
     .attr("xlink:href", "./r" + species + ".svg")
@@ -50,7 +59,6 @@ function points() {
 
   var color = d3.scaleOrdinal(d3.schemeCategory10);
 
-  var norm = d3.max(ellipse);
   window.coords.forEach((d, i) => {
     svge
       .append("g")
@@ -60,9 +68,9 @@ function points() {
       .attr(
         "r",
         //(2 + window.coords.length - i) * 0.04 * mywidth / window.coords.length
-        sum[parseInt(order[i] - 1)] * 0.14 * mywidth
+        sum[parseInt(cl.order[i] - 1)] * 0.14 * mywidth
       )
-      .style("fill", color(parseInt(order[i]) / window.coords.length))
+      .style("fill", color(parseInt(cl.order[i]) / window.coords.length))
       .style("fill-opacity", 0.4);
     /*
     svge
@@ -75,7 +83,7 @@ function points() {
       .style("fill-opacity", 0.4)
       .style("stroke", "#777")
       .style("stroke-width", "1px");
-      
+
       */
   });
 
@@ -87,7 +95,7 @@ function points() {
       .attr("cx", d[0][i] * mywidth * 0.889)
       .attr("cy", (1 - d[1][i]) * mywidth * 0.889)
       .attr("r", 3)
-      .style("fill", "transparent")
+      .style("fill", "none")
       .style("stroke-width", 2)
       .style("stroke", color(cols[i] / window.coords.length));
   });
@@ -99,7 +107,7 @@ function points() {
     .attr("height", 2 + mywidth * 0.889)
     .attr("width", 2 + mywidth * 0.889)
     .style("stroke", "black")
-    .style("fill", "transparent")
+    .style("fill", "none")
     .style("stroke-width", 2);
 }
 /*
@@ -359,5 +367,7 @@ function savesvg() {
     }
   })();
 }
-</script>
 
+
+console.log('savescript - convert transparent to none in style fill')
+</script>

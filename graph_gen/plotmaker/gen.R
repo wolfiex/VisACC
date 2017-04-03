@@ -5,7 +5,10 @@ library(mclust)
 library("grid")
 
 
-#species = 'CH4'
+species = 'CH4'
+
+#running = function(species) {
+
 df =  df_full[c(paste0(species,'_x'),paste0(species,'_y'))]
 mixclust = Mclust(df)
 
@@ -57,9 +60,12 @@ names$ellipse = mixclust$parameters$variance$shape
 names$sum = summary(as.factor(mixclust$classification))
 
 
-ggsave(file=filename, plot=p, width=10, height=10)
+#ggsave(file=filename, plot=p, width=10, height=10)
+
+#}
 
 
+#running('NO')
 
 
 

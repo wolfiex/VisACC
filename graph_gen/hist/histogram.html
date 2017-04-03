@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Kernel Density Estimation</title>
+<style>
+canvas{position:absolute}
+</style>
+<body>
+<script src="../src/d3.v4.min.js"></script>
+<canvas id='canvas'></canvas>
+<script>
+
+const electron = require('electron');
+var ipc = electron.ipcRenderer;
+window.plotname = 'bar'
+
+
+  var canvas = document.querySelector("canvas")
+  var context = canvas.getContext("2d");
+  d3.selectAll('canvas').attr('width', window.innerWidth ).attr('height',window.innerHeight);
+  window.plotname = 'Untitled'
+
+  var colour = d3.interpolate("#F6089E", "#3864EB"),
+      margin = {top: 20, right: 30, bottom: 30, left: 40},
+      width = window.innerWidth - margin.left - margin.right,
+      height = window.innerHeight - margin.top - margin.bottom;
+
+
+  window.h = (window.innerHeight*.8)/4
+context.translate(margin.left, margin.top-h-10);
+  window.counter = 1
+
+
+
+
+drawhistogram(canvas,context,d3.range(0,100).map(d=>.5),'Uniform')
+
+drawhistogram(canvas,context,d3.range(0,100),'Ascending')
+
+drawhistogram(canvas,context,d3.range(0,100,2).concat(d3.range(0,100,2)).map(d=>100-d),'Concave')
+
+drawhistogram(canvas,context,d3.range(0,100,2).map(d=>100-d).concat(d3.range(100,0,2)),'Convex')
+
+
+context.beginPath();
+context.font = "14px Ubuntu";
+d3.range(0,width,width/10).forEach((e,i)=>
+{context.fillText(""+i*10,e,h+10);
+})
+context.fillText(""+10*10,100,h+10);
+context.closePath();
+
+
+function drawhistogram(canvas,context,recieveddata,names){
+
+  context.translate(0, h+8);
+
+
+    var x = d3.scaleLinear().domain([0, 100]).range([0, width]),
+        histogram = d3.histogram().domain(x.domain()).thresholds(x.ticks(10)),
+        data = histogram(recieveddata),
+        kde = kernelDensityEstimator(epanechnikovKernel(15), x.ticks(1000));
+    data.filter(function(d){maxarr.push(d.length)},maxarr=[] ) ;
+    var y = d3.scaleLinear().domain([0, d3.max(maxarr)*1.1]).range([window.h,0]);
+    var line = d3.line()
+        .x(function(d) { return x(d[0]); })
+        .y(function(d) { return y(d[1]*500); })
+        .curve(d3.curveStep)
+        .context(context)
+
+        data.forEach(function(d) {
+           context.fillStyle = colour((d.x0+(d.x1/2))/100);
+           context.fillRect(x(d.x0) + 1, y(d.length), (x(data[0].x1 + data[0].x0) - x(data[0].x0) - 2), ( h-y(d.length)));
+         });
+         context.fillStyle='black';
+         context.textAlign = "right";
+         context.textBaseline = "middle";
+
+  context.beginPath();
+  context.rotate(-Math.PI / 2);
+  context.font = "14px Ubuntu";
+context.fillText(names,-40,-20);
+context.rotate(+Math.PI / 2);
+  context.closePath();
+
+  context.beginPath();
+    line(kde(recieveddata));
+    context.lineWidth = 1.5;
+    context.strokeStyle = "black";
+    context.stroke();
+  context.closePath();
+
+
+
+
+
+window.counter+=1
+}
+
+
+
+function kernelDensityEstimator(kernel, x) {
+return function(sample) {
+  return x.map(function(x) {
+    return [x, d3.mean(sample, function(v) { return kernel(x - v); })];
+  });
+};
+}
+function epanechnikovKernel(scale) {
+return function(u) {
+  return Math.abs(u /= scale) <= 1 ? .75 * (1 - u * u) / scale : 0;
+};
+}
+
+
+
+var fs = require('fs');
+var nativeImage = require('electron').nativeImage;
+var data = canvas.toDataURL('image/png', 1);
+var img = typeof nativeImage.createFromDataURL === 'function'
+  ? nativeImage.createFromDataURL(data) // electron v0.36+
+  : nativeImage.createFromDataUrl(data) // electron v0.30
+var imdata = img.toPng();
+
+fs.writeFile('./saved.png', imdata, function (err) {throw err});
+//electron.remote.getCurrentWindow().close();
+
+fs.writeFile('saved.png', imdata, (err) => {
+  if (err) throw err;
+  console.log('The file has been saved!');
+});
+
+
+</script>
