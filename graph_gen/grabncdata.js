@@ -1,5 +1,5 @@
 (function newfile() {
-  file = "methane";
+  file = "ropa_g_nhept";
 
   let fs = require("fs");
   let data = fs.readFileSync(
@@ -77,7 +77,6 @@ function ncparse(reader) {
     }
   });
 
-  /*
   var nodes = window.C.map(function(i) {
     return {
       names: i,
@@ -87,7 +86,7 @@ function ncparse(reader) {
       z: 0.5 - Math.random()
     };
   });
-*/
+
   window.data = d3.range(dims["time"]).map(i => timestep(i));
   console.log("ahhh");
   run(126);
