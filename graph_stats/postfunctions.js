@@ -23,7 +23,7 @@ function draw() {
       .data(data.nodes)
       .enter()
       .append("circle")
-      .attr("r", d => (7 + d.z * 43) * scale)
+      .attr("r", d => (7 + d.z * 40) * scale)
       .attr("cx", d => (d.x*.9 +0.05) * width)
       .attr("cy", d => (d.y*.9 +0.05) * height)
       .style("fill", d=> 'white')
@@ -36,7 +36,7 @@ function draw() {
         "stroke",
         d => window.labels ? window.color(data.nodesize[d.id]) : "white"
     )*/
-      .attr("id", d => "node" + d.id)
+      .attr("id", d => "node" + d.names)
       .call(
         d3.drag()
         //.on("start", dragstarted)
@@ -101,7 +101,7 @@ function edgebundle() {
 
   var fbundling = ForceEdgeBundling()
     .step_size(0.1)
-    .compatibility_threshold(1)//0.3)
+    .compatibility_threshold(.7)//0.3)
     .nodes(node_data)
     .edges(link_data);
   var results = fbundling();
@@ -279,5 +279,29 @@ function gradedge() {
       //ctx.fill(p);
     }
 
+
+}
+
+
+var cat20 = d3.scaleOrdinal(d3.schemeCategory20);
+var mcl
+
+function mcl_plot (){
+
+d3.text("out.mcl", function(text) {
+  mcl = text.split('\n')
+  mcl.pop()
+  mcl = mcl.map(d => d.split('\t'))
+  mcl.forEach( (d,i) => {
+
+  d.forEach(e=>
+  {
+  d3.select('#node'+e).style('stroke',cat20(i))
+
+  })
+
+  })
+});
+console.log(mcl)
 
 }

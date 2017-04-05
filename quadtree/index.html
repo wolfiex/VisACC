@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Quadtree - nearest neighbor</title>
+<style>
+
+
+.point {
+  fill: #999;
+  stroke: #fff;
+}
+
+.point.scanned {
+  fill: orange;
+  fill-opacity: 1;
+  stroke: brown;
+}
+
+
+
+.point.selected {
+  fill: red;
+  fill-opacity: 1;
+}
+
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+.node text {
+  font: 10px sans-serif;
+}
+
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="save.js"></script>
+<script src="locations.json"></script>
+<script>
+d3 = require('d3') // npm install d3@3
+
+/*.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+.node {
+  fill: none;
+  stroke: #ccc;
+  cursor: pointer;
+}
+
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+*/
+
+
+var col = d3.scale.linear()
+        .domain([0, 1])
+        .interpolate(d3.interpolateHsl)
+        .range(["#F6089E", "#3864EB"]);
+
+var width = 310,
+	height = 310;
+
+/*
+var data = d3.range(20).map(function(n) {
+	return [Math.random() * width, Math.random() * height];
+});
+*/
+
+data= graphdata.nodes.map(d=>[0.05*width+d.x*width*.9,0.05*height+d.y*height*.9])
+
+
+
+
+
+var quadtree = d3.geom.quadtree()
+	.extent([[-1, -1], [width + 1, height + 1]])
+	(data);
+
+
+function nodes(quadtree) {
+	var nodes = [],count=0,leaves = [];
+	quadtree.depth = 0; // root
+	quadtree.visit(function(node, x1, y1, x2, y2) {
+		node.x1 = x1;
+		node.y1 = y1;
+		node.x2 = x2;
+		node.y2 = y2;
+		node.c=count++;
+		node.classes= (node.depth==0)? "square_0" : node.classes+" square_"+node.c;
+
+		node.verified=false;
+		nodes.push(node);
+		for (var i=0; i<4; i++) {
+			if (node.nodes[i]){
+				node.nodes[i].depth = node.depth+1;
+				node.nodes[i].classes = node.classes;
+			}
+		}
+		if (node.leaf)	leaves.push(node);
+	});
+	return {nodes:nodes,leaves:leaves};
+}
+
+nodes =nodes(quadtree);
+root = quadtree;
+duration = 750;
+
+</script>
+
+<script src="paint_quadtree.js"></script>
+<script src="paint_tree.js"></script>
+
+
+<script>
+
+// Action to highlight the active node. It triggers the next action in the waiting list once the animation finishes
+function highlight_node(d) {
+	d.verified=true;
+	d3.selectAll("#node_tree_"+d.id+" circle")
+		.transition()
+		.duration(duration)
+		.style("fill","red")
+		.attr("r",6.5)
+		.each("end", function(){
+			action_square(d,false);
+			nextAction();
+			d3.selectAll("#node_tree_"+d.id+" circle")
+				.attr("r", function(d) { return (d.leaf || d._children || d.children)?4.5:0; })
+				.style("fill", function(d) { return d.leaf?col(d.c/nodes.leaves.length):(d._children ? "lightsteelblue" :"#fff")})
+        //.attr('id',d=>{console.log(d);return "tree"+d.c})
+
+		})
+	action_square(d,true);
+}
+
+// Action to highlight the active square in the graphic including the points that it covers
+function action_square(d,highlight) {
+	d3.selectAll("#node_"+d.c)
+		.style("fill",highlight?"lightsteelblue":null)
+		.style("opacity",highlight?0.4:null);
+	d3.selectAll(".square_"+d.c)
+		.style("fill",function() { return highlight ?"red": ( d.leaf?col(d.c/nodes.leaves.length):null); })
+    .attr('id','node'+d.c)
+		.attr("r",highlight ? 5 : 4);
+}
+
+// Action to expand a node in the tree. It adds actions to highlight and expand its children and then triggers the next action
+function expand_node(d){
+	if (d._children) {
+		d.children = d._children;
+		d._children = null;
+		update(d);
+	}
+	if (d.children) {
+		for (var i=0;i<4;i++){
+			addAction({action:highlight_node,node:d.children[i], parent:d});
+			addAction({action:expand_node,node:d.children[i], parent:d});
+		}
+	}
+	nextAction();
+}
+
+// Adds an action into the waiting list, preserving the hierarchical order of calls.
+// i.e. It tries to add it after its first sibling, then it checks if is a child of the current action, other wise it's added at the end.
+function addAction(action){
+	var i=actions.length;
+	while (--i>=0){
+		if (actions[i].node==action.parent || actions[i].parent==action.parent){
+			actions.splice(i+1,0,action);
+			return;
+		}
+	}
+	if (currentAction.node==action.parent || currentAction.parent==action.parent){
+		actions.splice(0,0,action);
+		return;
+	}
+	actions.push(action);
+}
+
+// Pointer to the action that is currently been executed. null if none.
+var currentAction=null;
+
+// Executes the next action in the list.
+function nextAction(){
+	var action = actions.shift();
+	if (action){
+		currentAction=action;
+		action.action.call(this,action.node,action.index);
+		currentAction=null;
+	}
+}
+
+// cList of actions to execute. It is initialised by highlighting the root and then expanding it.
+var actions=[];
+	actions.push({action:highlight_node,node:root,parent:null});
+	actions.push({action:expand_node,node:root,parent:null});
+
+// Start the simulation!
+nextAction();
+
+</script>
+<script type="text/javascript">
+	// Hack to make this example display correctly in an iframe on bl.ocks.org
+	d3.select(self.frameElement).style("height", "320px");
+</script>
