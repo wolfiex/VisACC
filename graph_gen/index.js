@@ -68,14 +68,14 @@ window.graph.links = window.graph.links.sort(function(x, y){
         .id(d => parseInt(d.id))
         .strength(1)
         //.strength(d => 0.3 + 2 * ((1 - d.v) / 3))
-        .distance(d => 100 * d.v)
+        .distance(d => 3 * d.v)
     )
     .force(
       "charge",
       d3
         .forceManyBody()
         .strength(function(d) {
-          return window.graph.node_size[d.id] > 0 ? -100 : 0;
+          return window.graph.node_size[d.id] > 0 ? -1000 : 0;
         })
         //.theta([40])
     )

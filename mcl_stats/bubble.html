@@ -30,8 +30,10 @@ var size = new Map(data.nodes.map(d=> {return[d.names,d.z]}))
 var cat20 = d3.scaleOrdinal(d3.schemeCategory20);
 
 var cat20= ColourScheme(viridis)
+//var cat20 = d3.scaleOrdinal(d3.schemeCategory10);
 
-var file = 'mclprogramin/cmethane.mcl'
+var file = 'mclprogramin/out.mcl'
+//var file = '../../RopaJL/julia.out'
 var mcl
 d3.text(file, function(text) {
   mcl = text.split('\n')
@@ -56,11 +58,34 @@ var svg = d3.select("svg").attr('width',window.innerWidth).attr('height',window.
     g = svg.append("g").attr("transform", "translate(1,1)"),
     format = d3.format(",d");
 
+
+    var defs = svg.append("defs");
+
+    			//Create a radial Sun-like gradient
+    			defs.append("radialGradient")
+    				.attr("id", "sun-gradient")
+    				.attr("cx", "50%")	//not really needed, since 50% is the default
+    				.attr("cy", "50%")	//not really needed, since 50% is the default
+    				.attr("r", "50%")	//not really needed, since 50% is the default
+    				.selectAll("stop")
+    				.data([
+    						{offset: "0%", color: "#FFF"},
+    						{offset: "80%", color: "#fff"},
+    						{offset: "90%", color: "#D9D7E8"},
+    						{offset: "100%", color: "#222"},
+                {offset: "100%", color: "#fff"}
+    					])
+    				.enter().append("stop")
+    				.attr("offset", function(d) { return d.offset; })
+    				.attr("stop-color", function(d) { return d.color; });
+
+
 var pack = d3.pack()
     .size([diameter - 4, diameter - 4]);
 
 //d3.json("flare.json", function(error, root) {
   //if (error) throw error;
+
 
 console.log(root)
 
@@ -82,13 +107,13 @@ console.log(toplot)
 
   node.append("circle")
       .attr("r", function(d) { return d.r; })
-      .style("fill", d=>{var c = d.data.parent; return c===undefined? '#222':cat20(c/toplot.children.length)})
+      .style("fill", d=>{var c = d.data.parent; return c===undefined? "url(#sun-gradient)":cat20(c/toplot.children.length)})
       .style("fill-opacity", d=>{var c = d.data.parent; return c===undefined? 0.15:(c%2)?0.65:0.8});
 
   node.filter(function(d) { return !d.children; }).append("text")
       .attr("dy", "0.2em")
       .text(d=>d.data.name)//.substring(0, d.r / 1); });
-      .style("font-size", function(d) { return Math.min(d.r, (d.r - 2) / this.getComputedTextLength() * 24) + "px"; })
+      .style("font-size", function(d) { return Math.min(d.r, (d.r - 3) / this.getComputedTextLength() * 24) + "px"; })
       .attr('id',d=>d.data.name)
       .attr('fill','white')
       .style('text-anchor','middle')
