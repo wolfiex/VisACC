@@ -21,6 +21,7 @@ text {
 </style>
 <svg width="960" height="960"></svg>
 <script src="../graph_gen/methane.json"></script>
+
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="./src/colours.js"></script>
 <script src="./save.js"></script>
@@ -30,14 +31,29 @@ var size = new Map(
     return [d.names, d.z];
   })
 );
-//var cat20 = d3.scaleOrdinal(d3.schemeCategory20);
 
-var cat20 = ColourScheme(viridis);
+window.output = [] // output for getgroupdata
+//var cat20 = d3.scaleOrdinal(d3.schemeCategory20);
+//npm install gexf
+var fs = require("fs");
+var gexf = require("gexf");
+var graph = gexf.parse(fs.readFileSync("/Users/wolfiex/RopaJL/reaction_classify/togephi.gexf", "utf8"));
+
+var size = new Map(graph.nodes.map(d=> {return [d.label,d.attributes.att2]}))
+
+
+
 var cat20 = d3.scaleOrdinal(d3.schemeCategory10);
+var cat20 = d3.scaleOrdinal(d3.schemeCategory20);
+
+var cat20 = ColourScheme(visual_cinnamon);
+var cat20 = ColourScheme(viridis);
+
 
 var file = "mclprogramin/out.mcl";
+var file = "/Users/wolfiex/RopaJL/reaction_classify/mcl.out"  
 //var file = '../../RopaJL/julia.out'
-var mcl;
+var mcl, view;
 
 d3.text(file, function(text) {
   mcl = text.split("\n");
@@ -52,7 +68,7 @@ d3.text(file, function(text) {
       return {
         name: i,
         children: d.map(e => {
-          return { name: e, size: 1, parent: i };
+          return { name: e, size: Math.pow(size.get(e),4), parent: i };
         })
       };
     })
@@ -98,8 +114,25 @@ d3.text(file, function(text) {
 
   //d3.json("flare.json", function(error, root) {
   //if (error) throw error;
+  
 
-  console.log(root);
+d3.range(mcl.length).map(d=> get_groupdata(d+1))
+
+
+setTimeout(function(){ 
+
+
+groupcolours = window.output.map(d=>d[1])
+colscale = d3.scaleLinear().domain([0,d3.max(groupcolours)]).range([0,1])
+
+groupcolours= groupcolours.map(d=> Math.sqrt(colscale(d)))
+
+console.log(groupcolours);
+
+
+
+
+console.log(root);
 
   root = d3
     .hierarchy(root)
@@ -109,6 +142,7 @@ d3.text(file, function(text) {
     .sort(function(a, b) {
       return b.value - a.value;
     });
+
 
   var node = g
     .selectAll(".node")
@@ -136,7 +170,7 @@ d3.text(file, function(text) {
       var c = d.data.parent;
       return c === undefined
         ? "url(#sun-gradient)"
-        : cat20(c / toplot.children.length);
+        : cat20(groupcolours[c])//cat20(c / toplot.children.length)//cat20(c / toplot.children.length);
     })
     .style("fill-opacity", d => {
       var c = d.data.parent;
@@ -149,9 +183,10 @@ d3.text(file, function(text) {
     })
     .append("text")
     .attr("dy", "0.2em")
-    .text(d => d.data.name) //.substring(0, d.r / 1); });
+    .text(d => d.r>1?d.data.name:'') //.substring(0, d.r / 1); });
     .style("font-size", function(d) {
-      return Math.min(d.r, (d.r - 3) / this.getComputedTextLength() * 24) +
+        return '2px'
+      return Math.min(d.r, (d.r - 3) / this.getComputedTextLength() * 25)-2 +
         "px";
     })
     .on("click", function(d) {
@@ -162,5 +197,26 @@ d3.text(file, function(text) {
     .style("text-anchor", "middle");
   //document.getElementById('IC3H7O').remove()
   //document.getElementById('HO13C5O').remove()
+
+
+
+}, 1000);
+
+
+
 });
+
+
+function get_groupdata (x){
+
+d3.text('/Users/wolfiex/RopaJL/reaction_classify/grouped/group.'+x , function(text) {
+    mcl = text.split("\n");
+    mcl.pop();
+    mcl = mcl.map(d => d.split(" "));
+    
+    size = mcl.map(d=>d[2])
+    window.output.push([mcl,d3.mean(size)])
+    return size
+})
+ }
 </script>

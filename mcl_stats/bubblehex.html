@@ -23,11 +23,12 @@ var size = new Map(
 
 var cat20 = ColourScheme(viridis);
 var cat20 = d3.scaleOrdinal(d3.schemeCategory10);
-
+var cat20 = d3.scaleOrdinal(d3.schemeCategory20);
 
 
 var file = "mclprogramin/out.mcl";
 //var file = '../../RopaJL/julia.out'
+var file = "/Users/wolfiex/RopaJL/reaction_classify/MLCMCM.out"  
 var mcl;
 
 d3.text(file, function(text) {
